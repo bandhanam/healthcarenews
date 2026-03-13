@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useArticlesContext } from '../context/ArticlesContext';
 import SearchBar from '../components/SearchBar';
 import MultiSelectDropdown from '../components/MultiSelectDropdown';
+import DateRangeFilter from '../components/DateRangeFilter';
 import ArticleCard from '../components/ArticleCard';
 import Loader from '../components/Loader';
 import { normalizeCountry } from '../utils/countryNormalize';
@@ -10,7 +11,7 @@ import { DISEASES_AND_LOGIES, getCanonicalDiseaseLogyLabel, articleMatchesDiseas
 import './HomePage.css';
 
 function HomePage() {
-  const { articles, loading, error } = useArticlesContext();
+  const { articles, loading, error, startDate, endDate, setDateRange } = useArticlesContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCountries, setSelectedCountries] = useState([]);
   const [selectedOrgs, setSelectedOrgs] = useState([]);
@@ -81,6 +82,9 @@ function HomePage() {
 
       <section className="filters-panel">
         <h3 className="filters-title">Filters</h3>
+        <div className="filters-date-row">
+          <DateRangeFilter startDate={startDate} endDate={endDate} onChange={setDateRange} />
+        </div>
         <div className="filters-grid">
           <MultiSelectDropdown label="Country" options={availableCountries} selectedValues={selectedCountries} onChange={setSelectedCountries} placeholder="All countries" />
           <MultiSelectDropdown label="Organization" options={availableOrgs} selectedValues={selectedOrgs} onChange={setSelectedOrgs} placeholder="All organizations" />

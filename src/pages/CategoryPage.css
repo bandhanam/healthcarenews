@@ -9,6 +9,14 @@
 .category-header h1 { font-size: 1.4rem; font-weight: 700; color: var(--color-text); }
 .category-count { font-size: 0.85rem; color: var(--color-text-muted); font-weight: 500; }
 
+.category-date-filter {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
 .category-articles-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -18,7 +26,7 @@
 .no-results { text-align: center; padding: 3rem 1rem; color: var(--color-text-muted); }
 
 @media (min-width: 1400px) {
-  .category-articles-grid { grid-template-columns: repeat(4, 1fr); }
+  .category-articles-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 1200px) {

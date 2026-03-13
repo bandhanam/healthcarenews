@@ -1,85 +1,102 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchNewsByDateRange, getLatestMonthDates } from '../api';
 
-let globalCache = null;
-let globalCacheTime = null;
+const cache = new Map();
 const CACHE_TTL = 5 * 60 * 1000;
 
-function isCacheValid() {
-  return globalCache && globalCacheTime && Date.now() - globalCacheTime < CACHE_TTL && globalCache.articles?.length > 0;
+function cacheKey(s, e) { return `${s}__${e}`; }
+
+function getCached(s, e) {
+  const k = cacheKey(s, e);
+  const entry = cache.get(k);
+  if (entry && Date.now() - entry.ts < CACHE_TTL && entry.articles?.length > 0) return entry.articles;
+  return null;
+}
+
+function setCache(s, e, articles) {
+  cache.set(cacheKey(s, e), { articles, ts: Date.now() });
+}
+
+function dedup(articles) {
+  const sorted = [...articles].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+  const seen = new Set();
+  return sorted.filter((a) => {
+    const key = (a.url || '').trim().toLowerCase().split('?')[0].replace(/\/+$/, '');
+    if (!key) return true;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export function useArticles() {
-  const [articles, setArticles] = useState(isCacheValid() ? globalCache.articles : []);
-  const [loading, setLoading] = useState(!isCacheValid());
+  const defaults = getLatestMonthDates();
+  const [startDate, setStartDate] = useState(defaults.startDate);
+  const [endDate, setEndDate] = useState(defaults.endDate);
+  const [articles, setArticlesState] = useState(getCached(defaults.startDate, defaults.endDate) || []);
+  const [loading, setLoading] = useState(!getCached(defaults.startDate, defaults.endDate));
   const [error, setError] = useState(null);
+  const loadIdRef = useRef(0);
 
   useEffect(() => {
-    if (isCacheValid()) {
-      setArticles(globalCache.articles);
+    const cached = getCached(startDate, endDate);
+    if (cached) {
+      setArticlesState(cached);
       setLoading(false);
+      setError(null);
       return;
     }
 
     let cancelled = false;
+    const loadId = ++loadIdRef.current;
 
     const load = async () => {
       try {
         setLoading(true);
         setError(null);
-        const { startDate, endDate } = getLatestMonthDates();
         const response = await fetchNewsByDateRange(startDate, endDate);
-
-        if (cancelled) return;
+        if (cancelled || loadId !== loadIdRef.current) return;
 
         const loaded = response.articles ?? [];
         if (loaded.length === 0) {
-          setArticles([]);
+          setArticlesState([]);
           setError('No articles found for the selected date range.');
           setLoading(false);
           return;
         }
 
-        const sorted = [...loaded].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+        const deduped = dedup(loaded);
+        setCache(startDate, endDate, deduped);
 
-        const seen = new Set();
-        const deduped = sorted.filter((a) => {
-          const key = (a.url || '').trim().toLowerCase().split('?')[0].replace(/\/+$/, '');
-          if (!key) return true;
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        });
-
-        globalCache = { articles: deduped };
-        globalCacheTime = Date.now();
-
-        if (!cancelled) {
-          setArticles(deduped);
+        if (!cancelled && loadId === loadIdRef.current) {
+          setArticlesState(deduped);
           setError(null);
         }
       } catch (err) {
-        if (!cancelled) {
+        if (!cancelled && loadId === loadIdRef.current) {
           setError(err.message || 'Failed to load articles');
-          setArticles([]);
+          setArticlesState([]);
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && loadId === loadIdRef.current) setLoading(false);
       }
     };
 
     load();
-
     return () => { cancelled = true; };
+  }, [startDate, endDate]);
+
+  const setDateRange = useCallback((newStart, newEnd) => {
+    setStartDate(newStart);
+    setEndDate(newEnd);
   }, []);
 
-  const update = useCallback((newArticles) => {
-    globalCache = { articles: newArticles || [] };
-    globalCacheTime = Date.now();
-    setArticles(newArticles || []);
+  const setArticles = useCallback((newArticles) => {
+    setCache(startDate, endDate, newArticles || []);
+    setArticlesState(newArticles || []);
     setLoading(false);
     setError(null);
-  }, []);
+  }, [startDate, endDate]);
 
-  return { articles, loading, error, setArticles: update };
+  return { articles, loading, error, startDate, endDate, setDateRange, setArticles };
 }

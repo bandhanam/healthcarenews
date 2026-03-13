@@ -2,15 +2,55 @@
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 1.25rem;
   transition: all 0.25s;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
 }
 .article-card:hover {
   box-shadow: var(--shadow-md);
   border-color: rgba(26, 127, 100, 0.2);
+  transform: translateY(-2px);
+}
+
+.ac-thumb {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.ac-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s;
+}
+.article-card:hover .ac-thumb-img {
+  transform: scale(1.05);
+}
+.ac-thumb-category {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 0.6rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(26, 127, 100, 0.85);
+  padding: 0.2rem 0.55rem;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ac-body {
+  padding: 1rem 1.15rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .ac-meta {
@@ -18,7 +58,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.45rem;
 }
 
 .ac-meta-item {
@@ -41,54 +81,51 @@
 .sentiment-badge.negative { background: rgba(220, 38, 38, 0.1); color: var(--color-danger); }
 .sentiment-badge.neutral { background: rgba(100, 116, 139, 0.1); color: var(--color-text-muted); }
 
-.ac-category-link {
-  display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--color-accent);
-  background: rgba(30, 58, 95, 0.07);
-  padding: 0.2rem 0.6rem;
-  border-radius: 100px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 0.45rem;
-  text-decoration: none;
-}
-.ac-category-link:hover { background: rgba(30, 58, 95, 0.12); }
-
 .ac-title {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1.35;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   color: var(--color-text);
 }
-.ac-title a {
-  color: inherit;
-  text-decoration: none;
-}
-.ac-title a:hover { color: var(--color-primary); }
 
 .ac-excerpt {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.4rem;
   flex: 1;
 }
-.ac-excerpt p {
-  font-size: 0.88rem;
+.ac-excerpt--preview p {
+  font-size: 0.85rem;
   color: var(--color-text-muted);
   line-height: 1.6;
-  margin-bottom: 0.3rem;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.ac-read-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0;
+  border: none;
+  background: transparent;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  cursor: pointer;
+  margin-bottom: 0.4rem;
+  transition: color 0.15s;
+}
+.ac-read-toggle:hover {
+  color: var(--color-primary-dark);
 }
 
 .ac-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 .ac-tag {
@@ -100,23 +137,20 @@
   color: var(--color-primary-dark);
 }
 
-.ac-source {
-  font-size: 0.75rem;
-  color: var(--color-text-dim);
-  font-weight: 500;
-}
-
 @media (max-width: 640px) {
-  .article-card { padding: 1rem; border-radius: var(--radius-sm); }
-  .ac-title { font-size: 0.95rem; }
-  .ac-excerpt p { font-size: 0.84rem; -webkit-line-clamp: 3; }
+  .ac-thumb { height: 130px; }
+  .ac-body { padding: 0.85rem; }
+  .ac-title { font-size: 0.92rem; }
+  .ac-excerpt--preview p { font-size: 0.82rem; -webkit-line-clamp: 3; }
   .ac-meta { gap: 0.35rem; }
   .ac-meta-item { font-size: 0.7rem; }
   .ac-tag { font-size: 0.64rem; padding: 0.12rem 0.4rem; }
+  .ac-read-toggle { font-size: 0.78rem; }
 }
 
 @media (max-width: 380px) {
-  .article-card { padding: 0.85rem; }
-  .ac-title { font-size: 0.9rem; }
-  .ac-excerpt p { font-size: 0.8rem; -webkit-line-clamp: 3; }
+  .ac-thumb { height: 110px; }
+  .ac-body { padding: 0.75rem; }
+  .ac-title { font-size: 0.88rem; }
+  .ac-excerpt--preview p { font-size: 0.8rem; }
 }

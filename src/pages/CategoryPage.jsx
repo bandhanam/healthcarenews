@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useArticlesContext } from '../context/ArticlesContext';
 import SearchBar from '../components/SearchBar';
+import DateRangeFilter from '../components/DateRangeFilter';
 import ArticleCard from '../components/ArticleCard';
 import Loader from '../components/Loader';
 import { articleMatchesCategory, getCategoryLabel } from '../data/categories';
@@ -9,7 +10,7 @@ import './CategoryPage.css';
 
 function CategoryPage() {
   const { categoryName } = useParams();
-  const { articles, loading } = useArticlesContext();
+  const { articles, loading, startDate, endDate, setDateRange } = useArticlesContext();
   const [searchTerm, setSearchTerm] = useState('');
 
   const categoryArticles = useMemo(() => {
@@ -35,6 +36,9 @@ function CategoryPage() {
       <div className="category-header">
         <h1>{label}</h1>
         <span className="category-count">{filtered.length} article{filtered.length !== 1 ? 's' : ''}</span>
+      </div>
+      <div className="category-date-filter">
+        <DateRangeFilter startDate={startDate} endDate={endDate} onChange={setDateRange} />
       </div>
       <SearchBar onSearch={setSearchTerm} placeholder={`Search in ${label}...`} />
       {filtered.length === 0 ? (

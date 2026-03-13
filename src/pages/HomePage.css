@@ -52,6 +52,11 @@
   letter-spacing: 0.05em;
   margin-bottom: 0.75rem;
 }
+.filters-date-row {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
 .filters-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -100,7 +105,7 @@
 .page-error p { color: var(--color-text-muted); }
 
 @media (min-width: 1400px) {
-  .articles-grid { grid-template-columns: repeat(4, 1fr); }
+  .articles-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 1200px) {

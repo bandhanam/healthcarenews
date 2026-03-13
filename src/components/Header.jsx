@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './Header.css';
 
 const NAV_LINKS = [
-  { path: '/', label: 'Home' },
+  { path: '/', label: 'News Feed' },
   { path: '/disease-drug-news', label: 'Disease & Drug' },
   { path: '/about', label: 'About' },
   { path: '/contact', label: 'Contact' },
@@ -23,11 +23,7 @@ function Header() {
     >
       <div className="header-inner">
         <Link to="/" className="logo-group">
-          <div className="logo-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
-          </div>
+          <img src="/logo.png" alt="Bandhanam" className="logo-img" />
           <div className="logo-text">
             <span className="logo-title">HealthPulse</span>
             <span className="logo-subtitle">Global Healthcare News</span>

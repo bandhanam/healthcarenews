@@ -28,15 +28,10 @@
   text-decoration: none;
 }
 
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  background: var(--gradient-primary);
-  color: #fff;
+.logo-img {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
   flex-shrink: 0;
 }
 
@@ -46,18 +41,18 @@
 }
 
 .logo-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--color-text);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0f172a;
   line-height: 1.2;
 }
 
 .logo-subtitle {
-  font-size: 0.68rem;
-  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  color: #334155;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .nav-desktop {
@@ -69,14 +64,14 @@
 .nav-link {
   padding: 0.5rem 0.9rem;
   border-radius: var(--radius-sm);
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--color-text-muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #334155;
   text-decoration: none;
   transition: all 0.2s;
 }
 .nav-link:hover {
-  color: var(--color-text);
+  color: #0f172a;
   background: var(--color-bg);
 }
 .nav-link.active {
@@ -109,8 +104,8 @@
 .nav-mobile-link {
   padding: 0.85rem 0;
   font-size: 1rem;
-  font-weight: 500;
-  color: var(--color-text-muted);
+  font-weight: 600;
+  color: #334155;
   text-decoration: none;
   border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
@@ -132,7 +127,7 @@
 
 @media (max-width: 480px) {
   .logo-subtitle { display: none; }
-  .logo-icon { width: 36px; height: 36px; }
+  .logo-img { height: 48px; }
   .logo-title { font-size: 1.05rem; }
   .header-inner { padding: 0.5rem 0.75rem; }
   .nav-mobile { padding: 0.5rem 1rem; }

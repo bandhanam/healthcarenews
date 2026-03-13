@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="900" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ecfdf5"/><stop offset="100%" stop-color="#d1fae5"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="400" fill="url(#bg)"/>
+  <!-- Smartphone -->
+  <g transform="translate(350,30)">
+    <rect x="0" y="0" width="120" height="220" rx="16" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+    <rect x="8" y="24" width="104" height="172" rx="4" fill="#0f172a"/>
+    <!-- Screen content - health app -->
+    <circle cx="60" cy="80" r="32" fill="none" stroke="#22c55e" stroke-width="4" stroke-opacity="0.5" stroke-dasharray="160 40"/>
+    <text x="60" y="86" text-anchor="middle" font-size="16" fill="#22c55e" font-weight="700" font-family="sans-serif" fill-opacity="0.7">8,432</text>
+    <text x="60" y="100" text-anchor="middle" font-size="7" fill="#94a3b8" font-family="sans-serif">steps</text>
+    <!-- Mini chart -->
+    <polyline points="20,150 35,140 50,145 65,130 80,135 95,120 100,125" stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-opacity="0.5"/>
+    <!-- Heart rate -->
+    <g transform="translate(20,160)">
+      <circle cx="8" cy="8" r="6" fill="#ef4444" fill-opacity="0.15"/>
+      <text x="8" y="11" text-anchor="middle" font-size="7" fill="#ef4444" fill-opacity="0.5" font-family="sans-serif">&#9829;</text>
+      <text x="22" y="12" font-size="8" fill="#94a3b8" font-family="sans-serif">72 bpm</text>
+    </g>
+    <!-- Notch -->
+    <rect x="38" y="4" width="44" height="14" rx="7" fill="#0f172a"/>
+  </g>
+  <!-- Smartwatch -->
+  <g transform="translate(560,120)">
+    <rect x="10" y="0" width="80" height="120" rx="16" fill="#334155" stroke="#475569" stroke-width="2"/>
+    <rect x="18" y="16" width="64" height="64" rx="8" fill="#0f172a"/>
+    <!-- Watch screen -->
+    <text x="50" y="42" text-anchor="middle" font-size="10" fill="#22c55e" font-weight="700" font-family="monospace" fill-opacity="0.7">98%</text>
+    <text x="50" y="55" text-anchor="middle" font-size="6" fill="#94a3b8" font-family="sans-serif">SpO2</text>
+    <!-- ECG mini -->
+    <polyline points="22,68 30,68 34,58 37,75 40,62 43,68 62,68" stroke="#22c55e" stroke-width="1.5" fill="none" stroke-opacity="0.4"/>
+    <!-- Band -->
+    <rect x="25" y="-30" width="50" height="34" rx="4" fill="#475569"/>
+    <rect x="25" y="116" width="50" height="34" rx="4" fill="#475569"/>
+  </g>
+  <!-- Wi-Fi / cloud -->
+  <g transform="translate(200,140)" stroke="#1a7f64" stroke-width="2" fill="none" stroke-opacity="0.15">
+    <path d="M20,50 Q35,35 50,50"/>
+    <path d="M10,40 Q35,20 60,40"/>
+    <path d="M0,30 Q35,5 70,30"/>
+    <circle cx="35" cy="55" r="3" fill="#1a7f64" fill-opacity="0.2"/>
+  </g>
+  <!-- Data flow lines -->
+  <g stroke="#1a7f64" stroke-width="1" stroke-opacity="0.08" stroke-dasharray="4,4">
+    <line x1="470" y1="150" x2="560" y2="170"/>
+    <line x1="270" y1="170" x2="350" y2="150"/>
+  </g>
+  <!-- Floating health icons -->
+  <g transform="translate(750,60)" fill="#1a7f64" fill-opacity="0.08">
+    <rect x="8" y="0" width="4" height="20" rx="2"/><rect x="0" y="8" width="20" height="4" rx="2"/>
+  </g>
+  <g transform="translate(120,300)" fill="#3b82f6" fill-opacity="0.06">
+    <rect x="6" y="0" width="3" height="15" rx="1.5"/><rect x="0" y="6" width="15" height="3" rx="1.5"/>
+  </g>
+</svg>

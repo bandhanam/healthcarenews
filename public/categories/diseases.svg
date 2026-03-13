@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="900" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fef9ee"/><stop offset="100%" stop-color="#fdf2e0"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="400" fill="url(#bg)"/>
+  <!-- Human body outline -->
+  <g transform="translate(380,30)" stroke="#64748b" stroke-width="2" fill="none" stroke-opacity="0.25">
+    <!-- Head -->
+    <circle cx="70" cy="30" r="28"/>
+    <!-- Body -->
+    <line x1="70" y1="58" x2="70" y2="180"/>
+    <!-- Arms -->
+    <line x1="70" y1="90" x2="20" y2="150"/><line x1="70" y1="90" x2="120" y2="150"/>
+    <!-- Legs -->
+    <line x1="70" y1="180" x2="35" y2="300"/><line x1="70" y1="180" x2="105" y2="300"/>
+  </g>
+  <!-- Highlighted problem areas (disease indicators) -->
+  <!-- Heart area -->
+  <g transform="translate(440,110)">
+    <circle cx="0" cy="0" r="16" fill="#ef4444" fill-opacity="0.12" stroke="#ef4444" stroke-width="1.5" stroke-opacity="0.25"/>
+    <path d="M-5,-3 C-5,-8 0,-8 0,-3 C0,-8 5,-8 5,-3 C5,3 0,8 0,8 C0,8 -5,3 -5,-3 Z" fill="#ef4444" fill-opacity="0.3"/>
+  </g>
+  <!-- Lung area -->
+  <g transform="translate(465,130)">
+    <circle cx="0" cy="0" r="12" fill="#f59e0b" fill-opacity="0.12" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.2" stroke-dasharray="3,2"/>
+  </g>
+  <!-- Joint pain (knee) -->
+  <g transform="translate(425,240)">
+    <circle cx="0" cy="0" r="14" fill="#3b82f6" fill-opacity="0.1" stroke="#3b82f6" stroke-width="1.5" stroke-opacity="0.2"/>
+    <path d="M-4,-4 L4,4 M-4,4 L4,-4" stroke="#3b82f6" stroke-width="1.5" stroke-opacity="0.3"/>
+  </g>
+  <!-- Medical chart -->
+  <g transform="translate(600,60)">
+    <rect x="0" y="0" width="180" height="240" rx="10" fill="white" stroke="#cbd5e1" stroke-width="1.5"/>
+    <rect x="15" y="15" width="100" height="8" rx="4" fill="#64748b" fill-opacity="0.15"/>
+    <rect x="15" y="35" width="150" height="1" fill="#e2e8f0"/>
+    <!-- Chart bars -->
+    <rect x="20" y="140" width="20" height="70" rx="3" fill="#ef4444" fill-opacity="0.2"/>
+    <rect x="50" y="100" width="20" height="110" rx="3" fill="#f59e0b" fill-opacity="0.2"/>
+    <rect x="80" y="120" width="20" height="90" rx="3" fill="#1a7f64" fill-opacity="0.2"/>
+    <rect x="110" y="80" width="20" height="130" rx="3" fill="#3b82f6" fill-opacity="0.2"/>
+    <rect x="140" y="60" width="20" height="150" rx="3" fill="#1a7f64" fill-opacity="0.25"/>
+    <line x1="15" y1="210" x2="165" y2="210" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="90" y="228" text-anchor="middle" font-size="8" fill="#94a3b8" font-family="sans-serif">Diagnosis Data</text>
+  </g>
+  <!-- Stethoscope -->
+  <g transform="translate(120,150)" stroke="#1a7f64" stroke-width="2.5" fill="none" stroke-opacity="0.15">
+    <path d="M20,0 Q10,50 30,80 Q50,110 40,140"/>
+    <circle cx="40" cy="158" r="16"/>
+  </g>
+</svg>

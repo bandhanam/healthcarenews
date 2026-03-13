@@ -11,6 +11,7 @@ import './App.css';
 const HomePage = lazy(() => import('./pages/HomePage'));
 const DiseaseDrugPage = lazy(() => import('./pages/DiseaseDrugPage'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
+const ArticleDetailPage = lazy(() => import('./pages/ArticleDetailPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/disease-drug-news" element={<DiseaseDrugPage />} />
                 <Route path="/category/:categoryName" element={<CategoryPage />} />
+                <Route path="/article/:articleId" element={<ArticleDetailPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
               </Routes>
