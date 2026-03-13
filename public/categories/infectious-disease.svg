@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="900" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fef2f2"/><stop offset="100%" stop-color="#fce8e8"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="400" fill="url(#bg)"/>
+  <!-- Main virus -->
+  <g transform="translate(450,200)">
+    <circle cx="0" cy="0" r="70" fill="#ef4444" fill-opacity="0.12" stroke="#ef4444" stroke-width="2" stroke-opacity="0.25"/>
+    <circle cx="0" cy="0" r="50" fill="#ef4444" fill-opacity="0.08"/>
+    <!-- Spikes -->
+    <g stroke="#dc2626" stroke-width="2.5" stroke-opacity="0.35" fill="#dc2626" fill-opacity="0.2">
+      <line x1="0" y1="-70" x2="0" y2="-100"/><circle cx="0" cy="-104" r="6"/>
+      <line x1="60" y1="-35" x2="86" y2="-50"/><circle cx="90" cy="-53" r="6"/>
+      <line x1="60" y1="35" x2="86" y2="50"/><circle cx="90" cy="53" r="6"/>
+      <line x1="0" y1="70" x2="0" y2="100"/><circle cx="0" cy="104" r="6"/>
+      <line x1="-60" y1="35" x2="-86" y2="50"/><circle cx="-90" cy="53" r="6"/>
+      <line x1="-60" y1="-35" x2="-86" y2="-50"/><circle cx="-90" cy="-53" r="6"/>
+      <line x1="50" y1="-50" x2="72" y2="-72"/><circle cx="76" cy="-76" r="5"/>
+      <line x1="50" y1="50" x2="72" y2="72"/><circle cx="76" cy="76" r="5"/>
+      <line x1="-50" y1="50" x2="-72" y2="72"/><circle cx="-76" cy="76" r="5"/>
+      <line x1="-50" y1="-50" x2="-72" y2="-72"/><circle cx="-76" cy="-76" r="5"/>
+    </g>
+    <!-- Inner structure -->
+    <circle cx="-15" cy="-10" r="12" fill="#ef4444" fill-opacity="0.1"/>
+    <circle cx="15" cy="10" r="10" fill="#ef4444" fill-opacity="0.1"/>
+    <circle cx="5" cy="-18" r="8" fill="#ef4444" fill-opacity="0.08"/>
+  </g>
+  <!-- Smaller viruses -->
+  <g transform="translate(180,100) scale(0.4)">
+    <circle cx="0" cy="0" r="50" fill="#f59e0b" fill-opacity="0.1" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.2"/>
+    <g stroke="#f59e0b" stroke-width="2" stroke-opacity="0.2" fill="#f59e0b" fill-opacity="0.15">
+      <line x1="0" y1="-50" x2="0" y2="-72"/><circle cx="0" cy="-76" r="5"/>
+      <line x1="43" y1="-25" x2="62" y2="-36"/><circle cx="66" cy="-39" r="5"/>
+      <line x1="43" y1="25" x2="62" y2="36"/><circle cx="66" cy="39" r="5"/>
+      <line x1="0" y1="50" x2="0" y2="72"/><circle cx="0" cy="76" r="5"/>
+      <line x1="-43" y1="25" x2="-62" y2="36"/><circle cx="-66" cy="39" r="5"/>
+      <line x1="-43" y1="-25" x2="-62" y2="-36"/><circle cx="-66" cy="-39" r="5"/>
+    </g>
+  </g>
+  <g transform="translate(720,280) scale(0.35)">
+    <circle cx="0" cy="0" r="50" fill="#1a7f64" fill-opacity="0.1" stroke="#1a7f64" stroke-width="2" stroke-opacity="0.2"/>
+    <g stroke="#1a7f64" stroke-width="2" stroke-opacity="0.2" fill="#1a7f64" fill-opacity="0.15">
+      <line x1="0" y1="-50" x2="0" y2="-72"/><circle cx="0" cy="-76" r="5"/>
+      <line x1="43" y1="-25" x2="62" y2="-36"/><circle cx="66" cy="-39" r="5"/>
+      <line x1="43" y1="25" x2="62" y2="36"/><circle cx="66" cy="39" r="5"/>
+      <line x1="0" y1="50" x2="0" y2="72"/><circle cx="0" cy="76" r="5"/>
+      <line x1="-43" y1="25" x2="-62" y2="36"/><circle cx="-66" cy="39" r="5"/>
+      <line x1="-43" y1="-25" x2="-62" y2="-36"/><circle cx="-66" cy="-39" r="5"/>
+    </g>
+  </g>
+  <!-- Antibodies -->
+  <g transform="translate(200,300)" fill="#3b82f6" fill-opacity="0.08">
+    <text x="0" y="0" font-size="40" font-family="sans-serif">Y</text>
+  </g>
+  <g transform="translate(680,90)" fill="#3b82f6" fill-opacity="0.06">
+    <text x="0" y="0" font-size="36" font-family="sans-serif">Y</text>
+  </g>
+</svg>

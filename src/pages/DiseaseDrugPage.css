@@ -1,0 +1,94 @@
+.dd-page { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.dd-hero {
+  background: linear-gradient(135deg, #1a7f64, #22a57f);
+  color: #fff;
+  padding: 2rem 1.5rem;
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+.dd-hero h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.3rem; }
+.dd-hero p { font-size: 0.9rem; opacity: 0.85; margin-bottom: 0.75rem; }
+.dd-hero-count { font-size: 0.88rem; }
+.dd-hero-total { opacity: 0.7; }
+
+.dd-filters {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.2rem;
+  box-shadow: var(--shadow-sm);
+}
+.dd-filters-heading { font-size: 0.78rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+.dd-filters-date-row { margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--color-border); }
+.dd-filters-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+
+.dd-error { padding: 1rem; background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.2); border-radius: var(--radius-sm); color: var(--color-danger); font-size: 0.88rem; }
+.dd-empty { text-align: center; padding: 3rem 1rem; color: var(--color-text-muted); }
+
+.dd-articles { display: flex; flex-direction: column; gap: 1rem; }
+
+.dd-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+.dd-card:hover { box-shadow: var(--shadow-md); }
+
+.dd-card-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+.dd-meta-item { font-size: 0.75rem; color: var(--color-text-dim); }
+.dd-category-badge { font-size: 0.68rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 100px; background: rgba(30,58,95,0.07); color: var(--color-accent); text-transform: uppercase; }
+.dd-sentiment { font-size: 0.68rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 100px; text-transform: capitalize; }
+.dd-sentiment--positive { background: rgba(22,163,74,0.1); color: var(--color-success); }
+.dd-sentiment--negative { background: rgba(220,38,38,0.1); color: var(--color-danger); }
+.dd-sentiment--neutral { background: rgba(100,116,139,0.1); color: var(--color-text-muted); }
+
+.dd-card--expanded { border-color: rgba(26,127,100,0.25); box-shadow: var(--shadow-md); }
+
+.dd-card-title { font-size: 1.05rem; font-weight: 700; line-height: 1.35; margin-bottom: 0.5rem; color: var(--color-text); }
+
+.dd-card-excerpt { font-size: 0.88rem; color: var(--color-text-muted); line-height: 1.6; margin-bottom: 0.5rem; }
+.dd-card-excerpt--preview { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+.dd-full-text { overflow: hidden; margin-bottom: 0.5rem; }
+.dd-full-text p { font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.75; margin-bottom: 0.65rem; text-align: justify; }
+.dd-full-text p:last-child { margin-bottom: 0; }
+
+.dd-read-toggle { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0; border: none; background: transparent; font-size: 0.82rem; font-weight: 700; color: var(--color-primary); cursor: pointer; margin-bottom: 0.5rem; transition: color 0.15s; }
+.dd-read-toggle:hover { color: var(--color-primary-dark); }
+
+.dd-entities { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; }
+.dd-entity-row { display: flex; align-items: flex-start; gap: 0.5rem; }
+.dd-entity-label { font-size: 0.72rem; font-weight: 600; color: var(--color-text-dim); min-width: 72px; padding-top: 0.15rem; text-transform: uppercase; }
+.dd-entity-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.dd-tag { font-size: 0.72rem; font-weight: 500; padding: 0.2rem 0.55rem; border-radius: 100px; }
+.dd-tag--company { background: rgba(30,58,95,0.08); color: var(--color-accent); }
+.dd-tag--disease { background: rgba(220,38,38,0.08); color: #b91c1c; }
+.dd-tag--drug { background: rgba(26,127,100,0.08); color: var(--color-primary-dark); }
+
+.dd-card-source { font-size: 0.75rem; color: var(--color-text-dim); margin-top: 0.5rem; }
+
+@media (max-width: 900px) {
+  .dd-filters-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .dd-hero { padding: 1.5rem 1rem; border-radius: var(--radius-md); }
+  .dd-hero h1 { font-size: 1.25rem; }
+  .dd-hero p { font-size: 0.84rem; }
+  .dd-filters-grid { grid-template-columns: 1fr; }
+  .dd-card { padding: 1rem; border-radius: var(--radius-sm); }
+  .dd-card-title { font-size: 0.95rem; }
+  .dd-card-excerpt { font-size: 0.82rem; }
+  .dd-entity-row { flex-direction: column; gap: 0.25rem; }
+  .dd-entity-label { min-width: auto; }
+}
+
+@media (max-width: 380px) {
+  .dd-hero { padding: 1.2rem 0.75rem; }
+  .dd-hero h1 { font-size: 1.1rem; }
+  .dd-card { padding: 0.85rem; }
+}

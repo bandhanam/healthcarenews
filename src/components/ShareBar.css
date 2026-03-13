@@ -1,0 +1,52 @@
+.share-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.share-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-right: 0.15rem;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg-card);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: all 0.15s;
+  line-height: 1;
+}
+.share-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.share-btn.wa:hover { border-color: #25d366; color: #25d366; }
+.share-btn.tw:hover { border-color: #1da1f2; color: #1da1f2; }
+.share-btn.li:hover { border-color: #0077b5; color: #0077b5; }
+.share-btn.em:hover { border-color: var(--color-warning); color: var(--color-warning); }
+
+@media (max-width: 640px) {
+  .share-bar { gap: 0.25rem; margin-top: 0.5rem; padding-top: 0.5rem; }
+  .share-label { font-size: 0.68rem; }
+  .share-btn {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.68rem;
+  }
+  .share-btn-text { display: none; }
+}

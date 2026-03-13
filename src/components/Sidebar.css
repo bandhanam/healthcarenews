@@ -1,0 +1,125 @@
+.sidebar {
+  position: sticky;
+  top: 80px;
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.sidebar-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.sidebar-link:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+.sidebar-link.active {
+  background: rgba(26, 127, 100, 0.08);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.sidebar-link-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-count {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  min-width: 22px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--color-bg);
+  color: var(--color-text-dim);
+}
+.sidebar-link.active .sidebar-count {
+  background: rgba(26, 127, 100, 0.12);
+  color: var(--color-primary);
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    position: static;
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+    padding: 0.75rem;
+  }
+  .sidebar-title {
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.4rem;
+    font-size: 0.72rem;
+  }
+  .sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .sidebar-link {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.78rem;
+    border: 1px solid var(--color-border);
+    border-radius: 100px;
+    gap: 0.35rem;
+  }
+  .sidebar-link.active {
+    border-color: var(--color-primary);
+  }
+  .sidebar-count {
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    padding: 0.6rem;
+    border-radius: var(--radius-sm);
+  }
+  .sidebar-nav {
+    gap: 0.25rem;
+  }
+  .sidebar-link {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.72rem;
+  }
+}

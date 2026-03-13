@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="900" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f5f3ff"/><stop offset="100%" stop-color="#ede9fe"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="400" fill="url(#bg)"/>
+  <!-- Brain -->
+  <g transform="translate(320,50)">
+    <!-- Left hemisphere -->
+    <path d="M130,30 C90,-10 30,-5 20,40 C5,60 0,90 10,120 C5,150 15,190 40,210 C55,230 80,240 110,240 L130,240 Z"
+      fill="#8b5cf6" fill-opacity="0.08" stroke="#8b5cf6" stroke-width="2" stroke-opacity="0.25"/>
+    <!-- Right hemisphere -->
+    <path d="M130,30 C170,-10 230,-5 240,40 C255,60 260,90 250,120 C255,150 245,190 220,210 C205,230 180,240 150,240 L130,240 Z"
+      fill="#a78bfa" fill-opacity="0.08" stroke="#a78bfa" stroke-width="2" stroke-opacity="0.25"/>
+    <!-- Folds/Gyri -->
+    <path d="M50,60 Q80,50 100,70" stroke="#8b5cf6" stroke-width="1.5" fill="none" stroke-opacity="0.15"/>
+    <path d="M30,100 Q60,85 90,100" stroke="#8b5cf6" stroke-width="1.5" fill="none" stroke-opacity="0.15"/>
+    <path d="M40,140 Q70,125 100,145" stroke="#8b5cf6" stroke-width="1.5" fill="none" stroke-opacity="0.12"/>
+    <path d="M55,180 Q85,170 110,190" stroke="#8b5cf6" stroke-width="1.5" fill="none" stroke-opacity="0.12"/>
+    <path d="M160,60 Q190,50 210,70" stroke="#a78bfa" stroke-width="1.5" fill="none" stroke-opacity="0.15"/>
+    <path d="M170,100 Q200,85 230,100" stroke="#a78bfa" stroke-width="1.5" fill="none" stroke-opacity="0.15"/>
+    <path d="M160,140 Q190,125 220,145" stroke="#a78bfa" stroke-width="1.5" fill="none" stroke-opacity="0.12"/>
+    <path d="M150,180 Q180,170 205,190" stroke="#a78bfa" stroke-width="1.5" fill="none" stroke-opacity="0.12"/>
+    <!-- Center line -->
+    <line x1="130" y1="30" x2="130" y2="240" stroke="#7c3aed" stroke-width="1" stroke-opacity="0.12"/>
+    <!-- Neural connections / sparks -->
+    <circle cx="80" cy="80" r="4" fill="#8b5cf6" fill-opacity="0.2"/>
+    <circle cx="180" cy="80" r="4" fill="#a78bfa" fill-opacity="0.2"/>
+    <circle cx="100" cy="130" r="3" fill="#8b5cf6" fill-opacity="0.15"/>
+    <circle cx="160" cy="130" r="3" fill="#a78bfa" fill-opacity="0.15"/>
+    <line x1="80" y1="80" x2="100" y2="130" stroke="#8b5cf6" stroke-width="0.8" stroke-opacity="0.1"/>
+    <line x1="180" y1="80" x2="160" y2="130" stroke="#a78bfa" stroke-width="0.8" stroke-opacity="0.1"/>
+    <!-- Brain stem -->
+    <rect x="120" y="240" width="20" height="40" rx="6" fill="#7c3aed" fill-opacity="0.06" stroke="#7c3aed" stroke-width="1.5" stroke-opacity="0.15"/>
+  </g>
+  <!-- Thought bubbles -->
+  <circle cx="170" cy="120" r="25" fill="#8b5cf6" fill-opacity="0.05" stroke="#8b5cf6" stroke-width="1" stroke-opacity="0.1"/>
+  <circle cx="145" cy="155" r="12" fill="#8b5cf6" fill-opacity="0.04"/>
+  <circle cx="135" cy="175" r="6" fill="#8b5cf6" fill-opacity="0.04"/>
+  <!-- Peace/zen circle -->
+  <g transform="translate(700,140)">
+    <circle cx="40" cy="40" r="40" fill="none" stroke="#1a7f64" stroke-width="2" stroke-opacity="0.12"/>
+    <circle cx="40" cy="40" r="30" fill="#1a7f64" fill-opacity="0.03"/>
+    <!-- Meditation figure -->
+    <circle cx="40" cy="25" r="6" fill="#1a7f64" fill-opacity="0.1"/>
+    <path d="M25,55 Q40,40 55,55" stroke="#1a7f64" stroke-width="1.5" fill="none" stroke-opacity="0.12"/>
+    <line x1="40" y1="31" x2="40" y2="48" stroke="#1a7f64" stroke-width="1.5" stroke-opacity="0.1"/>
+  </g>
+  <!-- Heartbeat -->
+  <polyline points="100,350 160,350 175,320 185,370 198,330 208,350 300,350" stroke="#8b5cf6" stroke-opacity="0.12" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>
