@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ArticlesProvider } from './context/ArticlesContext';
@@ -17,6 +17,13 @@ const ContactPage = lazy(() => import('./pages/ContactPage'));
 const MedPredictPage = lazy(() => import('./pages/MedPredictPage'));
 
 function App() {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      import('./utils/diseasePredictor').then((m) => m.preloadModel());
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <ArticlesProvider>
       <div className="app">

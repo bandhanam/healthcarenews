@@ -33,12 +33,24 @@ const DISEASE_LABELS = [
   'lupus',
 ];
 
-let classifierInstance = null;
+const CACHE_KEY = '__medpredict_classifier';
+let _loadingPromise = null;
+
+function getCachedClassifier() {
+  return window[CACHE_KEY] || null;
+}
+
+function setCachedClassifier(instance) {
+  window[CACHE_KEY] = instance;
+}
 
 async function getClassifier(onProgress) {
-  if (classifierInstance) return classifierInstance;
+  const cached = getCachedClassifier();
+  if (cached) return cached;
 
-  classifierInstance = await pipeline(
+  if (_loadingPromise) return _loadingPromise;
+
+  _loadingPromise = pipeline(
     'zero-shot-classification',
     'Xenova/nli-deberta-v3-small',
     {
@@ -48,9 +60,22 @@ async function getClassifier(onProgress) {
         }
       },
     },
-  );
+  ).then((instance) => {
+    setCachedClassifier(instance);
+    _loadingPromise = null;
+    return instance;
+  });
 
-  return classifierInstance;
+  return _loadingPromise;
+}
+
+export function isModelReady() {
+  return getCachedClassifier() !== null;
+}
+
+export function preloadModel() {
+  if (getCachedClassifier() || _loadingPromise) return;
+  getClassifier(null).catch(() => {});
 }
 
 function truncateText(text, maxTokens = 512) {

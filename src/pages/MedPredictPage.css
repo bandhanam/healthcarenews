@@ -150,6 +150,49 @@
   color: var(--color-text-dim);
 }
 
+.mp-model-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.2rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.mp-model-badge.ready {
+  background: rgba(22, 163, 74, 0.1);
+  color: var(--color-success);
+}
+
+.mp-model-badge.loading {
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--color-warning);
+}
+
+.mp-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mp-model-badge.ready .mp-badge-dot {
+  background: var(--color-success);
+}
+
+.mp-model-badge.loading .mp-badge-dot {
+  background: var(--color-warning);
+  animation: mp-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
 /* ── Processing / Spinner ── */
 .mp-processing {
   text-align: center;
