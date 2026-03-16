@@ -14,6 +14,7 @@ const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const ArticleDetailPage = lazy(() => import('./pages/ArticleDetailPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
+const MedPredictPage = lazy(() => import('./pages/MedPredictPage'));
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/disease-drug-news" element={<DiseaseDrugPage />} />
                 <Route path="/category/:categoryName" element={<CategoryPage />} />
                 <Route path="/article/:articleId" element={<ArticleDetailPage />} />
+                <Route path="/med-predict" element={<MedPredictPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
               </Routes>
