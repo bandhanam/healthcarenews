@@ -1,7 +1,7 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { extractText } from '../utils/textExtractor';
-import { predictDiseases } from '../utils/diseasePredictor';
+import { predictDiseases, isModelReady } from '../utils/diseasePredictor';
 import { getDiseaseInfo } from '../data/diseaseKnowledge';
 import './MedPredictPage.css';
 
@@ -91,8 +91,20 @@ function MedPredictPage() {
   const [predictions, setPredictions] = useState([]);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
+  const [modelReady, setModelReady] = useState(isModelReady);
   const fileInputRef = useRef(null);
   const dropRef = useRef(null);
+
+  useEffect(() => {
+    if (modelReady) return;
+    const interval = setInterval(() => {
+      if (isModelReady()) {
+        setModelReady(true);
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [modelReady]);
 
   const resetAll = useCallback(() => {
     setStep('idle');
@@ -124,11 +136,16 @@ function MedPredictPage() {
       }
       setExtractedText(text);
 
-      setStep('loading-model');
-      setProgress(0);
+      if (!isModelReady()) {
+        setStep('loading-model');
+        setProgress(0);
+      } else {
+        setStep('predicting');
+      }
       const results = await predictDiseases(text, setProgress);
 
       setStep('done');
+      setModelReady(true);
       setPredictions(results);
     } catch (err) {
       console.error('MedPredict error:', err);
@@ -218,6 +235,10 @@ function MedPredictPage() {
           <p className="mp-upload-hint">
             or click to browse — supports JPG, PNG, PDF
           </p>
+          <div className={`mp-model-badge ${modelReady ? 'ready' : 'loading'}`}>
+            <span className="mp-badge-dot" />
+            {modelReady ? 'AI Model Ready — analysis will be instant' : 'AI Model loading in background...'}
+          </div>
         </motion.div>
       )}
 
