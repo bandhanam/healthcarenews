@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { path: '/', label: 'News Feed' },
   { path: '/disease-drug-news', label: 'Disease & Drug' },
   { path: '/med-predict', label: 'MedPredict' },
+  { path: '/drug-intel', label: 'DrugIntel' },
   { path: '/about', label: 'About' },
   { path: '/contact', label: 'Contact' },
 ];

@@ -15,6 +15,7 @@ const ArticleDetailPage = lazy(() => import('./pages/ArticleDetailPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const MedPredictPage = lazy(() => import('./pages/MedPredictPage'));
+const DrugIntelPage = lazy(() => import('./pages/DrugIntelPage'));
 
 function App() {
   useEffect(() => {
@@ -39,6 +40,7 @@ function App() {
                 <Route path="/category/:categoryName" element={<CategoryPage />} />
                 <Route path="/article/:articleId" element={<ArticleDetailPage />} />
                 <Route path="/med-predict" element={<MedPredictPage />} />
+                <Route path="/drug-intel" element={<DrugIntelPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
               </Routes>
