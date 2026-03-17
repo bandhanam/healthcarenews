@@ -77,7 +77,45 @@ function AppContent() {
         </main>
       </div>
       <footer className="app-footer">
-        <p>&copy; 2026 HealthPulse. Global Healthcare Intelligence.</p>
+        <div className="footer-inner">
+          <div className="footer-brand">
+            <div className="footer-logo-row">
+              <img src="/logo.png" alt="HealthPulse" className="footer-logo" />
+              <div>
+                <span className="footer-title">HealthPulse</span>
+                <span className="footer-tagline">Global Healthcare Intelligence</span>
+              </div>
+            </div>
+            <p className="footer-desc">
+              AI-powered healthcare platform with 22+ tools for drug intelligence,
+              clinical trials, safety monitoring, and medical research analytics.
+            </p>
+          </div>
+          <div className="footer-col">
+            <h4 className="footer-heading">AI Tools</h4>
+            <a href="/med-predict">MedPredict</a>
+            <a href="/symptom-ai">SymptomAI</a>
+            <a href="/health-scan">HealthScan</a>
+            <a href="/rx-calc">RxCalc</a>
+          </div>
+          <div className="footer-col">
+            <h4 className="footer-heading">Drug Intel</h4>
+            <a href="/drug-intel">DrugIntel</a>
+            <a href="/drug-compare">DrugCompare</a>
+            <a href="/drug-interactions">Interactions</a>
+            <a href="/adverse-events">SafetyWatch</a>
+          </div>
+          <div className="footer-col">
+            <h4 className="footer-heading">Analytics</h4>
+            <a href="/live-pulse">LivePulse</a>
+            <a href="/pharma-globe">PharmaGlobe</a>
+            <a href="/research-radar">ResearchRadar</a>
+            <a href="/clinical-insight">ClinicalInsight</a>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>&copy; 2026 HealthPulse. Built with real-time data from FDA, EMA, NIH, PubMed &amp; ClinicalTrials.gov.</p>
+        </div>
       </footer>
       <Toaster
         position="bottom-center"
