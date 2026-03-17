@@ -1,0 +1,79 @@
+.dc-page { max-width: 1080px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+.dc-hero { text-align: center; margin-bottom: 1.5rem; }
+.dc-hero-badge { display: inline-block; padding: 0.25rem 0.8rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; background: linear-gradient(135deg, #3b82f6, #6366f1); color: #fff; margin-bottom: 0.6rem; }
+.dc-title { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.4rem; }
+.dc-subtitle { color: var(--color-text-dim); font-size: 0.92rem; max-width: 580px; margin: 0 auto; line-height: 1.5; }
+
+.dc-search-card { position: relative; margin-bottom: 1.5rem; }
+.dc-search-bar { display: flex; align-items: center; background: var(--color-bg-card); border: 2px solid var(--color-border); border-radius: 16px; padding: 0.5rem 0.5rem 0.5rem 1rem; box-shadow: 0 2px 20px rgba(0,0,0,0.04); transition: border-color 0.2s, box-shadow 0.2s; }
+.dc-search-bar:focus-within { border-color: #3b82f6; box-shadow: 0 2px 20px rgba(0,0,0,0.04), 0 0 0 3px rgba(59,130,246,0.12); }
+.dc-search-icon { flex-shrink: 0; color: var(--color-text-dim); margin-right: 0.5rem; }
+.dc-search-input { flex: 1; border: none; outline: none; background: transparent; font-size: 0.92rem; color: var(--color-text); padding: 0.4rem 0; }
+.dc-search-input::placeholder { color: var(--color-text-dim); opacity: 0.55; }
+.dc-search-btn { flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px; border: none; background: var(--color-border); color: var(--color-text-dim); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+.dc-search-btn.active { background: #3b82f6; color: #fff; box-shadow: 0 2px 8px rgba(59,130,246,0.3); }
+.dc-search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.dc-btn-spin { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: dc-spin 0.6s linear infinite; }
+@keyframes dc-spin { to { transform: rotate(360deg); } }
+
+.dc-popular { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin-top: 0.65rem; }
+.dc-pop-label { font-size: 0.75rem; font-weight: 600; color: var(--color-text-dim); }
+.dc-pop-btn { padding: 0.25rem 0.65rem; border-radius: 14px; border: 1px solid var(--color-border); background: var(--color-bg); font-size: 0.75rem; color: var(--color-text); cursor: pointer; transition: all 0.15s; }
+.dc-pop-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+
+.dc-error { padding: 0.85rem 1.1rem; border-radius: 14px; font-size: 0.88rem; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: #92400e; margin-bottom: 1.25rem; }
+.dc-loading { text-align: center; padding: 2.5rem; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; margin-bottom: 1.5rem; }
+.dc-pulse-wrap { position: relative; display: inline-flex; width: 56px; height: 56px; margin-bottom: 0.75rem; align-items: center; justify-content: center; }
+.dc-pulse { position: absolute; inset: 0; border: 2px solid #3b82f6; border-radius: 50%; animation: dc-pulsate 1.5s ease-out infinite; opacity: 0; }
+.dc-p2 { animation-delay: 0.5s; }
+@keyframes dc-pulsate { 0% { transform: scale(0.6); opacity: 0.6; } 100% { transform: scale(1.4); opacity: 0; } }
+.dc-loading p { font-size: 0.9rem; color: var(--color-text-dim); }
+
+.dc-drug-hero-card { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow-sm); }
+.dc-drug-hero-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; }
+.dc-drug-brand { font-size: 1.35rem; font-weight: 800; color: var(--color-text); text-transform: capitalize; margin: 0; }
+.dc-drug-generic { font-size: 0.88rem; color: var(--color-text-dim); margin: 0.2rem 0 0; }
+.dc-drug-generic strong { color: #3b82f6; text-transform: capitalize; }
+.dc-drug-badges { display: flex; gap: 0.35rem; }
+.dc-info-badge { padding: 0.2rem 0.55rem; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; background: rgba(59,130,246,0.08); color: #3b82f6; }
+.dc-badge-type { background: rgba(139,92,246,0.08); color: #8b5cf6; }
+.dc-drug-mfr { font-size: 0.82rem; color: var(--color-text-dim); margin: 0.5rem 0; }
+.dc-drug-sections { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.65rem; margin-top: 0.75rem; }
+.dc-drug-section { padding: 0.75rem; border-radius: 12px; background: var(--color-bg); border: 1px solid var(--color-border); }
+.dc-drug-section h4 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #3b82f6; margin: 0 0 0.35rem; }
+.dc-section-warn h4 { color: #f59e0b; }
+.dc-section-int h4 { color: #ef4444; }
+.dc-drug-section p { font-size: 0.78rem; color: var(--color-text-dim); line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+
+.dc-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.65rem; margin-bottom: 1rem; }
+.dc-stat { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 14px; padding: 1rem; text-align: center; box-shadow: var(--shadow-sm); }
+.dc-stat-num { display: block; font-size: 1.5rem; font-weight: 800; }
+.dc-stat-lbl { font-size: 0.7rem; font-weight: 600; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 0.03em; }
+
+.dc-charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+.dc-chart-card { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow-sm); }
+.dc-panel-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-dim); margin-bottom: 0.6rem; }
+
+.dc-mfr-section { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: var(--shadow-sm); }
+.dc-mfr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.5rem; }
+.dc-mfr-card { display: flex; align-items: center; gap: 0.6rem; padding: 0.65rem; border-radius: 12px; border: 1px solid var(--color-border); transition: border-color 0.15s; }
+.dc-mfr-card:hover { border-color: #3b82f6; }
+.dc-mfr-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.dc-mfr-info { display: flex; flex-direction: column; }
+.dc-mfr-name { font-size: 0.8rem; font-weight: 600; color: var(--color-text); }
+.dc-mfr-count { font-size: 0.68rem; color: var(--color-text-dim); }
+
+.dc-generics-section { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: var(--shadow-sm); }
+.dc-generics-table-wrap { overflow-x: auto; }
+.dc-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.dc-table th { text-align: left; padding: 0.55rem 0.5rem; border-bottom: 2px solid var(--color-border); font-weight: 700; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-dim); }
+.dc-table td { padding: 0.5rem; border-bottom: 1px solid var(--color-border); color: var(--color-text-dim); }
+.dc-td-bold { font-weight: 600; color: var(--color-text); text-transform: capitalize; }
+.dc-src-badge { display: inline-block; padding: 0.12rem 0.4rem; border-radius: 6px; font-size: 0.65rem; font-weight: 700; }
+
+@media (max-width: 768px) {
+  .dc-charts-row { grid-template-columns: 1fr; }
+  .dc-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .dc-drug-sections { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) { .dc-title { font-size: 1.4rem; } .dc-stats-row { grid-template-columns: 1fr 1fr; } }

@@ -8,8 +8,11 @@ const NAV_LINKS = [
   { path: '/disease-drug-news', label: 'Disease & Drug' },
   { path: '/med-predict', label: 'MedPredict' },
   { path: '/drug-intel', label: 'DrugIntel' },
-  { path: '/news-digest', label: 'AI Digest' },
   { path: '/drug-interactions', label: 'Interactions' },
+  { path: '/adverse-events', label: 'SafetyWatch' },
+  { path: '/trial-match', label: 'TrialFinder' },
+  { path: '/drug-compare', label: 'DrugCompare' },
+  { path: '/health-scan', label: 'HealthScan' },
   { path: '/about', label: 'About' },
   { path: '/contact', label: 'Contact' },
 ];

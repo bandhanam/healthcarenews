@@ -379,33 +379,33 @@ function TrialMapTab() {
                 color={colors.stroke}
                 weight={2}
               >
-                <Popup maxWidth={320}>
-                  <div className="di-popup">
-                    <strong>{m.study.title}</strong>
-                    <div className="di-popup-meta">
-                      <span className={`di-status-badge di-status-${(m.study.status || '').toLowerCase().replace(/\s+/g, '-')}`}>
-                        {m.study.status}
-                      </span>
+              <Popup maxWidth={320}>
+                <div className="di-popup">
+                  <strong>{m.study.title}</strong>
+                  <div className="di-popup-meta">
+                    <span className={`di-status-badge di-status-${(m.study.status || '').toLowerCase().replace(/\s+/g, '-')}`}>
+                      {m.study.status}
+                    </span>
                       {m.study.phase && (
                         <span className="di-phase-badge">
                           {Array.isArray(m.study.phase) ? m.study.phase.join(', ') : m.study.phase}
                         </span>
                       )}
-                    </div>
-                    <p className="di-popup-loc">
-                      {[m.loc.facility, m.loc.city, m.loc.country].filter(Boolean).join(', ')}
-                    </p>
-                    {m.study.sponsor && <p className="di-popup-sponsor">Sponsor: {m.study.sponsor}</p>}
-                    <a
-                      href={`https://clinicaltrials.gov/study/${m.study.nctId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="di-popup-link"
-                    >
-                      View on ClinicalTrials.gov
-                    </a>
                   </div>
-                </Popup>
+                  <p className="di-popup-loc">
+                    {[m.loc.facility, m.loc.city, m.loc.country].filter(Boolean).join(', ')}
+                  </p>
+                  {m.study.sponsor && <p className="di-popup-sponsor">Sponsor: {m.study.sponsor}</p>}
+                  <a
+                    href={`https://clinicaltrials.gov/study/${m.study.nctId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="di-popup-link"
+                  >
+                    View on ClinicalTrials.gov
+                  </a>
+                </div>
+              </Popup>
               </CircleMarker>
             );
           })}
@@ -425,18 +425,18 @@ function TrialMapTab() {
 
       {studies.length > 0 && (
         <div className="di-charts-grid di-charts-2x2">
-          {countryData.length > 0 && (
-            <div className="di-chart-section">
-              <h3>Top Trial Locations</h3>
+      {countryData.length > 0 && (
+        <div className="di-chart-section">
+          <h3>Top Trial Locations</h3>
               <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={countryData} layout="vertical" margin={{ left: 100 }}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis type="number" />
-                  <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <BarChart data={countryData} layout="vertical" margin={{ left: 100 }}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+              <XAxis type="number" />
+              <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12 }} />
+              <Tooltip />
+              <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
             </div>
           )}
 

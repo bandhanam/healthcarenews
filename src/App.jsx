@@ -16,8 +16,11 @@ const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const MedPredictPage = lazy(() => import('./pages/MedPredictPage'));
 const DrugIntelPage = lazy(() => import('./pages/DrugIntelPage'));
-const NewsDigestPage = lazy(() => import('./pages/NewsDigestPage'));
 const DrugInteractionPage = lazy(() => import('./pages/DrugInteractionPage'));
+const AdverseEventsPage = lazy(() => import('./pages/AdverseEventsPage'));
+const TrialMatchPage = lazy(() => import('./pages/TrialMatchPage'));
+const DrugComparePage = lazy(() => import('./pages/DrugComparePage'));
+const HealthScanPage = lazy(() => import('./pages/HealthScanPage'));
 
 function App() {
   useEffect(() => {
@@ -43,8 +46,11 @@ function App() {
                 <Route path="/article/:articleId" element={<ArticleDetailPage />} />
                 <Route path="/med-predict" element={<MedPredictPage />} />
                 <Route path="/drug-intel" element={<DrugIntelPage />} />
-                <Route path="/news-digest" element={<NewsDigestPage />} />
                 <Route path="/drug-interactions" element={<DrugInteractionPage />} />
+                <Route path="/adverse-events" element={<AdverseEventsPage />} />
+                <Route path="/trial-match" element={<TrialMatchPage />} />
+                <Route path="/drug-compare" element={<DrugComparePage />} />
+                <Route path="/health-scan" element={<HealthScanPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
               </Routes>

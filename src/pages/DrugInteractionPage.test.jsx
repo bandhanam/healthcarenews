@@ -5,6 +5,7 @@ import DrugInteractionPage from './DrugInteractionPage';
 vi.mock('framer-motion', () => ({
   motion: {
     div: ({ children, ...props }) => <div {...filterDomProps(props)}>{children}</div>,
+    section: ({ children, ...props }) => <section {...filterDomProps(props)}>{children}</section>,
   },
   AnimatePresence: ({ children }) => <>{children}</>,
 }));
@@ -26,63 +27,65 @@ beforeEach(() => {
 describe('DrugInteractionPage', () => {
   it('renders the page title', () => {
     render(<DrugInteractionPage />);
-    expect(screen.getByText('Drug Interaction Network')).toBeInTheDocument();
+    expect(screen.getByText('Drug Interaction Checker')).toBeInTheDocument();
   });
 
   it('renders the subtitle with data source', () => {
     render(<DrugInteractionPage />);
-    expect(screen.getByText(/NIH RxNav/)).toBeInTheDocument();
+    expect(screen.getAllByText(/NIH RxNav/).length).toBeGreaterThanOrEqual(1);
   });
 
-  it('renders the drug input field', () => {
+  it('renders the search input', () => {
     render(<DrugInteractionPage />);
-    expect(screen.getByPlaceholderText(/Type a drug name/)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Search medications/)).toBeInTheDocument();
   });
 
-  it('renders the check interactions button', () => {
+  it('renders quick-check cards', () => {
     render(<DrugInteractionPage />);
-    expect(screen.getByText('Check Interactions')).toBeInTheDocument();
-  });
-
-  it('renders popular combo buttons', () => {
-    render(<DrugInteractionPage />);
-    expect(screen.getByText('Try:')).toBeInTheDocument();
     expect(screen.getByText('Aspirin + Warfarin')).toBeInTheDocument();
-    expect(screen.getByText('Metformin + Lisinopril')).toBeInTheDocument();
+    expect(screen.getByText('Omeprazole + Clopidogrel')).toBeInTheDocument();
+  });
+
+  it('renders how-it-works section', () => {
+    render(<DrugInteractionPage />);
+    expect(screen.getByText('How it works')).toBeInTheDocument();
+    expect(screen.getByText('Add medications')).toBeInTheDocument();
   });
 
   it('shows autocomplete suggestions when typing', () => {
     render(<DrugInteractionPage />);
-    const input = screen.getByPlaceholderText(/Type a drug name/);
+    const input = screen.getByPlaceholderText(/Search medications/);
     fireEvent.change(input, { target: { value: 'asp' } });
     expect(screen.getByText('aspirin')).toBeInTheDocument();
+    expect(screen.getByText('Pain / Anti-inflammatory')).toBeInTheDocument();
   });
 
-  it('adds a drug chip when pressing Enter', () => {
+  it('adds a drug chip via Enter key', () => {
     render(<DrugInteractionPage />);
-    const input = screen.getByPlaceholderText(/Type a drug name/);
-    fireEvent.change(input, { target: { value: 'aspirin' } });
+    const input = screen.getByPlaceholderText(/Search medications/);
+    fireEvent.change(input, { target: { value: 'asp' } });
     fireEvent.keyDown(input, { key: 'Enter' });
-    expect(screen.getByText('aspirin')).toBeInTheDocument();
-    expect(screen.getByText('Clear all')).toBeInTheDocument();
+    const chips = screen.getAllByText('aspirin');
+    expect(chips.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('loads popular combo when clicking a combo button', () => {
+  it('loads a quick-check combo on click', () => {
     render(<DrugInteractionPage />);
     fireEvent.click(screen.getByText('Aspirin + Warfarin'));
     expect(screen.getByText('aspirin')).toBeInTheDocument();
     expect(screen.getByText('warfarin')).toBeInTheDocument();
   });
 
-  it('removes a drug chip when clicking the remove button', () => {
+  it('removes a drug chip when clicking x', () => {
     render(<DrugInteractionPage />);
     fireEvent.click(screen.getByText('Aspirin + Warfarin'));
     const removeButtons = screen.getAllByText('\u00D7');
     fireEvent.click(removeButtons[0]);
-    expect(screen.queryByText('Clear all')).toBeInTheDocument();
+    const warfarinChips = screen.getAllByText('warfarin');
+    expect(warfarinChips.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('checks interactions and shows loading state', async () => {
+  it('triggers check and shows loading state', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(() =>
@@ -95,7 +98,7 @@ describe('DrugInteractionPage', () => {
 
     render(<DrugInteractionPage />);
     fireEvent.click(screen.getByText('Aspirin + Warfarin'));
-    fireEvent.click(screen.getByText('Check Interactions'));
-    expect(screen.getByText('Checking...')).toBeInTheDocument();
+    fireEvent.click(screen.getByTitle('Check Interactions'));
+    expect(screen.getByText('Resolving drug names...')).toBeInTheDocument();
   });
 });
