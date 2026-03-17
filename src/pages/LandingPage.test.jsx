@@ -64,13 +64,16 @@ describe('LandingPage', () => {
   it('renders all feature card titles', () => {
     renderPage();
     const featureTitles = [
-      'News Feed', 'Disease & Drug News', 'LivePulse',
+      'News Feed', 'Disease & Drug News',
       'MedPredict', 'SymptomAI', 'HealthScan',
       'DrugIntel', 'Drug Timeline', 'DrugCompare',
       'Interactions', 'SafetyWatch', 'TrialFinder',
+      'LivePulse', 'BioSentinel', 'PharmaGlobe',
+      'OutbreakRadar', 'ResearchRadar', 'ClinicalInsight',
+      'MedCompare', 'RxCalc',
     ];
     featureTitles.forEach((title) => {
-      expect(screen.getByText(title)).toBeInTheDocument();
+      expect(screen.getAllByText(title).length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -96,7 +99,7 @@ describe('LandingPage', () => {
 
   it('renders stats section', () => {
     renderPage();
-    expect(screen.getByText('12+')).toBeInTheDocument();
+    expect(screen.getByText('22+')).toBeInTheDocument();
     expect(screen.getByText('Specialized Tools')).toBeInTheDocument();
     expect(screen.getByText('Powered Insights')).toBeInTheDocument();
   });

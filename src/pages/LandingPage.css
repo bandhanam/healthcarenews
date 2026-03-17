@@ -162,7 +162,7 @@
   padding: 0.75rem 0;
   margin-bottom: 1rem;
   position: sticky;
-  top: 68px;
+  top: 60px;
   z-index: 10;
   background: rgba(244, 246, 249, 0.85);
   backdrop-filter: blur(12px);

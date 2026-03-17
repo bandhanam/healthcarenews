@@ -199,8 +199,128 @@ const SECTIONS = [
   },
 ];
 
+const EXTRA_SECTIONS = [
+  {
+    id: 'analytics',
+    title: 'Analytics & Intelligence',
+    subtitle: 'Real-time monitoring and competitive analysis across the healthcare landscape',
+    features: [
+      {
+        title: 'LivePulse',
+        path: '/live-pulse',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+          </svg>
+        ),
+        description: 'Real-time dashboard with live news ticker, trending keywords, category radar, and sentiment analysis from global healthcare feeds.',
+        color: '#e11d48',
+        bg: 'linear-gradient(135deg, #fff1f2, #ffe4e6)',
+      },
+      {
+        title: 'BioSentinel',
+        path: '/bio-sentinel',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v3" /><path d="M12 12v4" />
+          </svg>
+        ),
+        description: 'Pharma company competitive intelligence. Explore pipeline, therapeutic focus, R&D activity, and global approvals for any company.',
+        color: '#d97706',
+        bg: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+      },
+      {
+        title: 'PharmaGlobe',
+        path: '/pharma-globe',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" />
+          </svg>
+        ),
+        description: 'Interactive SVG world map showing drug approvals by country with animated pulsing nodes, regulatory body analysis, and trend charts.',
+        color: '#4f46e5',
+        bg: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
+      },
+    ],
+  },
+  {
+    id: 'research',
+    title: 'Research & Monitoring',
+    subtitle: 'Track outbreaks, explore PubMed literature, and analyze trial success rates',
+    features: [
+      {
+        title: 'OutbreakRadar',
+        path: '/outbreak-radar',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /><circle cx="12" cy="11" r="3" />
+          </svg>
+        ),
+        description: 'AI-powered disease outbreak tracking from live news. Interactive dark map, severity alerts, disease filtering, and threat radar visualization.',
+        color: '#7c3aed',
+        bg: 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
+      },
+      {
+        title: 'ResearchRadar',
+        path: '/research-radar',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2Z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7Z" />
+          </svg>
+        ),
+        description: 'PubMed research trend analyzer. Explore 10-year publication trends, top journals, hot topic comparisons with NCBI E-utilities API.',
+        color: '#0284c7',
+        bg: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)',
+      },
+      {
+        title: 'ClinicalInsight',
+        path: '/clinical-insight',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" />
+          </svg>
+        ),
+        description: 'Trial success rate analyzer with phase funnels, completion gauges, sponsor rankings, and enrollment metrics for any condition.',
+        color: '#65a30d',
+        bg: 'linear-gradient(135deg, #f7fee7, #ecfccb)',
+      },
+    ],
+  },
+  {
+    id: 'tools',
+    title: 'Professional Tools',
+    subtitle: 'Head-to-head drug comparison, medical calculators, and more',
+    features: [
+      {
+        title: 'MedCompare',
+        path: '/med-compare',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />
+          </svg>
+        ),
+        description: 'Side-by-side drug comparison using openFDA. Compare adverse reactions, safety profiles, side effect radar charts, and more.',
+        color: '#ec4899',
+        bg: 'linear-gradient(135deg, #fdf2f8, #fce7f3)',
+      },
+      {
+        title: 'RxCalc',
+        path: '/rx-calc',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="4" y="2" width="16" height="20" rx="2" /><path d="M8 6h8M8 10h8M8 14h5" />
+          </svg>
+        ),
+        description: 'Six essential medical calculators — BMI, BSA, eGFR kidney function, ideal body weight, calorie needs, and weight-based dosing.',
+        color: '#475569',
+        bg: 'linear-gradient(135deg, #f8fafc, #f1f5f9)',
+      },
+    ],
+  },
+];
+
 const STATS = [
-  { value: '12+', label: 'Specialized Tools' },
+  { value: '22+', label: 'Specialized Tools' },
   { value: '50+', label: 'Data Sources' },
   { value: 'AI', label: 'Powered Insights' },
   { value: '0', label: 'Data Sent to Cloud' },
@@ -327,14 +447,14 @@ function LandingPage() {
       </section>
 
       <nav className="landing-quick-nav">
-        {SECTIONS.map((s) => (
+        {[...SECTIONS, ...EXTRA_SECTIONS].map((s) => (
           <a key={s.id} href={`#${s.id}`} className="landing-quick-link">
             {s.title}
           </a>
         ))}
       </nav>
 
-      {SECTIONS.map((section) => (
+      {[...SECTIONS, ...EXTRA_SECTIONS].map((section) => (
         <SectionBlock key={section.id} section={section} />
       ))}
 

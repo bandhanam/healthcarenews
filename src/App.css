@@ -9,11 +9,23 @@
 .app-layout {
   flex: 1;
   width: 100%;
-  max-width: 1600px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 1.25rem 2rem 3rem;
   display: flex;
   gap: 1.5rem;
+}
+
+.app-layout.full-width {
+  max-width: 100%;
+  padding: 0;
+}
+.app-layout.full-width .main-content {
+  max-width: 100%;
+}
+
+.app-layout.with-sidebar {
+  max-width: 1400px;
 }
 
 .main-content {
@@ -29,12 +41,6 @@
   border-top: 1px solid var(--color-border);
   margin-top: auto;
   background: var(--color-bg-secondary);
-}
-
-@media (min-width: 1601px) {
-  .app-layout {
-    max-width: 96%;
-  }
 }
 
 @media (max-width: 1024px) {
@@ -58,6 +64,6 @@
   }
   .app-footer {
     padding: 1rem;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
   }
 }

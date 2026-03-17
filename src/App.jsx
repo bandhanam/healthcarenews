@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ArticlesProvider } from './context/ArticlesContext';
 import Header from './components/Header';
@@ -33,6 +33,69 @@ const ResearchRadarPage = lazy(() => import('./pages/ResearchRadarPage'));
 const ClinicalInsightPage = lazy(() => import('./pages/ClinicalInsightPage'));
 const RxCalcPage = lazy(() => import('./pages/RxCalcPage'));
 
+const SIDEBAR_PATHS = ['/news', '/disease-drug-news', '/category'];
+
+function AppContent() {
+  const location = useLocation();
+  const showSidebar = SIDEBAR_PATHS.some((p) => location.pathname.startsWith(p));
+
+  return (
+    <>
+      <FloatingParticles />
+      <Header />
+      <div className={`app-layout ${showSidebar ? 'with-sidebar' : 'full-width'}`}>
+        {showSidebar && <Sidebar />}
+        <main className="main-content">
+          <Suspense fallback={<Loader />}>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/news" element={<HomePage />} />
+              <Route path="/disease-drug-news" element={<DiseaseDrugPage />} />
+              <Route path="/category/:categoryName" element={<CategoryPage />} />
+              <Route path="/article/:articleId" element={<ArticleDetailPage />} />
+              <Route path="/med-predict" element={<MedPredictPage />} />
+              <Route path="/drug-intel" element={<DrugIntelPage />} />
+              <Route path="/drug-interactions" element={<DrugInteractionPage />} />
+              <Route path="/adverse-events" element={<AdverseEventsPage />} />
+              <Route path="/trial-match" element={<TrialMatchPage />} />
+              <Route path="/drug-compare" element={<DrugComparePage />} />
+              <Route path="/health-scan" element={<HealthScanPage />} />
+              <Route path="/symptom-ai" element={<SymptomAIPage />} />
+              <Route path="/drug-timeline" element={<DrugTimelinePage />} />
+              <Route path="/live-pulse" element={<LivePulsePage />} />
+              <Route path="/bio-sentinel" element={<BioSentinelPage />} />
+              <Route path="/outbreak-radar" element={<OutbreakRadarPage />} />
+              <Route path="/pharma-globe" element={<PharmaGlobePage />} />
+              <Route path="/med-compare" element={<MedComparePage />} />
+              <Route path="/research-radar" element={<ResearchRadarPage />} />
+              <Route path="/clinical-insight" element={<ClinicalInsightPage />} />
+              <Route path="/rx-calc" element={<RxCalcPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+            </Routes>
+          </Suspense>
+        </main>
+      </div>
+      <footer className="app-footer">
+        <p>&copy; 2026 HealthPulse. Global Healthcare Intelligence.</p>
+      </footer>
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          style: {
+            background: '#ffffff',
+            color: '#1e293b',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            fontSize: '0.9rem',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+          },
+        }}
+      />
+    </>
+  );
+}
+
 function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -44,57 +107,7 @@ function App() {
   return (
     <ArticlesProvider>
       <div className="app">
-        <FloatingParticles />
-        <Header />
-        <div className="app-layout">
-          <Sidebar />
-          <main className="main-content">
-            <Suspense fallback={<Loader />}>
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/news" element={<HomePage />} />
-                <Route path="/disease-drug-news" element={<DiseaseDrugPage />} />
-                <Route path="/category/:categoryName" element={<CategoryPage />} />
-                <Route path="/article/:articleId" element={<ArticleDetailPage />} />
-                <Route path="/med-predict" element={<MedPredictPage />} />
-                <Route path="/drug-intel" element={<DrugIntelPage />} />
-                <Route path="/drug-interactions" element={<DrugInteractionPage />} />
-                <Route path="/adverse-events" element={<AdverseEventsPage />} />
-                <Route path="/trial-match" element={<TrialMatchPage />} />
-                <Route path="/drug-compare" element={<DrugComparePage />} />
-                <Route path="/health-scan" element={<HealthScanPage />} />
-                <Route path="/symptom-ai" element={<SymptomAIPage />} />
-                <Route path="/drug-timeline" element={<DrugTimelinePage />} />
-                <Route path="/live-pulse" element={<LivePulsePage />} />
-                <Route path="/bio-sentinel" element={<BioSentinelPage />} />
-                <Route path="/outbreak-radar" element={<OutbreakRadarPage />} />
-                <Route path="/pharma-globe" element={<PharmaGlobePage />} />
-                <Route path="/med-compare" element={<MedComparePage />} />
-                <Route path="/research-radar" element={<ResearchRadarPage />} />
-                <Route path="/clinical-insight" element={<ClinicalInsightPage />} />
-                <Route path="/rx-calc" element={<RxCalcPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-              </Routes>
-            </Suspense>
-          </main>
-        </div>
-        <footer className="app-footer">
-          <p>&copy; 2026 HealthPulse. Global Healthcare Intelligence.</p>
-        </footer>
-        <Toaster
-          position="bottom-center"
-          toastOptions={{
-            style: {
-              background: '#ffffff',
-              color: '#1e293b',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              fontSize: '0.9rem',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-            },
-          }}
-        />
+        <AppContent />
       </div>
     </ArticlesProvider>
   );

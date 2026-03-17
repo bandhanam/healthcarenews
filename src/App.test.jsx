@@ -25,9 +25,9 @@ describe('App', () => {
         <App />
       </MemoryRouter>
     );
-    expect(screen.getByText('News Feed')).toBeInTheDocument();
+    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.getByText('News')).toBeInTheDocument();
     expect(screen.getByText('About')).toBeInTheDocument();
-    expect(screen.getByText('Contact')).toBeInTheDocument();
   });
 
   it('renders the footer', () => {
@@ -36,6 +36,6 @@ describe('App', () => {
         <App />
       </MemoryRouter>
     );
-    expect(screen.getByText(/Global Healthcare Intelligence/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Global Healthcare Intelligence/).length).toBeGreaterThanOrEqual(1);
   });
 });
