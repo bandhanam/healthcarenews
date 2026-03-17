@@ -1,5 +1,5 @@
 .di-page {
-  max-width: 1280px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 1.5rem 1rem 3rem;
 }
@@ -70,6 +70,20 @@
   min-height: 400px;
 }
 
+/* Filter row (specialty) */
+.di-filter-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.di-specialty-select {
+  min-width: 200px;
+  font-weight: 600;
+}
+
 /* Search bar */
 .di-search-bar {
   display: flex;
@@ -99,6 +113,68 @@
 .di-search-input::placeholder {
   color: var(--color-text-dim);
   opacity: 0.7;
+}
+
+/* Autocomplete */
+.di-autocomplete-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.di-autocomplete-wrap .di-search-input {
+  width: 100%;
+}
+
+.di-autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  max-height: 260px;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.di-autocomplete-item {
+  padding: 0.55rem 1rem;
+  font-size: 0.88rem;
+  cursor: pointer;
+  color: var(--color-text);
+  transition: background 0.1s;
+}
+
+.di-autocomplete-item:hover,
+.di-autocomplete-item.highlighted {
+  background: rgba(26, 127, 100, 0.08);
+  color: var(--color-primary);
+}
+
+/* Condition chips row */
+.di-condition-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.di-chips-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-dim);
+  margin-right: 0.25rem;
+  white-space: nowrap;
 }
 
 .di-select {
@@ -177,10 +253,51 @@
   box-shadow: var(--shadow-sm);
 }
 
+.di-map-wide {
+  margin-left: -1rem;
+  margin-right: -1rem;
+  border-radius: var(--radius-md);
+}
+
 .di-map {
-  height: 480px;
+  height: 600px;
   width: 100%;
   background: #e8ecf0;
+}
+
+.di-map-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-bg-card);
+  border-top: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.di-legend-title {
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.di-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--color-text-dim);
+  text-transform: capitalize;
+  font-size: 0.72rem;
+}
+
+.di-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
 .di-popup {
@@ -293,6 +410,14 @@
   margin-bottom: 1.5rem;
 }
 
+.di-charts-2x2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.di-chart-span-2 {
+  grid-column: 1 / -1;
+}
+
 /* Stats row */
 .di-stats-row {
   display: flex;
@@ -364,6 +489,128 @@
   border-color: var(--color-primary);
   color: var(--color-primary);
   font-weight: 600;
+}
+
+/* Phase Pipeline */
+.di-phase-pipeline-section {
+  margin: 2rem 0;
+}
+
+.di-phase-pipeline-section > h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: var(--color-text);
+}
+
+.di-pipeline-subtitle {
+  font-size: 0.82rem;
+  color: var(--color-text-dim);
+  margin-bottom: 1rem;
+}
+
+.di-phase-pipeline {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.75rem;
+  overflow-x: auto;
+}
+
+.di-phase-column {
+  min-width: 180px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.di-phase-header {
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 3px solid;
+  background: var(--color-bg);
+}
+
+.di-phase-header-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.di-phase-header-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.1rem 0.45rem;
+  color: var(--color-text-dim);
+}
+
+.di-phase-body {
+  padding: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.di-phase-empty {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--color-text-dim);
+  padding: 1.5rem 0.5rem;
+}
+
+.di-phase-drug-card {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.4rem;
+  background: var(--color-bg);
+  transition: border-color 0.15s;
+}
+
+.di-phase-drug-card:hover {
+  border-color: var(--color-primary-light);
+}
+
+.di-phase-drug-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 0.35rem;
+}
+
+.di-phase-drug-meta {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.2rem;
+}
+
+.di-phase-drug-sponsor {
+  font-size: 0.68rem;
+  color: var(--color-text-dim);
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.di-phase-more {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  padding: 0.5rem;
 }
 
 /* Approval table */
@@ -593,15 +840,22 @@
   }
 
   .di-search-input,
-  .di-select {
+  .di-select,
+  .di-autocomplete-wrap {
     width: 100%;
   }
 
   .di-map {
-    height: 340px;
+    height: 400px;
   }
 
-  .di-charts-grid {
+  .di-map-wide {
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+  }
+
+  .di-charts-grid,
+  .di-charts-2x2 {
     grid-template-columns: 1fr;
   }
 
@@ -622,6 +876,15 @@
     flex-direction: column;
     gap: 0.5rem;
   }
+
+  .di-phase-pipeline {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .di-condition-chips-row {
+    max-height: 80px;
+    overflow-y: auto;
+  }
 }
 
 @media (max-width: 480px) {
@@ -631,5 +894,9 @@
 
   .di-stat-card {
     flex: unset;
+  }
+
+  .di-phase-pipeline {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

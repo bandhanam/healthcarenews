@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BarChart,
@@ -13,9 +13,10 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { DISEASE_LOGY_MAPPING, DISEASES_AND_LOGIES } from '../data/diseases';
 import './DrugIntelPage.css';
 
 const TABS = [
@@ -32,16 +33,62 @@ const STATUS_OPTIONS = [
 ];
 
 const SOURCE_COLORS = { FDA: '#3b82f6', EMA: '#10b981', CDSCO: '#f59e0b' };
-const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
 
-const trialIcon = new L.Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-});
+const STATUS_CIRCLE_COLORS = {
+  RECRUITING: { fill: '#22c55e', stroke: '#166534' },
+  COMPLETED: { fill: '#3b82f6', stroke: '#1e40af' },
+  ACTIVE_NOT_RECRUITING: { fill: '#f59e0b', stroke: '#92400e' },
+  NOT_YET_RECRUITING: { fill: '#a78bfa', stroke: '#5b21b6' },
+  TERMINATED: { fill: '#ef4444', stroke: '#991b1b' },
+  WITHDRAWN: { fill: '#ef4444', stroke: '#991b1b' },
+};
+const DEFAULT_CIRCLE = { fill: '#94a3b8', stroke: '#475569' };
+
+const PHASE_ORDER = ['EARLY_PHASE1', 'PHASE1', 'PHASE2', 'PHASE3', 'PHASE4', 'NA'];
+const PHASE_LABELS = {
+  EARLY_PHASE1: 'Early Phase 1',
+  PHASE1: 'Phase 1',
+  PHASE2: 'Phase 2',
+  PHASE3: 'Phase 3',
+  PHASE4: 'Phase 4',
+  NA: 'Not Applicable',
+};
+const PHASE_COLORS = {
+  EARLY_PHASE1: '#a78bfa',
+  PHASE1: '#3b82f6',
+  PHASE2: '#10b981',
+  PHASE3: '#f59e0b',
+  PHASE4: '#ef4444',
+  NA: '#94a3b8',
+};
+
+const COMMON_DRUGS = [
+  'Pembrolizumab', 'Nivolumab', 'Atezolizumab', 'Trastuzumab', 'Bevacizumab',
+  'Metformin', 'Atorvastatin', 'Amlodipine', 'Omeprazole', 'Lisinopril',
+  'Ibuprofen', 'Paracetamol', 'Aspirin', 'Remdesivir', 'Dexamethasone',
+  'Rituximab', 'Adalimumab', 'Infliximab', 'Dupilumab', 'Semaglutide',
+  'Ozempic', 'Wegovy', 'Keytruda', 'Opdivo', 'Herceptin',
+];
+
+const ALL_SUGGESTIONS = [
+  ...DISEASE_LOGY_MAPPING.map((d) => d.label),
+  ...DISEASES_AND_LOGIES,
+  ...COMMON_DRUGS,
+];
+const UNIQUE_SUGGESTIONS = [...new Set(ALL_SUGGESTIONS)].sort();
+
+function normalizePhase(phase) {
+  if (!phase) return 'NA';
+  const raw = Array.isArray(phase) ? phase[0] : phase;
+  const p = String(raw).toUpperCase().replace(/\s+/g, '');
+  if (p.includes('EARLY')) return 'EARLY_PHASE1';
+  if (p.includes('4') || p === 'PHASE4') return 'PHASE4';
+  if (p.includes('3') || p === 'PHASE3') return 'PHASE3';
+  if (p.includes('2') || p === 'PHASE2') return 'PHASE2';
+  if (p.includes('1') || p === 'PHASE1') return 'PHASE1';
+  return 'NA';
+}
 
 function FitBounds({ markers }) {
   const map = useMap();
@@ -53,27 +100,110 @@ function FitBounds({ markers }) {
   return null;
 }
 
-// ---------------------------------------------------------------------------
-// TrialMap Tab
-// ---------------------------------------------------------------------------
+function AutocompleteInput({ value, onChange, onSelect, placeholder, className }) {
+  const [open, setOpen] = useState(false);
+  const [highlightIdx, setHighlightIdx] = useState(-1);
+  const wrapRef = useRef(null);
+  const listRef = useRef(null);
+
+  const filtered = useMemo(() => {
+    if (!value || value.length < 1) return [];
+    const q = value.toLowerCase();
+    return UNIQUE_SUGGESTIONS.filter((s) => s.toLowerCase().includes(q)).slice(0, 12);
+  }, [value]);
+
+  useEffect(() => {
+    setOpen(filtered.length > 0 && value.length >= 1);
+    setHighlightIdx(-1);
+  }, [filtered, value]);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const select = (val) => {
+    onSelect(val);
+    setOpen(false);
+  };
+
+  const handleKeyDown = (e) => {
+    if (!open) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightIdx((i) => Math.min(i + 1, filtered.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightIdx((i) => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter' && highlightIdx >= 0) {
+      e.preventDefault();
+      select(filtered[highlightIdx]);
+    } else if (e.key === 'Escape') {
+      setOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (listRef.current && highlightIdx >= 0) {
+      const el = listRef.current.children[highlightIdx];
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    }
+  }, [highlightIdx]);
+
+  return (
+    <div className="di-autocomplete-wrap" ref={wrapRef}>
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => { if (filtered.length > 0) setOpen(true); }}
+        onKeyDown={handleKeyDown}
+        className={className}
+        autoComplete="off"
+      />
+      {open && filtered.length > 0 && (
+        <ul className="di-autocomplete-dropdown" ref={listRef}>
+          {filtered.map((item, i) => (
+            <li
+              key={item}
+              className={`di-autocomplete-item ${i === highlightIdx ? 'highlighted' : ''}`}
+              onMouseDown={() => select(item)}
+              onMouseEnter={() => setHighlightIdx(i)}
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 function TrialMapTab() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('');
+  const [specialty, setSpecialty] = useState('');
   const [studies, setStudies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [nextToken, setNextToken] = useState(null);
   const [totalCount, setTotalCount] = useState(0);
   const [searched, setSearched] = useState(false);
-  const debounceRef = useRef(null);
 
   const search = useCallback(
     async (append = false, token = null) => {
-      if (!query.trim() && !status) return;
+      if (!query.trim() && !status && !specialty) return;
       setLoading(true);
       try {
         const params = new URLSearchParams();
         if (query.trim()) params.set('q', query.trim());
+        if (specialty) {
+          const entry = DISEASE_LOGY_MAPPING.find((d) => d.label === specialty);
+          if (entry) params.set('condition', entry.keywords[0]);
+        }
         if (status) params.set('status', status);
         params.set('pageSize', '50');
         if (token) params.set('pageToken', token);
@@ -92,7 +222,7 @@ function TrialMapTab() {
         setLoading(false);
       }
     },
-    [query, status],
+    [query, status, specialty],
   );
 
   const handleSubmit = (e) => {
@@ -100,15 +230,18 @@ function TrialMapTab() {
     search(false);
   };
 
+  const handleConditionChip = (cond) => {
+    setQuery(cond);
+    setTimeout(() => {
+      const form = document.querySelector('.di-trial-tab form');
+      if (form) form.requestSubmit();
+    }, 50);
+  };
+
   const markers = studies.flatMap((s) =>
     (s.locations || [])
       .filter((loc) => loc.lat != null && loc.lng != null)
-      .map((loc) => ({
-        lat: loc.lat,
-        lng: loc.lng,
-        study: s,
-        loc,
-      })),
+      .map((loc) => ({ lat: loc.lat, lng: loc.lng, study: s, loc })),
   );
 
   const countryCounts = {};
@@ -122,27 +255,102 @@ function TrialMapTab() {
     .slice(0, 10)
     .map(([name, count]) => ({ name, count }));
 
+  const phaseDistribution = useMemo(() => {
+    const counts = {};
+    studies.forEach((s) => {
+      const key = normalizePhase(s.phase);
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    return PHASE_ORDER.filter((k) => counts[k]).map((k) => ({
+      name: PHASE_LABELS[k],
+      value: counts[k],
+      color: PHASE_COLORS[k],
+    }));
+  }, [studies]);
+
+  const statusDistribution = useMemo(() => {
+    const counts = {};
+    studies.forEach((s) => {
+      const st = s.status || 'Unknown';
+      counts[st] = (counts[st] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, value]) => ({ name: name.replace(/_/g, ' '), value }));
+  }, [studies]);
+
+  const topConditions = useMemo(() => {
+    const counts = {};
+    studies.forEach((s) => {
+      (s.conditions || []).forEach((c) => {
+        counts[c] = (counts[c] || 0) + 1;
+      });
+    });
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([name, count]) => ({ name, count }));
+  }, [studies]);
+
+  const phasePipeline = useMemo(() => {
+    const groups = {};
+    PHASE_ORDER.forEach((k) => { groups[k] = []; });
+    studies.forEach((s) => {
+      const key = normalizePhase(s.phase);
+      groups[key].push(s);
+    });
+    return groups;
+  }, [studies]);
+
+  const conditionChips = DISEASES_AND_LOGIES.filter(
+    (d) => !['Disease', 'Chronic', 'Syndrome'].includes(d),
+  );
+
   return (
     <div className="di-trial-tab">
+      <div className="di-filter-row">
+        <select
+          value={specialty}
+          onChange={(e) => setSpecialty(e.target.value)}
+          className="di-select di-specialty-select"
+        >
+          <option value="">All Specialties</option>
+          {DISEASE_LOGY_MAPPING.map((d) => (
+            <option key={d.label} value={d.label}>{d.label}</option>
+          ))}
+        </select>
+      </div>
+
       <form className="di-search-bar" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Search condition or drug (e.g., Diabetes, Pembrolizumab)..."
+        <AutocompleteInput
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={setQuery}
+          onSelect={(val) => setQuery(val)}
+          placeholder="Search condition or drug (e.g., Diabetes, Pembrolizumab)..."
           className="di-search-input"
         />
         <select value={status} onChange={(e) => setStatus(e.target.value)} className="di-select">
           {STATUS_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
+            <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </select>
         <button type="submit" className="di-btn-primary" disabled={loading}>
           {loading ? 'Searching...' : 'Search Trials'}
         </button>
       </form>
+
+      <div className="di-condition-chips-row">
+        <span className="di-chips-label">Quick search:</span>
+        {conditionChips.slice(0, 16).map((c) => (
+          <button
+            key={c}
+            className={`di-chip ${query === c ? 'active' : ''}`}
+            onClick={() => handleConditionChip(c)}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
 
       {searched && (
         <div className="di-results-summary">
@@ -151,55 +359,192 @@ function TrialMapTab() {
         </div>
       )}
 
-      <div className="di-map-container">
+      <div className="di-map-container di-map-wide">
         <MapContainer center={[20, 0]} zoom={2} className="di-map" scrollWheelZoom>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           {markers.length > 0 && <FitBounds markers={markers} />}
-          {markers.map((m, i) => (
-            <Marker key={`${m.study.nctId}-${i}`} position={[m.lat, m.lng]} icon={trialIcon}>
-              <Popup maxWidth={320}>
-                <div className="di-popup">
-                  <strong>{m.study.title}</strong>
-                  <div className="di-popup-meta">
-                    <span className={`di-status-badge di-status-${(m.study.status || '').toLowerCase().replace(/\s+/g, '-')}`}>
-                      {m.study.status}
-                    </span>
-                    {m.study.phase && <span className="di-phase-badge">{Array.isArray(m.study.phase) ? m.study.phase.join(', ') : m.study.phase}</span>}
+          {markers.map((m, i) => {
+            const colors = STATUS_CIRCLE_COLORS[m.study.status] || DEFAULT_CIRCLE;
+            return (
+              <CircleMarker
+                key={`${m.study.nctId}-${i}`}
+                center={[m.lat, m.lng]}
+                radius={8}
+                fillColor={colors.fill}
+                fillOpacity={0.75}
+                color={colors.stroke}
+                weight={2}
+              >
+                <Popup maxWidth={320}>
+                  <div className="di-popup">
+                    <strong>{m.study.title}</strong>
+                    <div className="di-popup-meta">
+                      <span className={`di-status-badge di-status-${(m.study.status || '').toLowerCase().replace(/\s+/g, '-')}`}>
+                        {m.study.status}
+                      </span>
+                      {m.study.phase && (
+                        <span className="di-phase-badge">
+                          {Array.isArray(m.study.phase) ? m.study.phase.join(', ') : m.study.phase}
+                        </span>
+                      )}
+                    </div>
+                    <p className="di-popup-loc">
+                      {[m.loc.facility, m.loc.city, m.loc.country].filter(Boolean).join(', ')}
+                    </p>
+                    {m.study.sponsor && <p className="di-popup-sponsor">Sponsor: {m.study.sponsor}</p>}
+                    <a
+                      href={`https://clinicaltrials.gov/study/${m.study.nctId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="di-popup-link"
+                    >
+                      View on ClinicalTrials.gov
+                    </a>
                   </div>
-                  <p className="di-popup-loc">
-                    {[m.loc.facility, m.loc.city, m.loc.country].filter(Boolean).join(', ')}
-                  </p>
-                  {m.study.sponsor && <p className="di-popup-sponsor">Sponsor: {m.study.sponsor}</p>}
-                  <a
-                    href={`https://clinicaltrials.gov/study/${m.study.nctId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="di-popup-link"
-                  >
-                    View on ClinicalTrials.gov
-                  </a>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+                </Popup>
+              </CircleMarker>
+            );
+          })}
         </MapContainer>
+        {markers.length > 0 && (
+          <div className="di-map-legend">
+            <span className="di-legend-title">Status:</span>
+            {Object.entries(STATUS_CIRCLE_COLORS).slice(0, 4).map(([key, val]) => (
+              <span key={key} className="di-legend-item">
+                <span className="di-legend-dot" style={{ background: val.fill }} />
+                {key.replace(/_/g, ' ')}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
-      {countryData.length > 0 && (
-        <div className="di-chart-section">
-          <h3>Top Trial Locations</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={countryData} layout="vertical" margin={{ left: 100 }}>
-              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-              <XAxis type="number" />
-              <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+      {studies.length > 0 && (
+        <div className="di-charts-grid di-charts-2x2">
+          {countryData.length > 0 && (
+            <div className="di-chart-section">
+              <h3>Top Trial Locations</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={countryData} layout="vertical" margin={{ left: 100 }}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis type="number" />
+                  <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {phaseDistribution.length > 0 && (
+            <div className="di-chart-section">
+              <h3>Phase Distribution</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={phaseDistribution}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    innerRadius={40}
+                    label={({ name, value }) => `${name}: ${value}`}
+                  >
+                    {phaseDistribution.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {statusDistribution.length > 0 && (
+            <div className="di-chart-section">
+              <h3>Status Distribution</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={statusDistribution}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    innerRadius={40}
+                    label={({ name, value }) => `${value}`}
+                  >
+                    {statusDistribution.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {topConditions.length > 0 && (
+            <div className="di-chart-section">
+              <h3>Top Conditions</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={topConditions} layout="vertical" margin={{ left: 120 }}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis type="number" />
+                  <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 11 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#10b981" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+      )}
+
+      {studies.length > 0 && (
+        <div className="di-phase-pipeline-section">
+          <h3>Phase Pipeline</h3>
+          <p className="di-pipeline-subtitle">Drugs grouped by their current clinical trial phase</p>
+          <div className="di-phase-pipeline">
+            {PHASE_ORDER.map((phaseKey) => {
+              const items = phasePipeline[phaseKey] || [];
+              return (
+                <div key={phaseKey} className="di-phase-column">
+                  <div className="di-phase-header" style={{ borderTopColor: PHASE_COLORS[phaseKey] }}>
+                    <span className="di-phase-header-label">{PHASE_LABELS[phaseKey]}</span>
+                    <span className="di-phase-header-count">{items.length}</span>
+                  </div>
+                  <div className="di-phase-body">
+                    {items.length === 0 && (
+                      <div className="di-phase-empty">No trials</div>
+                    )}
+                    {items.slice(0, 15).map((s) => (
+                      <div key={s.nctId} className="di-phase-drug-card">
+                        <div className="di-phase-drug-title">{s.title}</div>
+                        <div className="di-phase-drug-meta">
+                          <span className="di-tag">{s.nctId}</span>
+                          <span className={`di-status-badge di-status-${(s.status || '').toLowerCase().replace(/\s+/g, '-')}`}>
+                            {s.status}
+                          </span>
+                        </div>
+                        {s.sponsor && <div className="di-phase-drug-sponsor">{s.sponsor}</div>}
+                      </div>
+                    ))}
+                    {items.length > 15 && (
+                      <div className="di-phase-more">+{items.length - 15} more</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -245,10 +590,6 @@ function TrialMapTab() {
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// ApprovalTracker Tab
-// ---------------------------------------------------------------------------
 
 function ApprovalTrackerTab() {
   const [searchQ, setSearchQ] = useState('');
@@ -320,6 +661,11 @@ function ApprovalTrackerTab() {
     ? stats.bySource.map((s) => ({ name: s.source, value: s.count }))
     : [];
 
+  const areaChartData = useMemo(() => {
+    if (!stats?.byArea) return [];
+    return stats.byArea.slice(0, 10).map((a) => ({ name: a.area, count: a.count }));
+  }, [stats]);
+
   return (
     <div className="di-approval-tab">
       {statsLoading ? (
@@ -342,7 +688,7 @@ function ApprovalTrackerTab() {
       ) : null}
 
       {yearChartData.length > 0 && (
-        <div className="di-charts-grid">
+        <div className="di-charts-grid di-charts-2x2">
           <div className="di-chart-section">
             <h3>Approvals by Year</h3>
             <ResponsiveContainer width="100%" height={300}>
@@ -379,6 +725,20 @@ function ApprovalTrackerTab() {
               </PieChart>
             </ResponsiveContainer>
           </div>
+          {areaChartData.length > 0 && (
+            <div className="di-chart-section di-chart-span-2">
+              <h3>Top Therapeutic Areas</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={areaChartData} layout="vertical" margin={{ left: 160 }}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis type="number" />
+                  <YAxis type="category" dataKey="name" width={150} tick={{ fontSize: 11 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
       )}
 
@@ -391,11 +751,11 @@ function ApprovalTrackerTab() {
             searchApprovals(0);
           }}
         >
-          <input
-            type="text"
-            placeholder="Search drug name, generic name, or substance..."
+          <AutocompleteInput
             value={searchQ}
-            onChange={(e) => setSearchQ(e.target.value)}
+            onChange={setSearchQ}
+            onSelect={(val) => setSearchQ(val)}
+            placeholder="Search drug name, generic name, or substance..."
             className="di-search-input"
           />
           <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)} className="di-select">
@@ -492,10 +852,6 @@ function ApprovalTrackerTab() {
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Main Page
-// ---------------------------------------------------------------------------
 
 function DrugIntelPage() {
   const [activeTab, setActiveTab] = useState('trialmap');
