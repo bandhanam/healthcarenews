@@ -1,0 +1,428 @@
+.dip-page {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.dip-hero { text-align: center; margin-bottom: 2rem; }
+
+.dip-title {
+  font-size: 2rem;
+  font-weight: 800;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.dip-subtitle {
+  color: var(--color-text-dim);
+  font-size: 1rem;
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Input section */
+.dip-input-section {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.dip-input-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.dip-autocomplete-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+}
+
+.dip-drug-input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.dip-drug-input:focus { border-color: var(--color-primary); }
+
+.dip-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  z-index: 10;
+  box-shadow: var(--shadow-md);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dip-suggestion-item {
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+  transition: background 0.1s;
+}
+
+.dip-suggestion-item:hover { background: var(--color-bg); }
+
+.dip-add-btn,
+.dip-check-btn {
+  padding: 0.65rem 1.1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.dip-add-btn {
+  background: var(--color-bg);
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+}
+
+.dip-add-btn:hover:not(:disabled) { background: rgba(26, 127, 100, 0.06); }
+
+.dip-check-btn {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.dip-check-btn:hover:not(:disabled) { opacity: 0.9; }
+.dip-add-btn:disabled, .dip-check-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Drug chips */
+.dip-drug-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+.dip-drug-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: rgba(26, 127, 100, 0.08);
+  color: var(--color-primary);
+  border: 1px solid rgba(26, 127, 100, 0.2);
+}
+
+.dip-chip-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--color-text-dim);
+  padding: 0;
+  line-height: 1;
+}
+
+.dip-chip-remove:hover { color: var(--color-danger, #ef4444); }
+
+.dip-clear-all {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--color-text-dim);
+  text-decoration: underline;
+  padding: 0;
+}
+
+/* Popular combos */
+.dip-popular {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.dip-popular-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-dim);
+}
+
+.dip-popular-btn {
+  padding: 0.25rem 0.6rem;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  font-size: 0.75rem;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dip-popular-btn:hover {
+  border-color: var(--color-primary-light);
+  background: rgba(26, 127, 100, 0.04);
+}
+
+/* Messages */
+.dip-message {
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+
+.dip-message-error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+}
+
+.dip-message-info {
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  color: var(--color-text);
+}
+
+/* Loading */
+.dip-loading {
+  text-align: center;
+  padding: 2rem;
+}
+
+.dip-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: dip-spin 0.7s linear infinite;
+  margin: 0 auto 0.75rem;
+}
+
+@keyframes dip-spin { to { transform: rotate(360deg); } }
+
+.dip-loading p {
+  color: var(--color-text-dim);
+  font-size: 0.9rem;
+}
+
+/* Summary cards */
+.dip-summary-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.dip-summary-card {
+  flex: 1;
+  min-width: 120px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.dip-summary-num {
+  display: block;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.dip-summary-severe .dip-summary-num { color: #ef4444; }
+.dip-summary-moderate .dip-summary-num { color: #f59e0b; }
+.dip-summary-mild .dip-summary-num { color: #22c55e; }
+
+.dip-summary-label {
+  font-size: 0.78rem;
+  color: var(--color-text-dim);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Results layout */
+.dip-results-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.dip-graph-section,
+.dip-table-section {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.dip-graph-section h3,
+.dip-table-section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--color-text);
+}
+
+/* Network graph SVG */
+.di-graph-container { text-align: center; }
+
+.di-network-svg {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+}
+
+.di-graph-tooltip {
+  background: var(--color-bg-card, #fff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.di-graph-legend {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.di-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-dim);
+  text-transform: capitalize;
+}
+
+.di-legend-line {
+  display: inline-block;
+  width: 20px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+/* Severity badges */
+.di-sev-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.sev-severe { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+.sev-moderate { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+.sev-mild { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+.sev-unknown { background: rgba(148, 163, 184, 0.1); color: #64748b; }
+
+/* Interaction table */
+.dip-table-wrap {
+  overflow-x: auto;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.dip-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.dip-table th {
+  text-align: left;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 2px solid var(--color-border);
+  font-weight: 700;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-dim);
+  position: sticky;
+  top: 0;
+  background: var(--color-bg-card);
+}
+
+.dip-table td {
+  padding: 0.55rem 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.dip-td-drug {
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.dip-td-desc {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--color-text-dim);
+}
+
+/* Disclaimer */
+.dip-disclaimer {
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  border-radius: var(--radius-md);
+  padding: 0.8rem 1rem;
+  font-size: 0.82rem;
+  color: var(--color-text-dim);
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .dip-results-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .dip-title { font-size: 1.5rem; }
+  .dip-input-row { flex-direction: column; }
+  .dip-add-btn, .dip-check-btn { width: 100%; }
+  .dip-summary-row { flex-direction: column; }
+}
