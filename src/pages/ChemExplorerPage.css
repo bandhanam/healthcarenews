@@ -1,0 +1,696 @@
+/* ============================================================
+   ChemExplorer Page — Emerald (#059669) theme
+   ============================================================ */
+
+.ce-page {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+/* ---- Hero ---- */
+.ce-hero {
+  text-align: center;
+  padding: 2.5rem 1.5rem 2rem;
+  margin: -1.5rem -1rem 2rem;
+  background: linear-gradient(135deg, #064e3b 0%, #059669 50%, #34d399 100%);
+  border-radius: 0 0 32px 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ce-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 20%, rgba(255,255,255,0.08) 0%, transparent 60%),
+              radial-gradient(circle at 30% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.ce-hero-badge {
+  display: inline-block;
+  padding: 0.3rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(255,255,255,0.15);
+  color: #d1fae5;
+  margin-bottom: 0.75rem;
+  backdrop-filter: blur(4px);
+}
+
+.ce-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+  position: relative;
+}
+
+.ce-subtitle {
+  color: rgba(255,255,255,0.82);
+  font-size: 1rem;
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.6;
+  position: relative;
+}
+
+/* ---- Search Bar ---- */
+.ce-search-bar {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 680px;
+  margin: 0 auto 1rem;
+}
+
+.ce-search-input-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.ce-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  display: flex;
+  pointer-events: none;
+}
+
+.ce-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.6rem;
+  border-radius: 12px;
+  border: 1.5px solid var(--color-border, #e2e8f0);
+  background: var(--color-bg-card, #fff);
+  color: var(--color-text, #1e293b);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.ce-search-input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
+
+.ce-search-input::placeholder {
+  color: var(--color-text-dim, #94a3b8);
+  opacity: 0.8;
+}
+
+.ce-search-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #059669, #34d399);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.ce-search-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(5, 150, 105, 0.25);
+}
+
+.ce-search-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ---- Quick Picks ---- */
+.ce-quick-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ce-picks-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-dim, #94a3b8);
+  margin-right: 0.25rem;
+}
+
+.ce-pick-btn {
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: transparent;
+  color: var(--color-text-dim, #64748b);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: capitalize;
+}
+
+.ce-pick-btn:hover {
+  background: rgba(5, 150, 105, 0.06);
+  border-color: #059669;
+  color: #059669;
+}
+
+.ce-pick-btn.active {
+  background: rgba(5, 150, 105, 0.1);
+  border-color: #059669;
+  color: #059669;
+  font-weight: 600;
+}
+
+/* ---- Loading / Error / Empty ---- */
+.ce-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2.5rem;
+  color: var(--color-text-dim, #64748b);
+  font-size: 0.95rem;
+}
+
+.ce-spinner {
+  width: 22px;
+  height: 22px;
+  border: 3px solid rgba(5, 150, 105, 0.15);
+  border-top-color: #059669;
+  border-radius: 50%;
+  animation: ce-spin 0.7s linear infinite;
+}
+
+@keyframes ce-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ce-error {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  font-size: 0.95rem;
+  max-width: 680px;
+  margin: 0 auto 1.5rem;
+}
+
+.ce-error-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+/* ---- Drug Card ---- */
+.ce-drug-card {
+  background: var(--color-bg-card, rgba(255,255,255,0.75));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border, rgba(5, 150, 105, 0.12));
+  border-radius: 20px;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(5, 150, 105, 0.06), 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.ce-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+.ce-card-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #059669;
+  text-transform: capitalize;
+  margin: 0 0 0.25rem;
+}
+
+.ce-card-iupac {
+  font-size: 0.85rem;
+  color: var(--color-text-dim, #64748b);
+  margin: 0 0 0.4rem;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.ce-cid-badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(5, 150, 105, 0.1);
+  color: #059669;
+}
+
+.ce-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-bg, #f8fafc);
+  color: var(--color-text-dim, #64748b);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.ce-close-btn:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #ef4444;
+}
+
+/* Card body layout */
+.ce-card-body h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  margin-bottom: 0.75rem;
+}
+
+.ce-card-top-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.ce-structure-img-wrap {
+  text-align: center;
+}
+
+.ce-structure-img {
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 14px;
+  padding: 10px;
+}
+
+.ce-img-label {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--color-text-dim, #94a3b8);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Key stats grid */
+.ce-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.5rem;
+}
+
+.ce-stat-item {
+  padding: 0.6rem 0.75rem;
+  background: var(--color-bg, #f8fafc);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ce-stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-text-dim, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ce-stat-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  word-break: break-word;
+}
+
+.ce-stat-unit {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-text-dim, #94a3b8);
+}
+
+/* ---- Lipinski Section ---- */
+.ce-lipinski-section {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: var(--color-bg, #f8fafc);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 14px;
+}
+
+.ce-lipinski-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.ce-lipinski-overall {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 120px;
+}
+
+.ce-lipinski-verdict {
+  font-size: 1.1rem;
+  font-weight: 800;
+  padding: 0.3rem 0.75rem;
+  border-radius: 8px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.ce-lipinski-verdict.pass {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.ce-lipinski-verdict.fail {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.ce-lipinski-score {
+  font-size: 0.82rem;
+  color: var(--color-text-dim, #64748b);
+  font-weight: 600;
+}
+
+.ce-lipinski-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.ce-lipinski-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.ce-lipinski-badge.pass {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.ce-lipinski-badge.fail {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.ce-badge-icon {
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+/* ---- Charts Grid ---- */
+.ce-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.ce-chart-card {
+  background: var(--color-bg-card, #fff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.04));
+}
+
+.ce-chart-card h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ---- SMILES / InChI ---- */
+.ce-smiles-section,
+.ce-inchi-section {
+  margin-bottom: 1rem;
+}
+
+.ce-smiles-sub {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-dim, #64748b);
+  margin: 0.5rem 0 0.25rem;
+}
+
+.ce-smiles-code {
+  display: block;
+  padding: 0.75rem 1rem;
+  background: var(--color-bg, #f1f5f9);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 10px;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: var(--color-text, #1e293b);
+  word-break: break-all;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+/* ---- Synonyms ---- */
+.ce-synonyms-section {
+  margin-bottom: 1rem;
+}
+
+.ce-synonyms-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.ce-synonym-chip {
+  padding: 0.25rem 0.6rem;
+  border-radius: 16px;
+  font-size: 0.78rem;
+  background: rgba(5, 150, 105, 0.07);
+  border: 1px solid rgba(5, 150, 105, 0.15);
+  color: #065f46;
+  font-weight: 500;
+}
+
+/* ---- Browse Database Section ---- */
+.ce-browse-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border, #e2e8f0);
+}
+
+.ce-browse-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-text, #1e293b);
+  margin-bottom: 0.25rem;
+}
+
+.ce-browse-subtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-dim, #64748b);
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+.ce-browse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.85rem;
+}
+
+.ce-browse-card {
+  background: var(--color-bg-card, #fff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.ce-browse-card:hover {
+  border-color: #059669;
+}
+
+.ce-browse-img {
+  width: 100%;
+  height: 160px;
+  object-fit: contain;
+  background: #fafafa;
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+.ce-browse-info {
+  padding: 0.75rem;
+}
+
+.ce-browse-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text, #1e293b);
+  text-transform: capitalize;
+  margin: 0 0 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ce-browse-formula {
+  display: block;
+  font-size: 0.82rem;
+  color: #059669;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.ce-browse-mw {
+  font-size: 0.78rem;
+  color: var(--color-text-dim, #94a3b8);
+  font-weight: 500;
+}
+
+.ce-empty-browse {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--color-text-dim, #64748b);
+  font-size: 0.95rem;
+  background: var(--color-bg, #f8fafc);
+  border-radius: 14px;
+  border: 1px dashed var(--color-border, #e2e8f0);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .ce-charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ce-card-top-row {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .ce-key-stats {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .ce-page {
+    padding: 1rem 0.75rem 2rem;
+  }
+
+  .ce-hero {
+    padding: 1.75rem 1rem 1.5rem;
+    margin: -1rem -0.75rem 1.5rem;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .ce-title {
+    font-size: 1.75rem;
+  }
+
+  .ce-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .ce-search-bar {
+    flex-direction: column;
+  }
+
+  .ce-drug-card {
+    padding: 1rem;
+    border-radius: 14px;
+  }
+
+  .ce-card-title {
+    font-size: 1.25rem;
+  }
+
+  .ce-structure-img {
+    width: 180px;
+    height: 180px;
+  }
+
+  .ce-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ce-lipinski-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .ce-browse-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .ce-browse-img {
+    height: 120px;
+  }
+}
+
+@media (max-width: 420px) {
+  .ce-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ce-browse-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+}

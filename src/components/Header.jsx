@@ -26,6 +26,14 @@ const NAV_GROUPS = [
     ],
   },
   {
+    label: 'Chemistry',
+    children: [
+      { path: '/molecule-viz', label: 'MoleculeViz', desc: '3D molecule viewer', color: '#4f46e5' },
+      { path: '/chem-explorer', label: 'ChemExplorer', desc: 'Compound properties', color: '#059669' },
+      { path: '/drug-repurpose', label: 'DrugRepurpose', desc: 'Find similar compounds', color: '#7c3aed' },
+    ],
+  },
+  {
     label: 'Safety & Trials',
     children: [
       { path: '/adverse-events', label: 'SafetyWatch', desc: 'FDA adverse events', color: '#dc2626' },

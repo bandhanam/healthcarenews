@@ -16,7 +16,7 @@ describe('App', () => {
         <App />
       </MemoryRouter>
     );
-    expect(screen.getByText('HealthPulse')).toBeInTheDocument();
+    expect(screen.getAllByText('HealthPulse').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders navigation links', () => {

@@ -201,6 +201,50 @@ const SECTIONS = [
 
 const EXTRA_SECTIONS = [
   {
+    id: 'chemistry',
+    title: 'Chemistry & Molecular Science',
+    subtitle: 'Powered by PubChem — 100M+ compounds with 3D structures and molecular intelligence',
+    features: [
+      {
+        title: 'MoleculeViz',
+        path: '/molecule-viz',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" /><circle cx="19" cy="6" r="2" /><circle cx="5" cy="6" r="2" /><circle cx="12" cy="20" r="2" />
+            <line x1="14.5" y1="10" x2="17.5" y2="7.5" /><line x1="9.5" y1="10" x2="6.5" y2="7.5" /><line x1="12" y1="15" x2="12" y2="18" />
+          </svg>
+        ),
+        description: '3D interactive molecule viewer with WebGL. Rotate, zoom, and explore real atomic structures from PubChem with color-coded atoms and bonds.',
+        color: '#4f46e5',
+        bg: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
+      },
+      {
+        title: 'ChemExplorer',
+        path: '/chem-explorer',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 3h6v7l4 7H5l4-7V3Z" /><path d="M9 3h6" /><circle cx="12" cy="17" r="1" />
+          </svg>
+        ),
+        description: 'Comprehensive drug compound cards — molecular properties, Lipinski Rule-of-5 analysis, radar charts, structure images, and chemical database browser.',
+        color: '#059669',
+        bg: 'linear-gradient(135deg, #ecfdf5, #d1fae5)',
+      },
+      {
+        title: 'DrugRepurpose',
+        path: '/drug-repurpose',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />
+          </svg>
+        ),
+        description: 'Find structurally similar drug compounds for repurposing. Compare molecular fingerprints, properties radar charts, and Lipinski compliance side-by-side.',
+        color: '#7c3aed',
+        bg: 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
+      },
+    ],
+  },
+  {
     id: 'analytics',
     title: 'Analytics & Intelligence',
     subtitle: 'Real-time monitoring and competitive analysis across the healthcare landscape',
@@ -320,7 +364,7 @@ const EXTRA_SECTIONS = [
 ];
 
 const STATS = [
-  { value: '22+', label: 'Specialized Tools' },
+  { value: '25+', label: 'Specialized Tools' },
   { value: '50+', label: 'Data Sources' },
   { value: 'AI', label: 'Powered Insights' },
   { value: '0', label: 'Data Sent to Cloud' },

@@ -32,6 +32,9 @@ const MedComparePage = lazy(() => import('./pages/MedComparePage'));
 const ResearchRadarPage = lazy(() => import('./pages/ResearchRadarPage'));
 const ClinicalInsightPage = lazy(() => import('./pages/ClinicalInsightPage'));
 const RxCalcPage = lazy(() => import('./pages/RxCalcPage'));
+const DrugRepurposePage = lazy(() => import('./pages/DrugRepurposePage'));
+const MoleculeVizPage = lazy(() => import('./pages/MoleculeVizPage'));
+const ChemExplorerPage = lazy(() => import('./pages/ChemExplorerPage'));
 
 const SIDEBAR_PATHS = ['/news', '/disease-drug-news', '/category'];
 
@@ -70,6 +73,9 @@ function AppContent() {
               <Route path="/research-radar" element={<ResearchRadarPage />} />
               <Route path="/clinical-insight" element={<ClinicalInsightPage />} />
               <Route path="/rx-calc" element={<RxCalcPage />} />
+              <Route path="/drug-repurpose" element={<DrugRepurposePage />} />
+              <Route path="/chem-explorer" element={<ChemExplorerPage />} />
+              <Route path="/molecule-viz" element={<MoleculeVizPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
             </Routes>
@@ -87,8 +93,8 @@ function AppContent() {
               </div>
             </div>
             <p className="footer-desc">
-              AI-powered healthcare platform with 22+ tools for drug intelligence,
-              clinical trials, safety monitoring, and medical research analytics.
+              AI-powered healthcare platform with 25+ tools for drug intelligence,
+              molecular science, clinical trials, safety monitoring, and research analytics.
             </p>
           </div>
           <div className="footer-col">
@@ -106,15 +112,14 @@ function AppContent() {
             <a href="/adverse-events">SafetyWatch</a>
           </div>
           <div className="footer-col">
-            <h4 className="footer-heading">Analytics</h4>
-            <a href="/live-pulse">LivePulse</a>
-            <a href="/pharma-globe">PharmaGlobe</a>
-            <a href="/research-radar">ResearchRadar</a>
-            <a href="/clinical-insight">ClinicalInsight</a>
+            <h4 className="footer-heading">Chemistry</h4>
+            <a href="/molecule-viz">MoleculeViz</a>
+            <a href="/chem-explorer">ChemExplorer</a>
+            <a href="/drug-repurpose">DrugRepurpose</a>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2026 HealthPulse. Built with real-time data from FDA, EMA, NIH, PubMed &amp; ClinicalTrials.gov.</p>
+          <p>&copy; 2026 HealthPulse. Built with real-time data from FDA, EMA, NIH, PubMed, PubChem &amp; ClinicalTrials.gov.</p>
         </div>
       </footer>
       <Toaster

@@ -71,6 +71,7 @@ describe('LandingPage', () => {
       'LivePulse', 'BioSentinel', 'PharmaGlobe',
       'OutbreakRadar', 'ResearchRadar', 'ClinicalInsight',
       'MedCompare', 'RxCalc',
+      'MoleculeViz', 'ChemExplorer', 'DrugRepurpose',
     ];
     featureTitles.forEach((title) => {
       expect(screen.getAllByText(title).length).toBeGreaterThanOrEqual(1);
@@ -99,7 +100,7 @@ describe('LandingPage', () => {
 
   it('renders stats section', () => {
     renderPage();
-    expect(screen.getByText('22+')).toBeInTheDocument();
+    expect(screen.getByText('25+')).toBeInTheDocument();
     expect(screen.getByText('Specialized Tools')).toBeInTheDocument();
     expect(screen.getByText('Powered Insights')).toBeInTheDocument();
   });
