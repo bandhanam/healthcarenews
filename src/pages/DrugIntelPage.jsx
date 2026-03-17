@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BarChart,
@@ -22,6 +22,7 @@ import './DrugIntelPage.css';
 const TABS = [
   { id: 'trialmap', label: 'TrialMap', icon: '🗺' },
   { id: 'approvals', label: 'ApprovalTracker', icon: '📋' },
+  { id: 'competitor', label: 'CompetitorRadar', icon: '🎯' },
 ];
 
 const STATUS_OPTIONS = [
@@ -853,6 +854,388 @@ function ApprovalTrackerTab() {
   );
 }
 
+const MARKET_REGIONS = [
+  { key: 'US', label: 'United States', color: '#3b82f6', countries: ['United States'] },
+  { key: 'EU', label: 'Europe', color: '#10b981', countries: ['Germany', 'France', 'United Kingdom', 'Spain', 'Italy', 'Netherlands', 'Belgium', 'Sweden', 'Denmark', 'Poland', 'Austria', 'Switzerland', 'Norway', 'Finland', 'Ireland', 'Czech Republic', 'Portugal', 'Greece', 'Hungary', 'Romania'] },
+  { key: 'IN', label: 'India', color: '#f59e0b', countries: ['India'] },
+  { key: 'CN', label: 'China', color: '#ef4444', countries: ['China'] },
+  { key: 'JP', label: 'Japan', color: '#8b5cf6', countries: ['Japan'] },
+  { key: 'KR', label: 'South Korea', color: '#ec4899', countries: ['Korea, Republic of', 'South Korea'] },
+  { key: 'AU', label: 'Australia', color: '#14b8a6', countries: ['Australia'] },
+  { key: 'OTHER', label: 'Rest of World', color: '#94a3b8', countries: [] },
+];
+
+function classifyRegion(country) {
+  if (!country) return 'OTHER';
+  for (const r of MARKET_REGIONS) {
+    if (r.countries.some((c) => c.toLowerCase() === country.toLowerCase())) return r.key;
+  }
+  return 'OTHER';
+}
+
+function CompetitorRadarTab() {
+  const [query, setQuery] = useState('');
+  const [studies, setStudies] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [competitors, setCompetitors] = useState([]);
+  const [competitorsLoading, setCompetitorsLoading] = useState(false);
+  const [expandedSponsor, setExpandedSponsor] = useState(null);
+
+  const searchCompetitors = useCallback(async () => {
+    if (!query.trim()) return;
+    setLoading(true);
+    setCompetitorsLoading(true);
+    setStudies([]);
+    setCompetitors([]);
+
+    try {
+      const [trialsRes, approvalsRes] = await Promise.all([
+        fetch(`/api/trials/search?q=${encodeURIComponent(query.trim())}&pageSize=50`),
+        fetch(`/api/approvals/competitors?category=${encodeURIComponent(query.trim())}&limit=20`),
+      ]);
+
+      const trialsData = await trialsRes.json();
+      if (!trialsData.error) {
+        setStudies(trialsData.studies || []);
+        setTotalCount(trialsData.totalCount || 0);
+      }
+
+      const appData = await approvalsRes.json();
+      if (!appData.error) {
+        setCompetitors(appData.competitors || []);
+      }
+
+      setSearched(true);
+    } catch (err) {
+      console.error('Competitor search failed:', err);
+    } finally {
+      setLoading(false);
+      setCompetitorsLoading(false);
+    }
+  }, [query]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    searchCompetitors();
+  };
+
+  const sponsorData = useMemo(() => {
+    const map = {};
+    studies.forEach((s) => {
+      if (!s.sponsor) return;
+      if (!map[s.sponsor]) {
+        map[s.sponsor] = {
+          sponsor: s.sponsor,
+          total: 0,
+          phases: { EARLY_PHASE1: 0, PHASE1: 0, PHASE2: 0, PHASE3: 0, PHASE4: 0, NA: 0 },
+          statuses: {},
+          regions: {},
+          conditions: {},
+          trials: [],
+        };
+      }
+      const entry = map[s.sponsor];
+      entry.total++;
+      entry.phases[normalizePhase(s.phase)]++;
+
+      const st = s.status || 'Unknown';
+      entry.statuses[st] = (entry.statuses[st] || 0) + 1;
+
+      (s.locations || []).forEach((loc) => {
+        const region = classifyRegion(loc.country);
+        entry.regions[region] = (entry.regions[region] || 0) + 1;
+      });
+
+      (s.conditions || []).forEach((c) => {
+        entry.conditions[c] = (entry.conditions[c] || 0) + 1;
+      });
+
+      if (entry.trials.length < 8) entry.trials.push(s);
+    });
+
+    return Object.values(map).sort((a, b) => b.total - a.total).slice(0, 15);
+  }, [studies]);
+
+  const regionSummary = useMemo(() => {
+    const counts = {};
+    studies.forEach((s) => {
+      (s.locations || []).forEach((loc) => {
+        const region = classifyRegion(loc.country);
+        counts[region] = (counts[region] || 0) + 1;
+      });
+    });
+    return MARKET_REGIONS.filter((r) => counts[r.key]).map((r) => ({
+      ...r,
+      count: counts[r.key] || 0,
+    }));
+  }, [studies]);
+
+  const topSponsorChart = useMemo(() => {
+    return sponsorData.slice(0, 10).map((s) => ({
+      name: s.sponsor.length > 25 ? s.sponsor.slice(0, 25) + '...' : s.sponsor,
+      fullName: s.sponsor,
+      trials: s.total,
+      Phase1: s.phases.PHASE1 + s.phases.EARLY_PHASE1,
+      Phase2: s.phases.PHASE2,
+      Phase3: s.phases.PHASE3,
+      Phase4: s.phases.PHASE4,
+    }));
+  }, [sponsorData]);
+
+  const regionChartData = useMemo(() => {
+    return regionSummary.map((r) => ({ name: r.label, value: r.count, color: r.color }));
+  }, [regionSummary]);
+
+  return (
+    <div className="di-competitor-tab">
+      <div className="cr-intro">
+        <h3>Competitive Landscape Analysis</h3>
+        <p>Enter a disease or therapeutic area to see which companies are competing, their pipeline phases, and global market presence across US, EU, India, China, Japan, and more.</p>
+      </div>
+
+      <form className="di-search-bar" onSubmit={handleSubmit}>
+        <AutocompleteInput
+          value={query}
+          onChange={setQuery}
+          onSelect={(val) => setQuery(val)}
+          placeholder="Enter disease or therapeutic area (e.g., Cancer, Diabetes, Alzheimer)..."
+          className="di-search-input"
+        />
+        <button type="submit" className="di-btn-primary" disabled={loading}>
+          {loading ? 'Analyzing...' : 'Analyze Competition'}
+        </button>
+      </form>
+
+      <div className="di-condition-chips-row">
+        <span className="di-chips-label">Popular:</span>
+        {['Cancer', 'Diabetes', 'Alzheimer', 'Cardiology', 'Immunology', 'Oncology', 'Neurology', 'Infectious Disease'].map((c) => (
+          <button
+            key={c}
+            className={`di-chip ${query === c ? 'active' : ''}`}
+            onClick={() => { setQuery(c); }}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {loading && (
+        <div className="di-loading">
+          Scanning global clinical trials and regulatory approvals...
+        </div>
+      )}
+
+      {searched && !loading && (
+        <>
+          <div className="di-results-summary">
+            Found <strong>{totalCount.toLocaleString()}</strong> clinical trials
+            {sponsorData.length > 0 && ` from ${sponsorData.length} sponsors`}
+            {competitors.length > 0 && ` + ${competitors.length} companies with approved drugs`}
+          </div>
+
+          {regionSummary.length > 0 && (
+            <div className="cr-region-cards">
+              <h3>Global Market Presence</h3>
+              <div className="cr-region-grid">
+                {regionSummary.map((r) => (
+                  <div key={r.key} className="cr-region-card" style={{ borderTopColor: r.color }}>
+                    <span className="cr-region-flag">{
+                      { US: '🇺🇸', EU: '🇪🇺', IN: '🇮🇳', CN: '🇨🇳', JP: '🇯🇵', KR: '🇰🇷', AU: '🇦🇺', OTHER: '🌍' }[r.key]
+                    }</span>
+                    <span className="cr-region-name">{r.label}</span>
+                    <span className="cr-region-count">{r.count.toLocaleString()}</span>
+                    <span className="cr-region-label">trial sites</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {topSponsorChart.length > 0 && (
+            <div className="di-charts-grid di-charts-2x2">
+              <div className="di-chart-section">
+                <h3>Top Competitors by Trial Count</h3>
+                <ResponsiveContainer width="100%" height={350}>
+                  <BarChart data={topSponsorChart} layout="vertical" margin={{ left: 180 }}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis type="number" />
+                    <YAxis type="category" dataKey="name" width={170} tick={{ fontSize: 11 }} />
+                    <Tooltip formatter={(val, name) => [val, name]} />
+                    <Legend />
+                    <Bar dataKey="Phase1" stackId="a" fill={PHASE_COLORS.PHASE1} />
+                    <Bar dataKey="Phase2" stackId="a" fill={PHASE_COLORS.PHASE2} />
+                    <Bar dataKey="Phase3" stackId="a" fill={PHASE_COLORS.PHASE3} />
+                    <Bar dataKey="Phase4" stackId="a" fill={PHASE_COLORS.PHASE4} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="di-chart-section">
+                <h3>Trial Sites by Region</h3>
+                <ResponsiveContainer width="100%" height={350}>
+                  <PieChart>
+                    <Pie
+                      data={regionChartData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={110}
+                      innerRadius={50}
+                      label={({ name, value }) => `${name}: ${value}`}
+                    >
+                      {regionChartData.map((entry, i) => (
+                        <Cell key={i} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
+          {sponsorData.length > 0 && (
+            <div className="cr-pipeline-section">
+              <h3>Pipeline Comparison</h3>
+              <p className="di-pipeline-subtitle">Phase breakdown for each competitor based on ClinicalTrials.gov data</p>
+              <div className="cr-pipeline-table-wrap">
+                <table className="cr-pipeline-table">
+                  <thead>
+                    <tr>
+                      <th>Company / Sponsor</th>
+                      <th>Phase 1</th>
+                      <th>Phase 2</th>
+                      <th>Phase 3</th>
+                      <th>Phase 4</th>
+                      <th>Total</th>
+                      <th>Regions</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sponsorData.map((s) => {
+                      const isExpanded = expandedSponsor === s.sponsor;
+                      const regionKeys = Object.keys(s.regions);
+                      return (
+                        <React.Fragment key={s.sponsor}>
+                          <tr className={isExpanded ? 'cr-row-expanded' : ''}>
+                            <td className="cr-td-sponsor">{s.sponsor}</td>
+                            <td><span className="cr-phase-cell" style={{ background: s.phases.PHASE1 + s.phases.EARLY_PHASE1 > 0 ? '#dbeafe' : 'transparent' }}>{s.phases.PHASE1 + s.phases.EARLY_PHASE1 || '-'}</span></td>
+                            <td><span className="cr-phase-cell" style={{ background: s.phases.PHASE2 > 0 ? '#d1fae5' : 'transparent' }}>{s.phases.PHASE2 || '-'}</span></td>
+                            <td><span className="cr-phase-cell" style={{ background: s.phases.PHASE3 > 0 ? '#fef3c7' : 'transparent' }}>{s.phases.PHASE3 || '-'}</span></td>
+                            <td><span className="cr-phase-cell" style={{ background: s.phases.PHASE4 > 0 ? '#fee2e2' : 'transparent' }}>{s.phases.PHASE4 || '-'}</span></td>
+                            <td className="cr-td-total"><strong>{s.total}</strong></td>
+                            <td className="cr-td-regions">
+                              {regionKeys.slice(0, 4).map((rk) => {
+                                const flag = { US: '🇺🇸', EU: '🇪🇺', IN: '🇮🇳', CN: '🇨🇳', JP: '🇯🇵', KR: '🇰🇷', AU: '🇦🇺', OTHER: '🌍' }[rk] || '🌍';
+                                return <span key={rk} className="cr-region-flag-sm" title={rk}>{flag}</span>;
+                              })}
+                              {regionKeys.length > 4 && <span className="cr-region-more">+{regionKeys.length - 4}</span>}
+                            </td>
+                            <td>
+                              <button
+                                className="cr-expand-btn"
+                                onClick={() => setExpandedSponsor(isExpanded ? null : s.sponsor)}
+                              >
+                                {isExpanded ? '▲' : '▼'}
+                              </button>
+                            </td>
+                          </tr>
+                          {isExpanded && (
+                            <tr className="cr-detail-row">
+                              <td colSpan={8}>
+                                <div className="cr-detail-content">
+                                  <div className="cr-detail-trials">
+                                    <h4>Recent Trials</h4>
+                                    {s.trials.map((t) => (
+                                      <div key={t.nctId} className="cr-detail-trial-card">
+                                        <div className="cr-detail-trial-title">{t.title}</div>
+                                        <div className="cr-detail-trial-meta">
+                                          <span className="di-tag">{t.nctId}</span>
+                                          <span className={`di-status-badge di-status-${(t.status || '').toLowerCase().replace(/\s+/g, '-')}`}>{t.status}</span>
+                                          {t.phase && <span className="di-phase-badge">{Array.isArray(t.phase) ? t.phase.join(', ') : t.phase}</span>}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  <div className="cr-detail-regions">
+                                    <h4>Geographic Presence</h4>
+                                    <div className="cr-detail-region-bars">
+                                      {Object.entries(s.regions).sort((a, b) => b[1] - a[1]).map(([rk, cnt]) => {
+                                        const reg = MARKET_REGIONS.find((r) => r.key === rk);
+                                        const maxCnt = Math.max(...Object.values(s.regions));
+                                        return (
+                                          <div key={rk} className="cr-detail-region-row">
+                                            <span className="cr-detail-region-label">{reg?.label || rk}</span>
+                                            <div className="cr-detail-region-bar-track">
+                                              <div
+                                                className="cr-detail-region-bar-fill"
+                                                style={{ width: `${(cnt / maxCnt) * 100}%`, background: reg?.color || '#94a3b8' }}
+                                              />
+                                            </div>
+                                            <span className="cr-detail-region-count">{cnt}</span>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {competitors.length > 0 && (
+            <div className="cr-approvals-section">
+              <h3>Approved Drug Competitors</h3>
+              <p className="di-pipeline-subtitle">Companies with approved drugs from FDA, EMA, and CDSCO in this area</p>
+              <div className="cr-approval-cards">
+                {competitors.slice(0, 12).map((c) => (
+                  <div key={c.manufacturer} className="cr-approval-card">
+                    <div className="cr-approval-header">
+                      <span className="cr-approval-name">{c.manufacturer}</span>
+                      <span className="cr-approval-total">{c.total} approved</span>
+                    </div>
+                    <div className="cr-approval-sources">
+                      {Object.entries(c.bySrc || {}).map(([src, cnt]) => (
+                        <span key={src} className="di-source-badge" style={{ background: SOURCE_COLORS[src] || '#666' }}>
+                          {src}: {cnt}
+                        </span>
+                      ))}
+                    </div>
+                    {c.drugs && c.drugs.length > 0 && (
+                      <div className="cr-approval-drugs">
+                        {c.drugs.slice(0, 5).map((d, i) => (
+                          <div key={i} className="cr-approval-drug-row">
+                            <span className="cr-drug-name">{d.drug_name}</span>
+                            {d.approval_date && <span className="cr-drug-date">{new Date(d.approval_date).getFullYear()}</span>}
+                          </div>
+                        ))}
+                        {c.drugs.length > 5 && <div className="cr-drug-more">+{c.drugs.length - 5} more</div>}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function DrugIntelPage() {
   const [activeTab, setActiveTab] = useState('trialmap');
 
@@ -893,7 +1276,9 @@ function DrugIntelPage() {
           transition={{ duration: 0.25 }}
           className="di-tab-content"
         >
-          {activeTab === 'trialmap' ? <TrialMapTab /> : <ApprovalTrackerTab />}
+          {activeTab === 'trialmap' && <TrialMapTab />}
+          {activeTab === 'approvals' && <ApprovalTrackerTab />}
+          {activeTab === 'competitor' && <CompetitorRadarTab />}
         </motion.div>
       </AnimatePresence>
     </div>

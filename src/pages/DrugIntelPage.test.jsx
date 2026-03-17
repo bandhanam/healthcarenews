@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import DrugIntelPage from './DrugIntelPage';
 
 vi.mock('react-leaflet', () => ({
@@ -15,13 +15,30 @@ vi.mock('leaflet', () => ({
   latLngBounds: vi.fn(() => ({ extend: vi.fn() })),
 }));
 
+vi.mock('framer-motion', () => ({
+  motion: {
+    div: ({ children, ...props }) => <div {...filterDomProps(props)}>{children}</div>,
+  },
+  AnimatePresence: ({ children }) => <>{children}</>,
+}));
+
+function filterDomProps(props) {
+  const filtered = {};
+  for (const [key, val] of Object.entries(props)) {
+    if (['className', 'style', 'id', 'role', 'onClick', 'onSubmit'].includes(key)) {
+      filtered[key] = val;
+    }
+  }
+  return filtered;
+}
+
 beforeEach(() => {
   vi.stubGlobal(
     'fetch',
     vi.fn(() =>
       Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({ studies: [], results: [], total: 0, totalCount: 0 }),
+        json: () => Promise.resolve({ studies: [], results: [], total: 0, totalCount: 0, competitors: [] }),
       }),
     ),
   );
@@ -33,10 +50,11 @@ describe('DrugIntelPage', () => {
     expect(screen.getByText('Drug Intelligence Dashboard')).toBeInTheDocument();
   });
 
-  it('renders both tab buttons', () => {
+  it('renders all three tab buttons', () => {
     render(<DrugIntelPage />);
     expect(screen.getByText('TrialMap')).toBeInTheDocument();
     expect(screen.getByText('ApprovalTracker')).toBeInTheDocument();
+    expect(screen.getByText('CompetitorRadar')).toBeInTheDocument();
   });
 
   it('renders the specialty dropdown', () => {
@@ -60,5 +78,24 @@ describe('DrugIntelPage', () => {
     render(<DrugIntelPage />);
     expect(screen.getByText('Quick search:')).toBeInTheDocument();
     expect(screen.getByText('Allergology')).toBeInTheDocument();
+  });
+
+  it('switches to CompetitorRadar tab', async () => {
+    render(<DrugIntelPage />);
+    fireEvent.click(screen.getByText('CompetitorRadar'));
+    await waitFor(() => {
+      expect(screen.getByText('Competitive Landscape Analysis')).toBeInTheDocument();
+    });
+    expect(
+      screen.getByPlaceholderText(/Enter disease or therapeutic area/),
+    ).toBeInTheDocument();
+  });
+
+  it('renders popular condition chips in CompetitorRadar', async () => {
+    render(<DrugIntelPage />);
+    fireEvent.click(screen.getByText('CompetitorRadar'));
+    await waitFor(() => {
+      expect(screen.getByText('Popular:')).toBeInTheDocument();
+    });
   });
 });

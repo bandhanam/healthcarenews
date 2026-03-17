@@ -900,3 +900,414 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ============================================================
+   CompetitorRadar Tab
+   ============================================================ */
+
+.cr-intro {
+  margin-bottom: 1.25rem;
+}
+
+.cr-intro h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.35rem;
+}
+
+.cr-intro p {
+  font-size: 0.88rem;
+  color: var(--color-text-dim);
+  line-height: 1.5;
+  max-width: 800px;
+}
+
+/* Region cards */
+.cr-region-cards {
+  margin-bottom: 1.5rem;
+}
+
+.cr-region-cards h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.75rem;
+}
+
+.cr-region-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.65rem;
+}
+
+.cr-region-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid;
+  border-radius: var(--radius-md);
+  padding: 0.85rem 0.75rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.cr-region-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.cr-region-flag {
+  display: block;
+  font-size: 1.6rem;
+  margin-bottom: 0.3rem;
+}
+
+.cr-region-name {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.2rem;
+}
+
+.cr-region-count {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.cr-region-label {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+/* Pipeline comparison table */
+.cr-pipeline-section {
+  margin: 1.5rem 0;
+}
+
+.cr-pipeline-section h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.cr-pipeline-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  margin-top: 0.75rem;
+}
+
+.cr-pipeline-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  background: var(--color-bg-card);
+}
+
+.cr-pipeline-table thead {
+  background: var(--color-bg);
+}
+
+.cr-pipeline-table th {
+  padding: 0.7rem 0.65rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.cr-pipeline-table th:first-child {
+  text-align: left;
+  padding-left: 1rem;
+}
+
+.cr-pipeline-table td {
+  padding: 0.6rem 0.65rem;
+  border-bottom: 1px solid var(--color-border);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.cr-pipeline-table tbody tr:hover {
+  background: var(--color-bg-card-hover);
+}
+
+.cr-pipeline-table tbody tr.cr-row-expanded {
+  background: rgba(26, 127, 100, 0.04);
+}
+
+.cr-td-sponsor {
+  text-align: left !important;
+  padding-left: 1rem !important;
+  font-weight: 600;
+  color: var(--color-text);
+  max-width: 250px;
+}
+
+.cr-td-total {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.cr-td-regions {
+  display: flex;
+  gap: 0.2rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.cr-region-flag-sm {
+  font-size: 0.95rem;
+}
+
+.cr-region-more {
+  font-size: 0.68rem;
+  color: var(--color-text-dim);
+  font-weight: 600;
+}
+
+.cr-phase-cell {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  min-width: 28px;
+}
+
+.cr-expand-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.4rem;
+  color: var(--color-text-dim);
+  transition: all 0.15s;
+}
+
+.cr-expand-btn:hover {
+  background: var(--color-bg-card-hover);
+  color: var(--color-primary);
+}
+
+/* Expanded detail row */
+.cr-detail-row td {
+  padding: 0 !important;
+  border-bottom: 2px solid var(--color-primary-light);
+}
+
+.cr-detail-content {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--color-bg);
+}
+
+.cr-detail-trials h4,
+.cr-detail-regions h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.cr-detail-trial-card {
+  padding: 0.5rem;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.4rem;
+}
+
+.cr-detail-trial-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 0.3rem;
+}
+
+.cr-detail-trial-meta {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.cr-detail-region-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.cr-detail-region-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-dim);
+  min-width: 100px;
+}
+
+.cr-detail-region-bar-track {
+  flex: 1;
+  height: 16px;
+  background: var(--color-bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.cr-detail-region-bar-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.4s ease;
+}
+
+.cr-detail-region-count {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text);
+  min-width: 30px;
+  text-align: right;
+}
+
+/* Approved drug competitors */
+.cr-approvals-section {
+  margin: 2rem 0;
+}
+
+.cr-approvals-section h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.cr-approval-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.cr-approval-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s;
+}
+
+.cr-approval-card:hover {
+  border-color: var(--color-primary-light);
+}
+
+.cr-approval-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.cr-approval-name {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--color-text);
+}
+
+.cr-approval-total {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: rgba(26, 127, 100, 0.1);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+}
+
+.cr-approval-sources {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.cr-approval-drugs {
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.5rem;
+}
+
+.cr-approval-drug-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.2rem 0;
+  font-size: 0.78rem;
+}
+
+.cr-drug-name {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.cr-drug-date {
+  font-size: 0.72rem;
+  color: var(--color-text-dim);
+  font-weight: 600;
+}
+
+.cr-drug-more {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  padding-top: 0.3rem;
+}
+
+/* Responsive for CompetitorRadar */
+@media (max-width: 768px) {
+  .cr-region-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cr-detail-content {
+    grid-template-columns: 1fr;
+  }
+
+  .cr-approval-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .cr-pipeline-table {
+    font-size: 0.78rem;
+  }
+
+  .cr-td-sponsor {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cr-region-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
