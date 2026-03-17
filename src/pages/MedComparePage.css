@@ -1,0 +1,66 @@
+.mc-page { max-width: 1080px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+.mc-hero { text-align: center; margin-bottom: 1.5rem; }
+.mc-hero-badge { display: inline-block; padding: 0.25rem 0.8rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%); color: #fff; margin-bottom: 0.6rem; }
+.mc-title { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #ec4899, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.4rem; }
+.mc-subtitle { color: var(--color-text-dim); font-size: 0.92rem; max-width: 560px; margin: 0 auto; line-height: 1.5; }
+
+.mc-search-section { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); }
+.mc-inputs-row { display: flex; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap; }
+.mc-input-group { flex: 1; min-width: 150px; }
+.mc-input-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 0.3rem; }
+.mc-input { width: 100%; padding: 0.55rem 0.85rem; border: 2px solid var(--color-border); border-radius: 12px; background: var(--color-bg); font-size: 0.88rem; color: var(--color-text); outline: none; transition: border-color 0.2s; }
+.mc-input:focus { border-color: #ec4899; }
+.mc-input::placeholder { color: var(--color-text-dim); opacity: 0.5; }
+.mc-vs-badge { flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #ec4899, #3b82f6); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 800; margin-bottom: 2px; }
+.mc-compare-btn { flex-shrink: 0; padding: 0.55rem 1.25rem; border-radius: 12px; border: none; background: var(--color-border); color: var(--color-text-dim); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; min-width: 100px; }
+.mc-compare-btn.active { background: linear-gradient(135deg, #ec4899, #f472b6); color: #fff; box-shadow: 0 2px 12px rgba(236,72,153,0.25); }
+.mc-compare-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.mc-btn-spin { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: mc-spin 0.6s linear infinite; }
+@keyframes mc-spin { to { transform: rotate(360deg); } }
+
+.mc-pairs { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.75rem; align-items: center; }
+.mc-pairs-label { font-size: 0.72rem; font-weight: 600; color: var(--color-text-dim); }
+.mc-pair-btn { padding: 0.22rem 0.6rem; border-radius: 12px; border: 1px solid var(--color-border); background: var(--color-bg); font-size: 0.7rem; color: var(--color-text); cursor: pointer; transition: all 0.15s; }
+.mc-pair-btn:hover { border-color: #ec4899; color: #ec4899; }
+
+.mc-error { padding: 0.85rem 1.1rem; border-radius: 14px; font-size: 0.88rem; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: #92400e; margin-bottom: 1.25rem; }
+.mc-loading { text-align: center; padding: 2.5rem; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; margin-bottom: 1.5rem; }
+.mc-pulse-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; margin-bottom: 0.75rem; }
+.mc-pulse { position: absolute; inset: 0; border: 2px solid #ec4899; border-radius: 50%; animation: mc-pulsate 1.5s ease-out infinite; opacity: 0; }
+.mc-p2 { animation-delay: 0.5s; }
+@keyframes mc-pulsate { 0% { transform: scale(0.6); opacity: 0.6; } 100% { transform: scale(1.4); opacity: 0; } }
+.mc-loading p { font-size: 0.9rem; color: var(--color-text-dim); }
+.mc-loading strong { color: #ec4899; }
+
+.mc-cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem; }
+.mc-drug-card { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; padding: 1.25rem; border-top: 4px solid; box-shadow: var(--shadow-sm); }
+.mc-drug-badge { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 8px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; }
+.mc-drug-brand { font-size: 1.1rem; font-weight: 800; color: var(--color-text); text-transform: capitalize; margin: 0 0 0.1rem; }
+.mc-drug-generic { font-size: 0.78rem; color: var(--color-text-dim); text-transform: capitalize; display: block; margin-bottom: 0.5rem; }
+.mc-drug-meta { display: flex; flex-direction: column; gap: 0.15rem; margin-bottom: 0.65rem; }
+.mc-drug-meta span { font-size: 0.75rem; color: var(--color-text-dim); }
+.mc-drug-meta strong { color: var(--color-text); }
+.mc-drug-section { margin-top: 0.5rem; }
+.mc-drug-section h4 { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text); margin: 0 0 0.25rem; }
+.mc-drug-section p { font-size: 0.75rem; color: var(--color-text-dim); line-height: 1.5; margin: 0; }
+.mc-warning { padding: 0.5rem; background: rgba(245,158,11,0.04); border-radius: 10px; border: 1px solid rgba(245,158,11,0.1); }
+
+.mc-chart-card { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow-sm); margin-bottom: 0.75rem; }
+.mc-chart-title { font-size: 0.85rem; font-weight: 700; color: var(--color-text); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; }
+
+.mc-comp-bar { margin-bottom: 0.25rem; }
+.mc-comp-sides { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; }
+.mc-comp-val { font-size: 1rem; font-weight: 800; }
+.mc-comp-label { font-size: 0.72rem; font-weight: 600; color: var(--color-text-dim); text-transform: capitalize; }
+.mc-comp-track { display: flex; height: 14px; border-radius: 7px; overflow: hidden; }
+.mc-comp-fill-a, .mc-comp-fill-b { height: 100%; }
+
+.mc-charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.mc-span-full { grid-column: 1 / -1; }
+
+@media (max-width: 640px) {
+  .mc-cards-row { grid-template-columns: 1fr; }
+  .mc-charts-grid { grid-template-columns: 1fr; }
+  .mc-inputs-row { flex-direction: column; }
+  .mc-vs-badge { align-self: center; }
+}

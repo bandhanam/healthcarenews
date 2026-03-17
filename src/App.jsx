@@ -27,6 +27,11 @@ const DrugTimelinePage = lazy(() => import('./pages/DrugTimelinePage'));
 const LivePulsePage = lazy(() => import('./pages/LivePulsePage'));
 const BioSentinelPage = lazy(() => import('./pages/BioSentinelPage'));
 const OutbreakRadarPage = lazy(() => import('./pages/OutbreakRadarPage'));
+const PharmaGlobePage = lazy(() => import('./pages/PharmaGlobePage'));
+const MedComparePage = lazy(() => import('./pages/MedComparePage'));
+const ResearchRadarPage = lazy(() => import('./pages/ResearchRadarPage'));
+const ClinicalInsightPage = lazy(() => import('./pages/ClinicalInsightPage'));
+const RxCalcPage = lazy(() => import('./pages/RxCalcPage'));
 
 function App() {
   useEffect(() => {
@@ -63,6 +68,11 @@ function App() {
                 <Route path="/live-pulse" element={<LivePulsePage />} />
                 <Route path="/bio-sentinel" element={<BioSentinelPage />} />
                 <Route path="/outbreak-radar" element={<OutbreakRadarPage />} />
+                <Route path="/pharma-globe" element={<PharmaGlobePage />} />
+                <Route path="/med-compare" element={<MedComparePage />} />
+                <Route path="/research-radar" element={<ResearchRadarPage />} />
+                <Route path="/clinical-insight" element={<ClinicalInsightPage />} />
+                <Route path="/rx-calc" element={<RxCalcPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
               </Routes>

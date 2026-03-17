@@ -19,6 +19,11 @@ const NAV_LINKS = [
   { path: '/live-pulse', label: 'LivePulse' },
   { path: '/bio-sentinel', label: 'BioSentinel' },
   { path: '/outbreak-radar', label: 'OutbreakRadar' },
+  { path: '/pharma-globe', label: 'PharmaGlobe' },
+  { path: '/med-compare', label: 'MedCompare' },
+  { path: '/research-radar', label: 'Research' },
+  { path: '/clinical-insight', label: 'ClinicalInsight' },
+  { path: '/rx-calc', label: 'RxCalc' },
   { path: '/about', label: 'About' },
   { path: '/contact', label: 'Contact' },
 ];

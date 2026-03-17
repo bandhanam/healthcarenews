@@ -1,0 +1,67 @@
+.ci-page { max-width: 1080px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+.ci-hero { text-align: center; margin-bottom: 1.5rem; }
+.ci-hero-badge { display: inline-block; padding: 0.25rem 0.8rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; background: linear-gradient(135deg, #65a30d 0%, #84cc16 100%); color: #fff; margin-bottom: 0.6rem; }
+.ci-title { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg, #65a30d, #84cc16); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.4rem; }
+.ci-subtitle { color: var(--color-text-dim); font-size: 0.92rem; max-width: 560px; margin: 0 auto; line-height: 1.5; }
+
+.ci-search-card { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); }
+.ci-search-bar { display: flex; align-items: center; background: var(--color-bg); border: 2px solid var(--color-border); border-radius: 14px; padding: 0.4rem 0.4rem 0.4rem 0.85rem; transition: border-color 0.2s; }
+.ci-search-bar:focus-within { border-color: #65a30d; box-shadow: 0 0 0 3px rgba(101,163,13,0.12); }
+.ci-search-icon { flex-shrink: 0; color: var(--color-text-dim); margin-right: 0.4rem; }
+.ci-search-input { flex: 1; border: none; outline: none; background: transparent; font-size: 0.9rem; color: var(--color-text); padding: 0.35rem 0; }
+.ci-search-input::placeholder { color: var(--color-text-dim); opacity: 0.5; }
+.ci-search-btn { flex-shrink: 0; width: 40px; height: 40px; border-radius: 11px; border: none; background: var(--color-border); color: var(--color-text-dim); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+.ci-search-btn.active { background: #65a30d; color: #fff; box-shadow: 0 2px 8px rgba(101,163,13,0.3); }
+.ci-search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.ci-btn-spin { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: ci-spin 0.6s linear infinite; }
+@keyframes ci-spin { to { transform: rotate(360deg); } }
+
+.ci-conditions { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.75rem; }
+.ci-cond-btn { padding: 0.25rem 0.65rem; border-radius: 12px; border: 1px solid var(--color-border); background: var(--color-bg); font-size: 0.75rem; color: var(--color-text); cursor: pointer; transition: all 0.15s; }
+.ci-cond-btn:hover { border-color: #65a30d; color: #65a30d; }
+
+.ci-error { padding: 0.85rem 1.1rem; border-radius: 14px; font-size: 0.88rem; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: #92400e; margin-bottom: 1.25rem; }
+.ci-loading { text-align: center; padding: 2.5rem; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; margin-bottom: 1.5rem; }
+.ci-pulse-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; margin-bottom: 0.75rem; }
+.ci-pulse { position: absolute; inset: 0; border: 2px solid #65a30d; border-radius: 50%; animation: ci-pulsate 1.5s ease-out infinite; opacity: 0; }
+.ci-p2 { animation-delay: 0.5s; }
+@keyframes ci-pulsate { 0% { transform: scale(0.6); opacity: 0.6; } 100% { transform: scale(1.4); opacity: 0; } }
+.ci-loading p { font-size: 0.9rem; color: var(--color-text-dim); }
+.ci-loading strong { color: #65a30d; }
+
+.ci-banner { margin-bottom: 1rem; }
+.ci-banner h2 { font-size: 1.1rem; font-weight: 600; color: var(--color-text-dim); }
+.ci-banner span { font-weight: 800; text-transform: capitalize; color: #65a30d; }
+
+.ci-gauges-row { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.ci-gauge { display: flex; flex-direction: column; align-items: center; position: relative; }
+.ci-gauge-center { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 110px; height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.ci-gauge-val { font-size: 1.15rem; font-weight: 800; }
+.ci-gauge-label { font-size: 0.68rem; font-weight: 600; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 0.03em; margin-top: -0.15rem; }
+
+.ci-stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.65rem; margin-bottom: 1.5rem; }
+.ci-stat { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 14px; box-shadow: var(--shadow-sm); }
+.ci-stat-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ci-stat-body { display: flex; flex-direction: column; }
+.ci-stat-val { font-size: 1.2rem; font-weight: 800; color: var(--color-text); line-height: 1.2; }
+.ci-stat-label { font-size: 0.72rem; font-weight: 600; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 0.03em; }
+
+.ci-chart-card { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; padding: 1.25rem; box-shadow: var(--shadow-sm); margin-bottom: 0.75rem; }
+.ci-chart-title { font-size: 0.85rem; font-weight: 700; color: var(--color-text); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; }
+
+.ci-funnel-row { display: grid; grid-template-columns: 80px 1fr 50px; gap: 0.6rem; align-items: center; margin-bottom: 0.5rem; }
+.ci-funnel-phase { font-size: 0.78rem; font-weight: 700; text-align: right; }
+.ci-funnel-bars { display: flex; flex-direction: column; gap: 0.15rem; }
+.ci-funnel-track { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--color-bg); gap: 1px; }
+.ci-funnel-fill { height: 100%; }
+.ci-funnel-labels { display: flex; justify-content: space-between; }
+.ci-funnel-labels span { font-size: 0.62rem; font-weight: 600; }
+.ci-funnel-total { font-size: 0.78rem; font-weight: 800; color: var(--color-text-dim); text-align: center; }
+
+.ci-charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.ci-span-full { grid-column: 1 / -1; }
+
+@media (max-width: 640px) {
+  .ci-charts-grid { grid-template-columns: 1fr; }
+  .ci-gauges-row { gap: 0.75rem; }
+}
