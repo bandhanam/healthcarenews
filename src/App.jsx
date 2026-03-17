@@ -8,6 +8,7 @@ import FloatingParticles from './components/FloatingParticles';
 import Loader from './components/Loader';
 import './App.css';
 
+const LandingPage = lazy(() => import('./pages/LandingPage'));
 const HomePage = lazy(() => import('./pages/HomePage'));
 const DiseaseDrugPage = lazy(() => import('./pages/DiseaseDrugPage'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
@@ -21,6 +22,11 @@ const AdverseEventsPage = lazy(() => import('./pages/AdverseEventsPage'));
 const TrialMatchPage = lazy(() => import('./pages/TrialMatchPage'));
 const DrugComparePage = lazy(() => import('./pages/DrugComparePage'));
 const HealthScanPage = lazy(() => import('./pages/HealthScanPage'));
+const SymptomAIPage = lazy(() => import('./pages/SymptomAIPage'));
+const DrugTimelinePage = lazy(() => import('./pages/DrugTimelinePage'));
+const LivePulsePage = lazy(() => import('./pages/LivePulsePage'));
+const BioSentinelPage = lazy(() => import('./pages/BioSentinelPage'));
+const OutbreakRadarPage = lazy(() => import('./pages/OutbreakRadarPage'));
 
 function App() {
   useEffect(() => {
@@ -40,7 +46,8 @@ function App() {
           <main className="main-content">
             <Suspense fallback={<Loader />}>
               <Routes>
-                <Route path="/" element={<HomePage />} />
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/news" element={<HomePage />} />
                 <Route path="/disease-drug-news" element={<DiseaseDrugPage />} />
                 <Route path="/category/:categoryName" element={<CategoryPage />} />
                 <Route path="/article/:articleId" element={<ArticleDetailPage />} />
@@ -51,6 +58,11 @@ function App() {
                 <Route path="/trial-match" element={<TrialMatchPage />} />
                 <Route path="/drug-compare" element={<DrugComparePage />} />
                 <Route path="/health-scan" element={<HealthScanPage />} />
+                <Route path="/symptom-ai" element={<SymptomAIPage />} />
+                <Route path="/drug-timeline" element={<DrugTimelinePage />} />
+                <Route path="/live-pulse" element={<LivePulsePage />} />
+                <Route path="/bio-sentinel" element={<BioSentinelPage />} />
+                <Route path="/outbreak-radar" element={<OutbreakRadarPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
               </Routes>

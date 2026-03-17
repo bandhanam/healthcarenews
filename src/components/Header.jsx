@@ -4,15 +4,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './Header.css';
 
 const NAV_LINKS = [
-  { path: '/', label: 'News Feed' },
+  { path: '/', label: 'Home' },
+  { path: '/news', label: 'News Feed' },
   { path: '/disease-drug-news', label: 'Disease & Drug' },
   { path: '/med-predict', label: 'MedPredict' },
+  { path: '/symptom-ai', label: 'SymptomAI' },
   { path: '/drug-intel', label: 'DrugIntel' },
+  { path: '/drug-timeline', label: 'Timeline' },
   { path: '/drug-interactions', label: 'Interactions' },
   { path: '/adverse-events', label: 'SafetyWatch' },
   { path: '/trial-match', label: 'TrialFinder' },
   { path: '/drug-compare', label: 'DrugCompare' },
   { path: '/health-scan', label: 'HealthScan' },
+  { path: '/live-pulse', label: 'LivePulse' },
+  { path: '/bio-sentinel', label: 'BioSentinel' },
+  { path: '/outbreak-radar', label: 'OutbreakRadar' },
   { path: '/about', label: 'About' },
   { path: '/contact', label: 'Contact' },
 ];
