@@ -105,8 +105,8 @@ function ClinicalInsightPage() {
   const phaseData = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const phases = t.protocolSection?.designModule?.phases || ['NA'];
-      const status = statusLabel(t.protocolSection?.statusModule?.overallStatus || 'UNKNOWN');
+      const phases = t.phase || ['NA'];
+      const status = statusLabel(t.status || 'UNKNOWN');
       phases.forEach((p) => {
         const label = phaseLabel(p);
         if (!map[label]) map[label] = { total: 0, completed: 0, terminated: 0, recruiting: 0 };
@@ -123,7 +123,7 @@ function ClinicalInsightPage() {
   const statusData = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const s = statusLabel(t.protocolSection?.statusModule?.overallStatus || 'UNKNOWN');
+      const s = statusLabel(t.status || 'UNKNOWN');
       map[s] = (map[s] || 0) + 1;
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([name, value]) => ({ name, value }));
@@ -132,13 +132,13 @@ function ClinicalInsightPage() {
   const yearlyTrend = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const dateStr = t.protocolSection?.statusModule?.startDateStruct?.date;
+      const dateStr = t.startDate;
       if (!dateStr) return;
       const year = parseInt(dateStr.substring(0, 4));
       if (!isNaN(year) && year > 2000) {
         if (!map[year]) map[year] = { started: 0, completed: 0 };
         map[year].started += 1;
-        const status = statusLabel(t.protocolSection?.statusModule?.overallStatus || '');
+        const status = statusLabel(t.status || '');
         if (status === 'Completed') map[year].completed += 1;
       }
     });
@@ -148,8 +148,8 @@ function ClinicalInsightPage() {
   const enrollmentByPhase = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const phases = t.protocolSection?.designModule?.phases || ['NA'];
-      const enroll = t.protocolSection?.designModule?.enrollmentInfo?.count || 0;
+      const phases = t.phase || ['NA'];
+      const enroll = t.enrollmentCount || 0;
       phases.forEach((p) => {
         const label = phaseLabel(p);
         if (!map[label]) map[label] = { total: 0, count: 0 };
@@ -163,15 +163,15 @@ function ClinicalInsightPage() {
   const sponsorData = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const org = t.protocolSection?.sponsorCollaboratorsModule?.leadSponsor?.name || 'Unknown';
+      const org = t.sponsor || 'Unknown';
       map[org] = (map[org] || 0) + 1;
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, count]) => ({ name: name.length > 25 ? name.substring(0, 22) + '...' : name, count }));
   }, [trials]);
 
-  const totalCompleted = trials.filter(t => statusLabel(t.protocolSection?.statusModule?.overallStatus || '') === 'Completed').length;
-  const totalTerminated = trials.filter(t => ['Terminated', 'Withdrawn'].includes(statusLabel(t.protocolSection?.statusModule?.overallStatus || ''))).length;
-  const totalRecruiting = trials.filter(t => statusLabel(t.protocolSection?.statusModule?.overallStatus || '') === 'Recruiting').length;
+  const totalCompleted = trials.filter(t => statusLabel(t.status || '') === 'Completed').length;
+  const totalTerminated = trials.filter(t => ['Terminated', 'Withdrawn'].includes(statusLabel(t.status || ''))).length;
+  const totalRecruiting = trials.filter(t => statusLabel(t.status || '') === 'Recruiting').length;
   const completionRate = trials.length > 0 ? Math.round((totalCompleted / trials.length) * 100) : 0;
 
   return (

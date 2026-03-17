@@ -127,7 +127,7 @@ function PharmaGlobePage() {
     setLoading(true);
     try {
       const [appRes, triRes] = await Promise.allSettled([
-        fetch('/api/approvals/stats').then(r => r.ok ? r.json() : null),
+        fetch('/api/approvals/search?limit=200').then(r => r.ok ? r.json() : null),
         fetch('/api/trials/search?condition=drug&pageSize=80').then(r => r.ok ? r.json() : null),
       ]);
       if (appRes.status === 'fulfilled' && appRes.value?.results) setApprovals(appRes.value.results);
@@ -143,13 +143,13 @@ function PharmaGlobePage() {
   const countryData = useMemo(() => {
     const map = {};
     approvals.forEach((a) => {
-      const body = a.regulatory_body || a.region || 'Unknown';
+      const src = (a.source || '').toUpperCase();
       Object.entries(COUNTRIES).forEach(([code, c]) => {
-        if (body.toLowerCase().includes(c.body.toLowerCase()) || body.toLowerCase().includes(c.name.toLowerCase())) {
+        if (src === c.body.toUpperCase() || src.includes(c.body.toUpperCase())) {
           if (!map[code]) map[code] = { count: 0, drugs: new Set(), bodies: new Set() };
           map[code].count += 1;
           if (a.drug_name) map[code].drugs.add(a.drug_name);
-          map[code].bodies.add(body);
+          map[code].bodies.add(src);
         }
       });
     });
@@ -165,7 +165,7 @@ function PharmaGlobePage() {
 
   const bodyDistribution = useMemo(() => {
     const map = {};
-    approvals.forEach((a) => { const b = a.regulatory_body || 'Other'; map[b] = (map[b] || 0) + 1; });
+    approvals.forEach((a) => { const b = a.source || 'Other'; map[b] = (map[b] || 0) + 1; });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name, value]) => ({ name: name.length > 18 ? name.substring(0, 15) + '...' : name, value }));
   }, [approvals]);
 
@@ -182,7 +182,7 @@ function PharmaGlobePage() {
   const therapeuticMap = useMemo(() => {
     const map = {};
     approvals.forEach((a) => {
-      const area = a.therapeutic_area || a.product_type || 'Other';
+      const area = a.therapeutic_area || a.application_type || 'Other';
       map[area] = (map[area] || 0) + 1;
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([name, size]) => ({ name: name.length > 18 ? name.substring(0, 15) + '...' : name, size }));
@@ -191,7 +191,7 @@ function PharmaGlobePage() {
   const trialPhases = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const phases = t.protocolSection?.designModule?.phases || ['NA'];
+      const phases = t.phase || ['NA'];
       phases.forEach((p) => {
         const label = p.replace('EARLY_PHASE1', 'Early Ph1').replace('PHASE', 'Phase ').replace('NA', 'N/A');
         map[label] = (map[label] || 0) + 1;

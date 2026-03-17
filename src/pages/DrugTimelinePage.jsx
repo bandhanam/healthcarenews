@@ -109,8 +109,8 @@ function DrugTimelinePage() {
 
     try {
       const [trialsRes, approvalsRes] = await Promise.allSettled([
-        fetch(`/api/trials/search?condition=${encodeURIComponent(q)}&pageSize=50`).then(r => r.ok ? r.json() : null),
-        fetch(`/api/approvals/search?query=${encodeURIComponent(q)}`).then(r => r.ok ? r.json() : null),
+        fetch(`/api/trials/search?q=${encodeURIComponent(q)}&pageSize=50`).then(r => r.ok ? r.json() : null),
+        fetch(`/api/approvals/search?q=${encodeURIComponent(q)}`).then(r => r.ok ? r.json() : null),
       ]);
 
       const trialsData = trialsRes.status === 'fulfilled' && trialsRes.value?.studies ? trialsRes.value.studies : [];
@@ -137,8 +137,9 @@ function DrugTimelinePage() {
   const phaseDistribution = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const phases = t.protocolSection?.designModule?.phases || ['NA'];
-      phases.forEach((p) => { map[p] = (map[p] || 0) + 1; });
+      const phases = t.phase || ['NA'];
+      const arr = Array.isArray(phases) ? phases : [phases];
+      arr.forEach((p) => { map[p] = (map[p] || 0) + 1; });
     });
     return Object.entries(map).map(([k, v]) => ({ name: phaseLabel(k), value: v, key: k })).sort((a, b) => b.value - a.value);
   }, [trials]);
@@ -146,7 +147,7 @@ function DrugTimelinePage() {
   const statusDistribution = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const s = t.protocolSection?.statusModule?.overallStatus || 'UNKNOWN';
+      const s = t.status || 'UNKNOWN';
       map[s] = (map[s] || 0) + 1;
     });
     return Object.entries(map).map(([k, v]) => ({ name: statusLabel(k), value: v, key: k })).sort((a, b) => b.value - a.value);
@@ -155,9 +156,10 @@ function DrugTimelinePage() {
   const enrollmentByPhase = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const phases = t.protocolSection?.designModule?.phases || ['NA'];
-      const enroll = t.protocolSection?.designModule?.enrollmentInfo?.count || 0;
-      phases.forEach((p) => {
+      const phases = t.phase || ['NA'];
+      const arr = Array.isArray(phases) ? phases : [phases];
+      const enroll = t.enrollmentCount || 0;
+      arr.forEach((p) => {
         if (!map[p]) map[p] = { phase: phaseLabel(p), total: 0, count: 0 };
         map[p].total += enroll;
         map[p].count += 1;
@@ -169,9 +171,9 @@ function DrugTimelinePage() {
   const yearlyTrials = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const dateStr = t.protocolSection?.statusModule?.startDateStruct?.date;
+      const dateStr = t.startDate;
       if (!dateStr) return;
-      const year = parseInt(dateStr.substring(0, 4));
+      const year = parseInt(String(dateStr).substring(0, 4));
       if (!isNaN(year) && year > 1990) map[year] = (map[year] || 0) + 1;
     });
     return Object.entries(map).sort(([a], [b]) => a - b).map(([year, count]) => ({ year: String(year), trials: count }));
@@ -180,7 +182,7 @@ function DrugTimelinePage() {
   const sponsorData = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const org = t.protocolSection?.sponsorCollaboratorsModule?.leadSponsor?.name || 'Unknown';
+      const org = t.sponsor || 'Unknown';
       map[org] = (map[org] || 0) + 1;
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, count]) => ({ name: name.length > 30 ? name.substring(0, 27) + '...' : name, count }));
@@ -189,12 +191,13 @@ function DrugTimelinePage() {
   const milestones = useMemo(() => {
     const phaseYears = {};
     trials.forEach((t) => {
-      const dateStr = t.protocolSection?.statusModule?.startDateStruct?.date;
-      const phases = t.protocolSection?.designModule?.phases || [];
-      if (!dateStr || !phases.length) return;
-      const year = parseInt(dateStr.substring(0, 4));
+      const dateStr = t.startDate;
+      const phases = t.phase || [];
+      const arr = Array.isArray(phases) ? phases : phases ? [phases] : [];
+      if (!dateStr || !arr.length) return;
+      const year = parseInt(String(dateStr).substring(0, 4));
       if (isNaN(year)) return;
-      phases.forEach((p) => {
+      arr.forEach((p) => {
         if (!phaseYears[p]) phaseYears[p] = { minYear: year, count: 0 };
         if (year < phaseYears[p].minYear) phaseYears[p].minYear = year;
         phaseYears[p].count++;
@@ -221,14 +224,14 @@ function DrugTimelinePage() {
   const regionData = useMemo(() => {
     const map = {};
     approvals.forEach((a) => {
-      const r = a.regulatory_body || 'Other';
+      const r = a.source || 'Other';
       map[r] = (map[r] || 0) + 1;
     });
     return Object.entries(map).map(([name, value]) => ({ name, value }));
   }, [approvals]);
 
   const totalEnrollment = useMemo(() => {
-    return trials.reduce((s, t) => s + (t.protocolSection?.designModule?.enrollmentInfo?.count || 0), 0);
+    return trials.reduce((s, t) => s + (t.enrollmentCount || 0), 0);
   }, [trials]);
 
   const hasData = trials.length > 0 || approvals.length > 0;

@@ -79,11 +79,11 @@ function BioSentinelPage() {
     try {
       const [trialsRes, approvalsRes] = await Promise.allSettled([
         fetch(`/api/trials/search?condition=${encodeURIComponent(q)}&pageSize=100`).then(r => r.ok ? r.json() : null),
-        fetch(`/api/approvals/competitors?company=${encodeURIComponent(q)}`).then(r => r.ok ? r.json() : null),
+        fetch(`/api/approvals/competitors?q=${encodeURIComponent(q)}`).then(r => r.ok ? r.json() : null),
       ]);
 
       const trialsData = trialsRes.status === 'fulfilled' && trialsRes.value?.studies ? trialsRes.value.studies : [];
-      const approvalsData = approvalsRes.status === 'fulfilled' && approvalsRes.value?.results ? approvalsRes.value.results : [];
+      const approvalsData = approvalsRes.status === 'fulfilled' && approvalsRes.value?.competitors ? approvalsRes.value.competitors : [];
 
       if (trialsData.length === 0 && approvalsData.length === 0) {
         setError(`No data found for "${q}". Try a major pharma company name.`);
@@ -106,7 +106,7 @@ function BioSentinelPage() {
   const pipelineData = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const phases = t.protocolSection?.designModule?.phases || ['NA'];
+      const phases = t.phase || ['NA'];
       phases.forEach((p) => {
         const label = phaseLabel(p);
         map[label] = (map[label] || 0) + 1;
@@ -119,7 +119,7 @@ function BioSentinelPage() {
   const therapeuticAreas = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const conditions = t.protocolSection?.conditionsModule?.conditions || [];
+      const conditions = t.conditions || [];
       conditions.forEach((c) => {
         const area = c.length > 30 ? c.substring(0, 27) + '...' : c;
         map[area] = (map[area] || 0) + 1;
@@ -131,13 +131,13 @@ function BioSentinelPage() {
   const yearlyActivity = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const dateStr = t.protocolSection?.statusModule?.startDateStruct?.date;
+      const dateStr = t.startDate;
       if (!dateStr) return;
       const year = parseInt(dateStr.substring(0, 4));
       if (!isNaN(year) && year > 2000) {
         if (!map[year]) map[year] = { trials: 0, enrolled: 0 };
         map[year].trials += 1;
-        map[year].enrolled += t.protocolSection?.designModule?.enrollmentInfo?.count || 0;
+        map[year].enrolled += t.enrollmentCount || 0;
       }
     });
     return Object.entries(map).sort(([a], [b]) => a - b).map(([year, d]) => ({ year: String(year), ...d }));
@@ -146,7 +146,7 @@ function BioSentinelPage() {
   const statusData = useMemo(() => {
     const map = {};
     trials.forEach((t) => {
-      const s = (t.protocolSection?.statusModule?.overallStatus || 'UNKNOWN').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const s = (t.status || 'UNKNOWN').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
       map[s] = (map[s] || 0) + 1;
     });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([name, value]) => ({ name, value }));
@@ -154,11 +154,14 @@ function BioSentinelPage() {
 
   const regionData = useMemo(() => {
     const map = {};
-    approvals.forEach((a) => {
-      const r = a.regulatory_body || 'Other';
-      map[r] = (map[r] || 0) + 1;
+    approvals.forEach((comp) => {
+      if (comp.bySrc) {
+        Object.entries(comp.bySrc).forEach(([src, cnt]) => {
+          map[src] = (map[src] || 0) + cnt;
+        });
+      }
     });
-    return Object.entries(map).map(([name, value]) => ({ name, value }));
+    return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([name, value]) => ({ name, value }));
   }, [approvals]);
 
   const radarData = useMemo(() => {
@@ -170,17 +173,22 @@ function BioSentinelPage() {
   }, [pipelineData]);
 
   const drugProducts = useMemo(() => {
-    const map = {};
-    approvals.forEach((a) => {
-      const name = a.drug_name || 'Unknown';
-      if (!map[name]) map[name] = { name, regions: new Set(), types: new Set() };
-      if (a.regulatory_body) map[name].regions.add(a.regulatory_body);
-      if (a.product_type) map[name].types.add(a.product_type);
+    const allDrugs = [];
+    approvals.forEach((comp) => {
+      if (comp.drugs) {
+        comp.drugs.forEach((d) => {
+          allDrugs.push({
+            name: d.drug_name || 'Unknown',
+            regions: d.source || '',
+            types: d.therapeutic_area || '',
+          });
+        });
+      }
     });
-    return Object.values(map).map(d => ({ ...d, regions: [...d.regions].join(', '), types: [...d.types].join(', ') })).slice(0, 15);
+    return allDrugs.slice(0, 15);
   }, [approvals]);
 
-  const totalEnrollment = trials.reduce((s, t) => s + (t.protocolSection?.designModule?.enrollmentInfo?.count || 0), 0);
+  const totalEnrollment = trials.reduce((s, t) => s + (t.enrollmentCount || 0), 0);
   const maxPipeCount = Math.max(...pipelineData.map(d => d.count), 1);
   const hasData = trials.length > 0 || approvals.length > 0;
 
