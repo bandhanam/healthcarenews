@@ -35,6 +35,10 @@ const RxCalcPage = lazy(() => import('./pages/RxCalcPage'));
 const DrugRepurposePage = lazy(() => import('./pages/DrugRepurposePage'));
 const MoleculeVizPage = lazy(() => import('./pages/MoleculeVizPage'));
 const ChemExplorerPage = lazy(() => import('./pages/ChemExplorerPage'));
+const PatentWatchPage = lazy(() => import('./pages/PatentWatchPage'));
+const RegulatoryCalendarPage = lazy(() => import('./pages/RegulatoryCalendarPage'));
+const DrugLabelDiffPage = lazy(() => import('./pages/DrugLabelDiffPage'));
+const GenericLaunchTrackerPage = lazy(() => import('./pages/GenericLaunchTrackerPage'));
 
 const SIDEBAR_PATHS = ['/news', '/disease-drug-news', '/category'];
 
@@ -76,6 +80,10 @@ function AppContent() {
               <Route path="/drug-repurpose" element={<DrugRepurposePage />} />
               <Route path="/chem-explorer" element={<ChemExplorerPage />} />
               <Route path="/molecule-viz" element={<MoleculeVizPage />} />
+              <Route path="/patent-watch" element={<PatentWatchPage />} />
+              <Route path="/regulatory-calendar" element={<RegulatoryCalendarPage />} />
+              <Route path="/drug-label-diff" element={<DrugLabelDiffPage />} />
+              <Route path="/generic-tracker" element={<GenericLaunchTrackerPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
             </Routes>
@@ -93,8 +101,8 @@ function AppContent() {
               </div>
             </div>
             <p className="footer-desc">
-              AI-powered healthcare platform with 25+ tools for drug intelligence,
-              molecular science, clinical trials, safety monitoring, and research analytics.
+              AI-powered healthcare platform with 29+ tools for drug intelligence,
+              molecular science, regulatory tracking, clinical trials, and research analytics.
             </p>
           </div>
           <div className="footer-col">
@@ -112,10 +120,11 @@ function AppContent() {
             <a href="/adverse-events">SafetyWatch</a>
           </div>
           <div className="footer-col">
-            <h4 className="footer-heading">Chemistry</h4>
-            <a href="/molecule-viz">MoleculeViz</a>
-            <a href="/chem-explorer">ChemExplorer</a>
-            <a href="/drug-repurpose">DrugRepurpose</a>
+            <h4 className="footer-heading">Regulatory</h4>
+            <a href="/patent-watch">PatentWatch</a>
+            <a href="/regulatory-calendar">Regulatory Calendar</a>
+            <a href="/drug-label-diff">Drug Label Diff</a>
+            <a href="/generic-tracker">Generic Tracker</a>
           </div>
         </div>
         <div className="footer-bottom">

@@ -245,6 +245,61 @@ const EXTRA_SECTIONS = [
     ],
   },
   {
+    id: 'regulatory',
+    title: 'Regulatory & Patents',
+    subtitle: 'FDA Orange Book, PDUFA calendar, drug label versions, and generic launch tracking',
+    features: [
+      {
+        title: 'PatentWatch',
+        path: '/patent-watch',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
+          </svg>
+        ),
+        description: 'Track patent expirations, exclusivity dates, and patent cliffs for blockbuster drugs. Powered by FDA Orange Book data.',
+        color: '#b45309',
+        bg: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+      },
+      {
+        title: 'Regulatory Calendar',
+        path: '/regulatory-calendar',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+          </svg>
+        ),
+        description: 'PDUFA dates, advisory committee meetings, and upcoming drug approvals. Curated regulatory calendar.',
+        color: '#0d9488',
+        bg: 'linear-gradient(135deg, #eefdfb, #ccfbf1)',
+      },
+      {
+        title: 'Drug Label Diff',
+        path: '/drug-label-diff',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />
+          </svg>
+        ),
+        description: 'Compare FDA drug label versions over time. See safety, indication, and dosage changes via openFDA.',
+        color: '#0369a1',
+        bg: 'linear-gradient(135deg, #e0f2fe, #bae6fd)',
+      },
+      {
+        title: 'Generic Launch Tracker',
+        path: '/generic-tracker',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+          </svg>
+        ),
+        description: 'ANDA pipeline, first-to-file status, approved generics, and launch dates. Orange Book patent cliffs.',
+        color: '#7c3aed',
+        bg: 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
+      },
+    ],
+  },
+  {
     id: 'analytics',
     title: 'Analytics & Intelligence',
     subtitle: 'Real-time monitoring and competitive analysis across the healthcare landscape',
@@ -364,7 +419,7 @@ const EXTRA_SECTIONS = [
 ];
 
 const STATS = [
-  { value: '25+', label: 'Specialized Tools' },
+  { value: '29+', label: 'Specialized Tools' },
   { value: '50+', label: 'Data Sources' },
   { value: 'AI', label: 'Powered Insights' },
   { value: '0', label: 'Data Sent to Cloud' },

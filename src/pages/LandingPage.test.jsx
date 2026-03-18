@@ -72,6 +72,7 @@ describe('LandingPage', () => {
       'OutbreakRadar', 'ResearchRadar', 'ClinicalInsight',
       'MedCompare', 'RxCalc',
       'MoleculeViz', 'ChemExplorer', 'DrugRepurpose',
+      'PatentWatch', 'Regulatory Calendar', 'Drug Label Diff', 'Generic Launch Tracker',
     ];
     featureTitles.forEach((title) => {
       expect(screen.getAllByText(title).length).toBeGreaterThanOrEqual(1);
@@ -100,7 +101,7 @@ describe('LandingPage', () => {
 
   it('renders stats section', () => {
     renderPage();
-    expect(screen.getByText('25+')).toBeInTheDocument();
+    expect(screen.getByText('29+')).toBeInTheDocument();
     expect(screen.getByText('Specialized Tools')).toBeInTheDocument();
     expect(screen.getByText('Powered Insights')).toBeInTheDocument();
   });

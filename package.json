@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@huggingface/transformers": "^3.8.1",
+    "adm-zip": "^0.5.16",
     "framer-motion": "^11.15.0",
     "leaflet": "^1.9.4",
     "pdfjs-dist": "^5.5.207",

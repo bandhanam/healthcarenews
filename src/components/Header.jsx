@@ -34,6 +34,15 @@ const NAV_GROUPS = [
     ],
   },
   {
+    label: 'Regulatory',
+    children: [
+      { path: '/patent-watch', label: 'PatentWatch', desc: 'Patent expirations & cliffs', color: '#b45309' },
+      { path: '/regulatory-calendar', label: 'Regulatory Calendar', desc: 'PDUFA dates & advisory', color: '#0d9488' },
+      { path: '/drug-label-diff', label: 'Drug Label Diff', desc: 'Compare label versions', color: '#0369a1' },
+      { path: '/generic-tracker', label: 'Generic Tracker', desc: 'ANDA pipeline & generics', color: '#7c3aed' },
+    ],
+  },
+  {
     label: 'Safety & Trials',
     children: [
       { path: '/adverse-events', label: 'SafetyWatch', desc: 'FDA adverse events', color: '#dc2626' },
