@@ -28,7 +28,7 @@ function FloatingParticles() {
           dx: (Math.random() - 0.5) * 0.3,
           dy: (Math.random() - 0.5) * 0.3,
           opacity: Math.random() * 0.15 + 0.03,
-          color: Math.random() > 0.5 ? '26,127,100' : '37,99,235',
+          color: Math.random() > 0.5 ? '0,76,151' : '26,100,163',
         });
       }
     }

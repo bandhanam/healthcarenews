@@ -201,6 +201,28 @@ const SECTIONS = [
 
 const EXTRA_SECTIONS = [
   {
+    id: 'provider-data',
+    title: 'Provider Data Apps',
+    subtitle: 'Search and analyze NPI providers with modern filters and interactive dashboards',
+    features: [
+      {
+        title: 'Provider Directory',
+        path: '/provider-directory',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 21h18" />
+            <path d="M5 21V7l7-4 7 4v14" />
+            <path d="M9 21v-6h6v6" />
+            <path d="M9 10h.01M12 10h.01M15 10h.01" />
+          </svg>
+        ),
+        description: 'Fast provider search with smart filters, state map, charts, exports, and detailed profile cards powered by NPI data.',
+        color: '#6366f1',
+        bg: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
+      },
+    ],
+  },
+  {
     id: 'chemistry',
     title: 'Chemistry & Molecular Science',
     subtitle: 'Powered by PubChem — 100M+ compounds with 3D structures and molecular intelligence',

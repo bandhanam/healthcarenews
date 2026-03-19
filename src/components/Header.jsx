@@ -46,6 +46,7 @@ const NAV_GROUPS = [
     label: 'Safety & Trials',
     children: [
       { path: '/adverse-events', label: 'SafetyWatch', desc: 'FDA adverse events', color: '#dc2626' },
+      { path: '/drug-sentiment', label: 'DrugSentiment', desc: 'Patient reviews & FAERS', color: '#ec4899' },
       { path: '/trial-match', label: 'TrialFinder', desc: 'Clinical trial search', color: '#2563eb' },
       { path: '/clinical-insight', label: 'ClinicalInsight', desc: 'Trial success analytics', color: '#65a30d' },
     ],
@@ -58,6 +59,12 @@ const NAV_GROUPS = [
       { path: '/outbreak-radar', label: 'OutbreakRadar', desc: 'Outbreak tracker', color: '#7c3aed' },
       { path: '/pharma-globe', label: 'PharmaGlobe', desc: 'Global approval map', color: '#4f46e5' },
       { path: '/research-radar', label: 'ResearchRadar', desc: 'PubMed trend analyzer', color: '#0284c7' },
+    ],
+  },
+  {
+    label: 'Data',
+    children: [
+      { path: '/provider-directory', label: 'Provider Directory', desc: 'Search 7.5M+ NPI providers', color: '#6366f1' },
     ],
   },
 ];
@@ -150,6 +157,7 @@ function Header() {
             )
           )}
           <Link to="/about" className={`hdr-nav-item ${location.pathname === '/about' ? 'active' : ''}`}>About</Link>
+          <Link to="/contact" className={`hdr-nav-item ${location.pathname === '/contact' ? 'active' : ''}`}>Contact</Link>
         </nav>
 
         <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
