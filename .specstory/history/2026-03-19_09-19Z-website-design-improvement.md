@@ -1512,3 +1512,325 @@ If you want, I can do one more pass to flatten the remaining per-tool accent col
 
 ---
 
+_**User**_
+
+Fix this vercel cannot support more than 12 serverless method Can you club few together and handle this case
+
+---
+
+_**Agent (model gpt-5.4-mini-high, mode Agent)**_
+
+I’m treating this as a deployment-architecture fix rather than a small CSS tweak. I want to map the current Vercel functions, then consolidate the related endpoints into fewer serverless files so you stay under the Hobby plan limit.
+
+---
+
+Cancelled
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Inspecting files for analysis**
+
+I’m moving into agent mode to inspect the files. I realize I should probably be using read tools rather than just using `cat`. Maybe checking terminals isn’t the best route. I think I’ll use Glob and ReadFile to get the info I need. My plan includes listing API files, so I guess I’ll apply `glob` on `api/**/*.js` along with `server.js` or `package`. Let's see how that goes!</details></think>
+
+---
+
+I’ll inspect the current API route layout and the app’s Vercel entry points, then I’ll merge related functions into a couple of grouped handlers instead of leaving one file per route.
+
+---
+
+<tool-use data-tool-type="generic" data-tool-name="glob_file_search">
+<details>
+<summary>Tool use: **glob_file_search** • Searched codebase "undefined" • **20** results in **1** directory</summary>
+
+Directory: **c:\Users\meenketan.rathore\Documents\GitHub\healthcarenews** (20 files)
+
+| File |
+|------|
+| `../api/approvals/stats.js` |
+| `../api/providers/analytics.js` |
+| `../api/health.js` |
+| `../api/pubchem/similar.js` |
+| `../api/news/by-date-range.js` |
+| `../api/sentiment/faers.js` |
+| `../api/pubchem/etl.js` |
+| `../api/trials/search.js` |
+| `../api/pubchem/search.js` |
+| `../api/providers/search.js` |
+| `../api/regulatory/calendar.js` |
+| `../api/approvals/competitors.js` |
+| `../api/orange-book/index.js` |
+| `../api/approvals/search.js` |
+| `../api/providers/export.js` |
+| `../api/label/diff.js` |
+| `../api/_lib/db.js` |
+| `../api/label/versions.js` |
+| `../api/news/disease-drug.js` |
+| `../api/pubchem/migrate.js` |
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\package.json</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\server.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Considering API consolidation**
+
+I think I need to inspect all the API function files to figure out how to consolidate them effectively. Maybe I could only use server.js in development, since Vercel has its own API routes. By grouping similar functions into an index.js handler, I might simplify things. I wonder if Vercel still deploys nested API subfolders—each file counts as a function. To reduce the number of functions, creating a catch-all dynamic function could be beneficial.
+**Planning API file consolidation**
+
+I’m considering how certain API files, like `api/approvals/[...slug].js`, could cover multiple endpoints such as approvals/search and approvals/stats. I think I can do similar groupings for other files, which would help streamline things. Currently, I have 20 files, but my goal is to cut that down to under 12. By grouping providers, approvals, news, pubchem, label, and sentiment, I could maintain fewer files while still having the necessary functionality. I'll need to check how Vercel counts nested index.js files as functions.
+**Considering API structure**
+
+I’m thinking about organizing my functions by potentially moving logic to common library modules. Maybe I could create an `api/providers.js` file, but endpoint paths change so I might need rewrites. A better option could be a catch-all folder with files like `api/providers/[...action].js` to handle various action paths. I'll have to consider that Vercel counts each file, not just route segments, and see if there are any hidden routes I might be missing.
+**Organizing API handlers**
+
+I'm considering the simplest approach: creating consolidated handlers for each folder and removing individual route files, keeping just the catch-alls. I may need to adjust front-end fetch URLs, though the paths would remain the same if the catch-all folder uses the same path. I should inspect the current code of other files to implement these consolidated handlers, possibly reading relevant files in parallel for enough context. I'll look into files like `api/providers/analytics.js`, `export.js`, `search.js`, and others.</details></think>
+
+---
+
+I’ve identified the path to cut the function count: merge route families like `providers`, `approvals`, `news`, `pubchem`, and `label` into one catch-all function each, while leaving the truly separate endpoints alone. Now I’m reading the route implementations so I can preserve behavior exactly.
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\providers\search.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\providers\analytics.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\providers\export.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\approvals\search.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\approvals\stats.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\approvals\competitors.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\news\by-date-range.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\news\disease-drug.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\pubchem\search.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\pubchem\similar.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\pubchem\etl.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\pubchem\migrate.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\label\diff.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\label\versions.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\sentiment\faers.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\health.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\regulatory\calendar.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\orange-book\index.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\trials\search.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<tool-use data-tool-type="read" data-tool-name="read_file_v2">
+<details><summary>Tool use: **read_file_v2** • Read file: C:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\api\_lib\db.js</summary>
+
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+**Consolidating files for efficiency**
+
+I need to consolidate multiple files and possibly create new grouped ones while deleting the old files. I might want to inspect the frontend fetch paths, but there probably won't be any changes needed. Defining routing in the new grouped files by path slug could be a good move. I'll consider how to handle helper functions to reuse query logic effectively. Additionally, I need to remember that Vercel’s free plan limits the total serverless functions to 12, so I need to delete old files to stay within that limit.
+**Organizing API files**
+
+I’m considering how to group the `orange-book/index.js` and `trials/search.js` into a single file at `api/public/[...slug].js`. Since I only have 10 files, which is under the 12-function limit, I’m planning to create the following grouped files: 
+
+- `api/providers/[...slug].js` for search and analytics
+- `api/approvals/[...slug].js` for stats and competitors
+- `api/news/[...slug].js` for by-date-range and disease-drug
+- `api/pubchem/[...slug].js` for search and migrations
+- `api/label/[...slug].js` for versions and differences
+
+I might keep `sentiment/faers.js` as a single file for now but could explore combining it later. Reusing helper functions to prevent code duplication would be efficient, but shouldn't overwhelm file sizes. I probably need to delete some old individual files to stay within the function limit.
+**Considering file operations**
+
+It seems I can use ApplyPatch for editing only one file per call, even though I can add or delete multiple files with it. The tool’s grammar indicates that I must make multiple calls, so I can't run them in parallel with ApplyPatch. Perhaps I could use Shell or PowerShell scripting to create or delete files instead? I should follow the developer's advice to stick with ApplyPatch for single file edits for now.
+**Organizing file management**
+
+I need to reduce the actual file count. I'm considering deleting 10 old files. Given that I have 20 existing files, including 5 new grouped ones, deleting 10 would leave me with 10 total files. However, the grouped files could replace the old 10 by creating a new catch-all file in each folder. As I count more precisely, the breakdown shows I have 14 old files to delete. The total counts up to 20, including some standalone files.
+**Clarifying file functions**
+
+I’m checking the current function files, and it looks like there are actually 19. With a total of 20 files including db.js, I see that if I group 14 into 5, the total functions would become 5 grouped plus 5 standalone, which equals 10. Then I have to consider the db.js as a non-function file. So, I need to delete 14 files and add 5 new ones.
+**Exploring Vercel routing options**
+
+I'm considering creating a top-level `api/index.js` catch-all and using `vercel.json` to route all endpoints to it, but I need to delete or rename old files. However, those old files still count, so deletion is essential. I wonder if a more efficient way would be to create a root `api.js`, but Vercel scans the `/api` folder only.
+
+It seems I could wrap all subroutes into one file with `api/[...all].js` and delete the entire `api` folder. It's tricky, especially since deletion through patch isn't possible with many files, but I think shell commands could do it. The developer advised against using the shell for file operations though, yet I might have to consider it. Sticking with ApplyPatch might be safer, and I can group new files while leaving old ones and adding routes to point to them, even if Vercel automatically deploys old functions.
+**Considering function management on Vercel**
+
+I'm trying to figure out if I can use the `functions` config to set a maximum number, but that doesn't seem sufficient. The build error states that no more than 12 Serverless Functions can be added on the Hobby plan, and if old files remain even if they're unused, Vercel counts all `api` files. 
+
+So, I really need to delete or move them. Since I need to reduce the number of files below 12, I think I could delete some unused functions. The user wants me to combine a few, which seems preferable, but I might have to delete 14 files to streamline.
+**Evaluating tool options**
+
+I'm wondering if there's a hidden tool like multi_tool_use.parallel, but no, it looks like ApplyPatch only works on one file at a time. I could still make several ApplyPatch calls in sequence, but 14 might feel large, though manageable. I’ll want to keep an eye on time; around 15-20 calls seems okay, but a bit tedious. I need to create the final code carefully and design a grouped handler, perhaps with a general helper file. I'll check if any front-end path patterns need exact endpoints while using catch-all folder files to keep route paths unchanged.
+**Considering file organization**
+
+The user wants me to think about grouping files together instead of using one large monolithic file. I’m thinking that keeping around 10 functions would work, maybe even under 12, so I might want to verify the function count after cleaning up unnecessary ones. A single catch-all `api/combined/[...slug].js` could be a solution without changing route paths. I'll need to consider how that might impact existing routes and whether deleting the other 19 route files is feasible.
+**Weighing file organization options**
+
+If I go with 5 grouped files and 5 standalone ones, I'm still looking at 14 deletions. A single large file might save me from needing 4 new files but doesn’t help with deletions. It's tricky — having just one new file means I’d still delete 14, which seems like it might be simpler than adding 5 and making those deletions. However, I keep thinking that the complexity of the code could really increase.
+**Considering file operations**
+
+I'm thinking about whether we can use ApplyPatch to add new files and delete old ones in the same call, but the tool suggests only one file per call—so that's a no. Maybe I should try modifying `vercel.json` or the package to treat some files as non-functions, but I realize that if we're using the `api` folder on Vercel, all files there are treated as functions. Moving them to a subfolder could be an option, but that involves deletion or moving. I need to inspect the build specifics with Vercel and decide on a practical approach, considering shell commands to rename, move, or delete files might be necessary despite the general instructions against it.
+**Exploring file operations**
+
+I’m looking into whether the ApplyPatch function can delete files using an absolute path and handle multiple file operations, but it seems to allow only one per call. Shell commands might be an acceptable alternative given the complexity here. However, I need to be careful about running any destructive commands without the user's approval. Even though deleting files we plan to replace could be seen as destructive, I recognize it’s not necessarily irreversible. I might want to check the current git status for any untracked changes first since there seem to be many lingering from previous tasks.
+**Designing clean code structure**
+
+I need to keep the code clean but not too large. I’m considering creating one file per group.
+
+First, for `api/providers/[...slug].js`, should I use `getPool` or directly use `pg.Pool`? I think using `getPool` for consistency and simplicity is better since it reduces code. This file needs to support `GET` and `OPTIONS` and should handle the `slug[0]` route.
+
+Next, the `search` function must resemble the current `search.js` but with the addition of `recentActivity`. However, I noticed that `search.js` doesn’t have `recentActivity` currently, which is returned in `analytics.js`. I need to maintain that and manage dispatch to `search`, `analytics`, and `export`. Also, the `analytics` file will use code from `analytics.js` plus recentActivity, while the `export` file will utilize the code from `export.js`.
+**Deciding on file structure**
+
+I'm weighing whether to keep the `health.js` file or to focus on adding `api/index.js`, but I don't think it's necessary. I could potentially leave health, regulatory/calendar, orange-book/index, trials/search, and sentiment/faers as standalone files, which totals to ten. I should also check the file count from `api/_lib/db.js`, while being cautious about not touching `server.js`. It seems important to consider how the Vercel functions relate to local development and their reliance on the server routes. Is it worth updating those if there are duplications?
+**Considering server.js updates**
+
+I'm thinking about whether I should leave `server.js` as is, or update it to act as a proxy. It's not necessarily required if it's not used for Vercel. The new grouped API files seem to be independent of any changes to `server.js`. I want to make sure everything stays consistent for local development, but I'm also weighing the necessity of touching that file at all. It’s good to consider how this impacts our workflow and future updates.</details></think>
+
+---
+
