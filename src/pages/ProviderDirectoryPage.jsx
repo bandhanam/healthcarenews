@@ -37,14 +37,28 @@ const STATE_NAMES = {
   'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming', 'DC': 'Washington DC'
 };
 
-function ProviderDirectoryPage() {
-  const [activeTab, setActiveTab] = useState('search');
+const DEFAULT_PAGE_CONFIG = {
+  pageTitle: 'Advanced Provider Dashboard',
+  pageBadge: 'Provider Intelligence',
+  pageSubtitle: 'Search, segment, and analyze NPI data across physicians, hospitals, specialties, and geography',
+  searchTabLabel: 'Search Providers',
+  analyticsTabLabel: 'Analytics Dashboard',
+  mapTabLabel: 'Heat Map',
+  searchPlaceholder: 'Search by name, NPI, specialty, or organization...',
+  defaultTab: 'search',
+  fixedEntityType: '',
+  showEntityTypeFilter: true,
+};
+
+function ProviderDirectoryPage({ config: pageConfig = {} }) {
+  const page = { ...DEFAULT_PAGE_CONFIG, ...pageConfig };
+  const [activeTab, setActiveTab] = useState(page.defaultTab);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     state: '',
     city: '',
     credential: '',
-    entityType: ''
+    entityType: page.fixedEntityType || ''
   });
   const [providers, setProviders] = useState([]);
   const [analytics, setAnalytics] = useState(null);
@@ -53,6 +67,7 @@ function ProviderDirectoryPage() {
   const [pagination, setPagination] = useState({ total: 0, pages: 1, currentPage: 1 });
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [exporting, setExporting] = useState(false);
+  const effectiveEntityType = page.fixedEntityType || filters.entityType;
 
   // Fetch analytics on mount
   useEffect(() => {
@@ -65,6 +80,7 @@ function ProviderDirectoryPage() {
       const params = new URLSearchParams();
       if (state) params.append('state', state);
       if (credential) params.append('credential', credential);
+      if (effectiveEntityType) params.append('entity_type', effectiveEntityType);
       
       const response = await fetch(`${API_BASE}/analytics?${params}`);
       const data = await response.json();
@@ -90,7 +106,7 @@ function ProviderDirectoryPage() {
       if (filters.state) params.append('state', filters.state);
       if (filters.city) params.append('city', filters.city);
       if (filters.credential) params.append('credential', filters.credential);
-      if (filters.entityType) params.append('entity_type', filters.entityType);
+      if (effectiveEntityType) params.append('entity_type', effectiveEntityType);
 
       const response = await fetch(`${API_BASE}/search?${params}`);
       const data = await response.json();
@@ -119,7 +135,7 @@ function ProviderDirectoryPage() {
       if (filters.state) params.append('state', filters.state);
       if (filters.city) params.append('city', filters.city);
       if (filters.credential) params.append('credential', filters.credential);
-      if (filters.entityType) params.append('entity_type', filters.entityType);
+      if (effectiveEntityType) params.append('entity_type', effectiveEntityType);
 
       const response = await fetch(`${API_BASE}/export?${params}`);
       const blob = await response.blob();
@@ -139,7 +155,7 @@ function ProviderDirectoryPage() {
 
   const clearFilters = () => {
     setSearchQuery('');
-    setFilters({ state: '', city: '', credential: '', entityType: '' });
+    setFilters({ state: '', city: '', credential: '', entityType: page.fixedEntityType || '' });
     setProviders([]);
     setPagination({ total: 0, pages: 1, currentPage: 1 });
   };
@@ -171,10 +187,12 @@ function ProviderDirectoryPage() {
         >
           <div className="hero-badge">
             <span className="badge-icon">🏥</span>
-            <span>NPI Provider Database</span>
+            <span>{page.pageBadge}</span>
           </div>
-          <h1>Provider Directory</h1>
-          <p>Search and analyze <strong>{formatNumber(analytics?.summary?.totalProviders || 0)}</strong> healthcare providers across the United States</p>
+          <h1>{page.pageTitle}</h1>
+          <p>
+            {page.pageSubtitle} <strong>{formatNumber(analytics?.summary?.totalProviders || 0)}</strong> records
+          </p>
           
           <div className="hero-stats">
             <div className="stat-item">
@@ -204,21 +222,21 @@ function ProviderDirectoryPage() {
           onClick={() => setActiveTab('search')}
         >
           <span className="tab-icon">🔍</span>
-          Search Providers
+          {page.searchTabLabel}
         </button>
         <button 
           className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`}
           onClick={() => setActiveTab('analytics')}
         >
           <span className="tab-icon">📊</span>
-          Analytics Dashboard
+          {page.analyticsTabLabel}
         </button>
         <button 
           className={`tab-btn ${activeTab === 'map' ? 'active' : ''}`}
           onClick={() => setActiveTab('map')}
         >
           <span className="tab-icon">🗺️</span>
-          State Map
+          {page.mapTabLabel}
         </button>
       </div>
 
@@ -239,7 +257,7 @@ function ProviderDirectoryPage() {
                   <span className="search-icon">🔍</span>
                   <input
                     type="text"
-                    placeholder="Search by name, NPI, or organization..."
+                    placeholder={page.searchPlaceholder}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="search-input"
@@ -281,15 +299,17 @@ function ProviderDirectoryPage() {
                   ))}
                 </select>
 
-                <select 
-                  value={filters.entityType} 
-                  onChange={(e) => setFilters({...filters, entityType: e.target.value})}
-                  className="filter-select"
-                >
-                  <option value="">All Types</option>
-                  <option value="1">Individual</option>
-                  <option value="2">Organization</option>
-                </select>
+                {page.showEntityTypeFilter && !page.fixedEntityType && (
+                  <select 
+                    value={filters.entityType} 
+                    onChange={(e) => setFilters({...filters, entityType: e.target.value})}
+                    className="filter-select"
+                  >
+                    <option value="">All Types</option>
+                    <option value="1">Individual</option>
+                    <option value="2">Organization</option>
+                  </select>
+                )}
 
                 <button type="button" className="clear-btn" onClick={clearFilters}>
                   Clear
@@ -552,7 +572,7 @@ function ProviderDirectoryPage() {
                   .map(([state, count]) => {
                     const maxCount = Math.max(...Object.values(analytics.mapData));
                     const intensity = Math.min(count / maxCount, 1);
-                    const bgColor = `rgba(99, 102, 241, ${0.2 + intensity * 0.8})`;
+                    const bgColor = `rgba(0, 76, 151, ${0.15 + intensity * 0.7})`;
                     
                     return (
                       <motion.div

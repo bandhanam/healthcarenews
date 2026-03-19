@@ -201,24 +201,78 @@ const SECTIONS = [
 
 const EXTRA_SECTIONS = [
   {
-    id: 'provider-data',
-    title: 'Provider Data Apps',
-    subtitle: 'Search and analyze NPI providers with modern filters and interactive dashboards',
+    id: 'provider-intelligence',
+    title: 'Provider Intelligence',
+    subtitle: 'Physicians, hospitals, specialty analytics, heat maps, and advanced dashboards built on NPI data',
     features: [
       {
-        title: 'Provider Directory',
-        path: '/provider-directory',
+        title: 'Advanced Dashboard',
+        path: '/provider-dashboard',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 19h16" />
+            <rect x="4" y="4" width="6" height="15" rx="1" />
+            <rect x="11" y="7" width="4" height="12" rx="1" />
+            <rect x="16" y="10" width="4" height="9" rx="1" />
+          </svg>
+        ),
+        description: 'Search, filter, and analyze the entire provider dataset with charts, exports, and geo insights.',
+        color: '#004c97',
+        bg: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
+      },
+      {
+        title: 'Physician Directory',
+        path: '/physicians',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="7" r="4" />
+            <path d="M4 21v-1a8 8 0 0 1 16 0v1" />
+          </svg>
+        ),
+        description: 'Find individual NPI clinicians by specialty, credential, city, and state.',
+        color: '#1e40af',
+        bg: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
+      },
+      {
+        title: 'Hospitals Directory',
+        path: '/hospitals',
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 21h18" />
             <path d="M5 21V7l7-4 7 4v14" />
             <path d="M9 21v-6h6v6" />
-            <path d="M9 10h.01M12 10h.01M15 10h.01" />
           </svg>
         ),
-        description: 'Fast provider search with smart filters, state map, charts, exports, and detailed profile cards powered by NPI data.',
-        color: '#6366f1',
-        bg: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
+        description: 'Explore hospitals and provider organizations with location and taxonomy filters.',
+        color: '#0f766e',
+        bg: 'linear-gradient(135deg, #ecfdf5, #d1fae5)',
+      },
+      {
+        title: 'Specialty Explorer',
+        path: '/specialties',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2v20" />
+            <path d="M4 7h16" />
+            <path d="M6 7c0 4 2 6 6 6s6-2 6-6" />
+          </svg>
+        ),
+        description: 'Analyze provider concentration by taxonomy, specialty, and geography.',
+        color: '#7c3aed',
+        bg: 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
+      },
+      {
+        title: 'Heat Map',
+        path: '/heat-map',
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2c4 0 7 3 7 7 0 6-7 13-7 13S5 15 5 9c0-4 3-7 7-7Z" />
+            <circle cx="12" cy="9" r="2.5" />
+          </svg>
+        ),
+        description: 'Visualize coverage gaps and provider density across states and regions.',
+        color: '#d97706',
+        bg: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
       },
     ],
   },
@@ -410,7 +464,7 @@ const EXTRA_SECTIONS = [
   {
     id: 'tools',
     title: 'Professional Tools',
-    subtitle: 'Head-to-head drug comparison, medical calculators, and more',
+    subtitle: 'Head-to-head drug comparison and practical clinical utilities',
     features: [
       {
         title: 'MedCompare',
@@ -424,24 +478,40 @@ const EXTRA_SECTIONS = [
         color: '#ec4899',
         bg: 'linear-gradient(135deg, #fdf2f8, #fce7f3)',
       },
-      {
-        title: 'RxCalc',
-        path: '/rx-calc',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="4" y="2" width="16" height="20" rx="2" /><path d="M8 6h8M8 10h8M8 14h5" />
-          </svg>
-        ),
-        description: 'Six essential medical calculators — BMI, BSA, eGFR kidney function, ideal body weight, calorie needs, and weight-based dosing.',
-        color: '#475569',
-        bg: 'linear-gradient(135deg, #f8fafc, #f1f5f9)',
-      },
+    ],
+  },
+];
+
+const APP_GROUPS = [
+  {
+    id: 'general-apps',
+    title: 'General Apps',
+    subtitle: 'Everyday healthcare apps for news, diagnostics, drug intelligence, and safety workflows',
+    features: [
+      ...SECTIONS[0].features,
+      ...SECTIONS[1].features,
+      ...SECTIONS[2].features,
+      ...SECTIONS[3].features,
+    ],
+  },
+  {
+    id: 'pro-apps',
+    title: 'Pro Apps',
+    subtitle: 'Advanced intelligence apps for provider networks, chemistry, regulatory monitoring, and analytics',
+    className: 'landing-section--pro',
+    features: [
+      ...EXTRA_SECTIONS[0].features,
+      ...EXTRA_SECTIONS[1].features,
+      ...EXTRA_SECTIONS[2].features,
+      ...EXTRA_SECTIONS[3].features,
+      ...EXTRA_SECTIONS[4].features,
+      ...EXTRA_SECTIONS[5].features,
     ],
   },
 ];
 
 const STATS = [
-  { value: '29+', label: 'Specialized Tools' },
+  { value: '32+', label: 'Specialized Tools' },
   { value: '50+', label: 'Data Sources' },
   { value: 'AI', label: 'Powered Insights' },
   { value: '0', label: 'Data Sent to Cloud' },
@@ -499,7 +569,7 @@ function SectionBlock({ section }) {
   return (
     <motion.section
       ref={ref}
-      className="landing-section"
+      className={`landing-section ${section.className || ''}`}
       id={section.id}
       variants={sectionVariants}
       initial="hidden"
@@ -568,14 +638,14 @@ function LandingPage() {
       </section>
 
       <nav className="landing-quick-nav">
-        {[...SECTIONS, ...EXTRA_SECTIONS].map((s) => (
+        {APP_GROUPS.map((s) => (
           <a key={s.id} href={`#${s.id}`} className="landing-quick-link">
             {s.title}
           </a>
         ))}
       </nav>
 
-      {[...SECTIONS, ...EXTRA_SECTIONS].map((section) => (
+      {APP_GROUPS.map((section) => (
         <SectionBlock key={section.id} section={section} />
       ))}
 

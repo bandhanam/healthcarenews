@@ -12,7 +12,6 @@ const NAV_GROUPS = [
       { path: '/med-predict', label: 'MedPredict', desc: 'AI disease prediction', color: '#7c3aed' },
       { path: '/symptom-ai', label: 'SymptomAI', desc: 'Conversational symptom checker', color: '#0891b2' },
       { path: '/health-scan', label: 'HealthScan', desc: 'Lab report analyzer', color: '#059669' },
-      { path: '/rx-calc', label: 'RxCalc', desc: 'Medical calculators', color: '#475569' },
     ],
   },
   {
@@ -62,9 +61,13 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: 'Data',
+    label: 'Provider Intelligence',
     children: [
-      { path: '/provider-directory', label: 'Provider Directory', desc: 'Search 7.5M+ NPI providers', color: '#6366f1' },
+      { path: '/provider-dashboard', label: 'Advanced Dashboard', desc: 'Search, analytics, and map in one view', color: '#004c97' },
+      { path: '/physicians', label: 'Physician Directory', desc: 'Individual clinician search', color: '#1e40af' },
+      { path: '/hospitals', label: 'Hospitals Directory', desc: 'Hospital and org directory', color: '#0f766e' },
+      { path: '/specialties', label: 'Specialty Explorer', desc: 'Taxonomy and specialty analysis', color: '#7c3aed' },
+      { path: '/heat-map', label: 'Heat Map', desc: 'Geographic coverage map', color: '#d97706' },
     ],
   },
 ];

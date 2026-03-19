@@ -55,10 +55,8 @@ describe('LandingPage', () => {
 
   it('renders all four section titles', () => {
     renderPage();
-    expect(screen.getAllByText('News & Intelligence').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('AI & Diagnostics').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('Drug Intelligence').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('Safety & Clinical Trials').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('General Apps').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Pro Apps').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders all feature card titles', () => {
@@ -70,7 +68,8 @@ describe('LandingPage', () => {
       'Interactions', 'SafetyWatch', 'TrialFinder',
       'LivePulse', 'BioSentinel', 'PharmaGlobe',
       'OutbreakRadar', 'ResearchRadar', 'ClinicalInsight',
-      'MedCompare', 'RxCalc',
+      'MedCompare',
+      'Advanced Dashboard', 'Physician Directory', 'Hospitals Directory', 'Specialty Explorer', 'Heat Map',
       'MoleculeViz', 'ChemExplorer', 'DrugRepurpose',
       'PatentWatch', 'Regulatory Calendar', 'Drug Label Diff', 'Generic Launch Tracker',
     ];
@@ -88,7 +87,7 @@ describe('LandingPage', () => {
 
   it('renders the quick navigation links', () => {
     renderPage();
-    const quickLinks = screen.getAllByText('News & Intelligence');
+    const quickLinks = screen.getAllByText('General Apps');
     expect(quickLinks.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -101,7 +100,7 @@ describe('LandingPage', () => {
 
   it('renders stats section', () => {
     renderPage();
-    expect(screen.getByText('29+')).toBeInTheDocument();
+    expect(screen.getByText('32+')).toBeInTheDocument();
     expect(screen.getByText('Specialized Tools')).toBeInTheDocument();
     expect(screen.getByText('Powered Insights')).toBeInTheDocument();
   });

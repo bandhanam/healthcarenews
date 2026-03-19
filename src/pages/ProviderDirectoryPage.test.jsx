@@ -56,14 +56,14 @@ describe('ProviderDirectoryPage', () => {
     vi.clearAllMocks();
   });
 
-  it('renders Provider Directory heading', async () => {
+  it('renders Advanced Provider Dashboard heading', async () => {
     render(
       <BrowserRouter>
         <ProviderDirectoryPage />
       </BrowserRouter>
     );
 
-    expect(screen.getByText('Provider Directory')).toBeInTheDocument();
+    expect(screen.getByText('Advanced Provider Dashboard')).toBeInTheDocument();
   });
 
   it('renders search tab by default', () => {

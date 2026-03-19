@@ -31,7 +31,11 @@ const PharmaGlobePage = lazy(() => import('./pages/PharmaGlobePage'));
 const MedComparePage = lazy(() => import('./pages/MedComparePage'));
 const ResearchRadarPage = lazy(() => import('./pages/ResearchRadarPage'));
 const ClinicalInsightPage = lazy(() => import('./pages/ClinicalInsightPage'));
-const RxCalcPage = lazy(() => import('./pages/RxCalcPage'));
+const ProviderDashboardPage = lazy(() => import('./pages/ProviderDashboardPage'));
+const PhysicianDirectoryPage = lazy(() => import('./pages/PhysicianDirectoryPage'));
+const HospitalsDirectoryPage = lazy(() => import('./pages/HospitalsDirectoryPage'));
+const SpecialtyExplorerPage = lazy(() => import('./pages/SpecialtyExplorerPage'));
+const HeatMapPage = lazy(() => import('./pages/HeatMapPage'));
 const DrugRepurposePage = lazy(() => import('./pages/DrugRepurposePage'));
 const MoleculeVizPage = lazy(() => import('./pages/MoleculeVizPage'));
 const ChemExplorerPage = lazy(() => import('./pages/ChemExplorerPage'));
@@ -78,7 +82,12 @@ function AppContent() {
               <Route path="/med-compare" element={<MedComparePage />} />
               <Route path="/research-radar" element={<ResearchRadarPage />} />
               <Route path="/clinical-insight" element={<ClinicalInsightPage />} />
-              <Route path="/rx-calc" element={<RxCalcPage />} />
+              <Route path="/provider-dashboard" element={<ProviderDashboardPage />} />
+              <Route path="/provider-directory" element={<ProviderDashboardPage />} />
+              <Route path="/physicians" element={<PhysicianDirectoryPage />} />
+              <Route path="/hospitals" element={<HospitalsDirectoryPage />} />
+              <Route path="/specialties" element={<SpecialtyExplorerPage />} />
+              <Route path="/heat-map" element={<HeatMapPage />} />
               <Route path="/drug-repurpose" element={<DrugRepurposePage />} />
               <Route path="/chem-explorer" element={<ChemExplorerPage />} />
               <Route path="/molecule-viz" element={<MoleculeVizPage />} />
@@ -87,7 +96,6 @@ function AppContent() {
               <Route path="/drug-label-diff" element={<DrugLabelDiffPage />} />
               <Route path="/generic-tracker" element={<GenericLaunchTrackerPage />} />
               <Route path="/drug-sentiment" element={<DrugSentimentPage />} />
-              <Route path="/provider-directory" element={<ProviderDirectoryPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
             </Routes>
@@ -105,7 +113,7 @@ function AppContent() {
               </div>
             </div>
             <p className="footer-desc">
-              AI-powered healthcare platform with 29+ tools for drug intelligence,
+              AI-powered healthcare platform with 32+ tools for drug intelligence,
               molecular science, regulatory tracking, clinical trials, and research analytics.
             </p>
           </div>
@@ -114,7 +122,6 @@ function AppContent() {
             <a href="/med-predict">MedPredict</a>
             <a href="/symptom-ai">SymptomAI</a>
             <a href="/health-scan">HealthScan</a>
-            <a href="/rx-calc">RxCalc</a>
           </div>
           <div className="footer-col">
             <h4 className="footer-heading">Drug Intel</h4>
