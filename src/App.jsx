@@ -39,6 +39,8 @@ const PatentWatchPage = lazy(() => import('./pages/PatentWatchPage'));
 const RegulatoryCalendarPage = lazy(() => import('./pages/RegulatoryCalendarPage'));
 const DrugLabelDiffPage = lazy(() => import('./pages/DrugLabelDiffPage'));
 const GenericLaunchTrackerPage = lazy(() => import('./pages/GenericLaunchTrackerPage'));
+const DrugSentimentPage = lazy(() => import('./pages/DrugSentimentPage'));
+const ProviderDirectoryPage = lazy(() => import('./pages/ProviderDirectoryPage'));
 
 const SIDEBAR_PATHS = ['/news', '/disease-drug-news', '/category'];
 
@@ -84,6 +86,8 @@ function AppContent() {
               <Route path="/regulatory-calendar" element={<RegulatoryCalendarPage />} />
               <Route path="/drug-label-diff" element={<DrugLabelDiffPage />} />
               <Route path="/generic-tracker" element={<GenericLaunchTrackerPage />} />
+              <Route path="/drug-sentiment" element={<DrugSentimentPage />} />
+              <Route path="/provider-directory" element={<ProviderDirectoryPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
             </Routes>
@@ -136,11 +140,11 @@ function AppContent() {
         toastOptions={{
           style: {
             background: '#ffffff',
-            color: '#1e293b',
+            color: '#1a202c',
             border: '1px solid #e2e8f0',
             borderRadius: '12px',
             fontSize: '0.9rem',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            boxShadow: '0 4px 12px rgba(0, 76, 151, 0.06)',
           },
         }}
       />
