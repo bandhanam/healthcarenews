@@ -1,9 +1,13 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, AreaChart, Area, Legend
 } from 'recharts';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import { feature as topoFeature } from 'topojson-client';
+import 'leaflet/dist/leaflet.css';
 import './ProviderDirectoryPage.css';
 
 const API_BASE = '/api/providers';
@@ -36,6 +40,87 @@ const STATE_NAMES = {
   'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
   'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming', 'DC': 'Washington DC'
 };
+
+// FIPS state code (us-atlas id) -> state abbreviation for choropleth
+const FIPS_TO_STATE = {
+  '01': 'AL', '02': 'AK', '04': 'AZ', '05': 'AR', '06': 'CA', '08': 'CO', '09': 'CT',
+  '10': 'DE', '11': 'DC', '12': 'FL', '13': 'GA', '15': 'HI', '16': 'ID', '17': 'IL',
+  '18': 'IN', '19': 'IA', '20': 'KS', '21': 'KY', '22': 'LA', '23': 'ME', '24': 'MD',
+  '25': 'MA', '26': 'MI', '27': 'MN', '28': 'MS', '29': 'MO', '30': 'MT', '31': 'NE',
+  '32': 'NV', '33': 'NH', '34': 'NJ', '35': 'NM', '36': 'NY', '37': 'NC', '38': 'ND',
+  '39': 'OH', '40': 'OK', '41': 'OR', '42': 'PA', '44': 'RI', '45': 'SC', '46': 'SD',
+  '47': 'TN', '48': 'TX', '49': 'UT', '50': 'VT', '51': 'VA', '53': 'WA', '54': 'WV',
+  '55': 'WI', '56': 'WY'
+};
+
+const US_ATLAS_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
+const CHOROPLETH_LOW = 'rgba(0, 76, 151, 0.2)';
+const CHOROPLETH_HIGH = 'rgb(0, 76, 151)';
+
+function StatesChoroplethLayer({ mapData, onStateClick, formatNumber }) {
+  const map = useMap();
+  const layerRef = useRef(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(US_ATLAS_URL);
+        const topo = await res.json();
+        if (cancelled || !topo.objects?.states) return;
+        const geojson = topoFeature(topo, topo.objects.states);
+        const values = mapData && Object.keys(mapData).length ? Object.values(mapData) : [0];
+        const maxCount = Math.max(1, ...values);
+
+        const style = (feat) => {
+          const fips = String(feat.id);
+          const stateAbbr = FIPS_TO_STATE[fips];
+          const count = (mapData && stateAbbr && mapData[stateAbbr]) || 0;
+          const intensity = maxCount > 0 ? Math.min(count / maxCount, 1) : 0;
+          const fillColor = intensity <= 0 ? CHOROPLETH_LOW : `rgba(0, 76, 151, ${0.2 + intensity * 0.8})`;
+          return {
+            fillColor,
+            weight: 1,
+            color: 'rgba(255,255,255,0.6)',
+            fillOpacity: 1
+          };
+        };
+
+        const onEach = (feat, layer) => {
+          const stateAbbr = FIPS_TO_STATE[String(feat.id)];
+          const count = (mapData && stateAbbr && mapData[stateAbbr]) || 0;
+          const name = STATE_NAMES[stateAbbr] || stateAbbr;
+          layer.bindTooltip(`${name}: ${formatNumber ? formatNumber(count) : count.toLocaleString()}`, {
+            permanent: false,
+            direction: 'top',
+            className: 'provider-map-tooltip'
+          });
+          if (onStateClick && stateAbbr) {
+            layer.on('click', () => onStateClick(stateAbbr));
+          }
+        };
+
+        const geoLayer = L.geoJSON(geojson, { style: style, onEachFeature: onEach });
+        if (layerRef.current) {
+          map.removeLayer(layerRef.current);
+        }
+        layerRef.current = geoLayer;
+        map.addLayer(geoLayer);
+      } catch (e) {
+        if (!cancelled) console.error('Failed to load US states map:', e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      if (layerRef.current) {
+        map.removeLayer(layerRef.current);
+        layerRef.current = null;
+      }
+    };
+  }, [map, mapData, onStateClick, formatNumber]);
+
+  return null;
+}
 
 const DEFAULT_PAGE_CONFIG = {
   pageTitle: 'Advanced Provider Dashboard',
@@ -566,6 +651,34 @@ function ProviderDirectoryPage({ config: pageConfig = {} }) {
                 <span className="map-icon">🗺️</span>
                 Provider Distribution by State
               </h3>
+              <div className="us-map-wrapper">
+                <MapContainer
+                  center={[39, -98]}
+                  zoom={4}
+                  className="provider-us-map"
+                  scrollWheelZoom={true}
+                  style={{ height: 420, width: '100%', borderRadius: 12 }}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <StatesChoroplethLayer
+                    mapData={analytics?.mapData}
+                    formatNumber={formatNumber}
+                    onStateClick={(state) => {
+                      setFilters({ ...filters, state });
+                      setActiveTab('search');
+                      setTimeout(() => searchProviders(1), 100);
+                    }}
+                  />
+                </MapContainer>
+              </div>
+              <div className="map-legend">
+                <span className="legend-low">Low</span>
+                <div className="legend-gradient"></div>
+                <span className="legend-high">High</span>
+              </div>
               <div className="state-grid">
                 {analytics && Object.entries(analytics.mapData || {})
                   .sort((a, b) => b[1] - a[1])
@@ -591,11 +704,6 @@ function ProviderDirectoryPage({ config: pageConfig = {} }) {
                       </motion.div>
                     );
                   })}
-              </div>
-              <div className="map-legend">
-                <span className="legend-low">Low</span>
-                <div className="legend-gradient"></div>
-                <span className="legend-high">High</span>
               </div>
             </div>
           </motion.section>

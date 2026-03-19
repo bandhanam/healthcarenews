@@ -13,7 +13,7 @@ to @c:\Users\meenketan.rathore\Documents\GitHub\healthcarenews\ Current website 
 
 ---
 
-_**Agent (model gpt-5.4-mini-high, mode Agent)**_
+_**Agent (model default, mode Agent)**_
 
 <think><details><summary>Thought Process</summary>
 
@@ -970,7 +970,7 @@ Can you do for all apps Same color fonts
 
 ---
 
-_**Agent (model gpt-5.4-mini-high, mode Agent)**_
+_**Agent (model default, mode Agent)**_
 
 <think><details><summary>Thought Process</summary>
 **Considering styling changes**
@@ -1518,7 +1518,7 @@ Fix this vercel cannot support more than 12 serverless method Can you club few t
 
 ---
 
-_**Agent (model gpt-5.4-mini-high, mode Agent)**_
+_**Agent (model default, mode Agent)**_
 
 I’m treating this as a deployment-architecture fix rather than a small CSS tweak. I want to map the current Vercel functions, then consolidate the related endpoints into fewer serverless files so you stay under the Hobby plan limit.
 
@@ -2426,7 +2426,7 @@ Medical Calculator Suite
 
 ---
 
-_**Agent (model gpt-5.4-mini-high, mode Agent)**_
+_**Agent (model default, mode Agent)**_
 
 <think><details><summary>Thought Process</summary>
 **Planning updates and searches**
@@ -3077,7 +3077,7 @@ Medical Calculator Suite
 
 ---
 
-_**Agent (model gpt-5.4-mini-high, mode Agent)**_
+_**Agent (model default, mode Agent)**_
 
 <think><details><summary>Thought Process</summary>
 **Ensuring complete feature removal**
@@ -3209,7 +3209,7 @@ Modern advance apps /pages using that
 
 ---
 
-_**Agent (model gpt-5.4-mini-high, mode Agent)**_
+_**Agent (model default, mode Agent)**_
 
 <think><details><summary>Thought Process</summary>
 **Considering presentation format**
@@ -3253,7 +3253,7 @@ Analyze it and Suggest 3-4 apps
 
 ---
 
-_**Agent (model gpt-5.4-mini-high, mode Agent)**_
+_**Agent (model default, mode Agent)**_
 
 <think><details><summary>Thought Process</summary>
 **Analyzing NPI data and app suggestions**
@@ -3313,7 +3313,7 @@ Heat map wise etc
 
 ---
 
-_**Agent (model gpt-5.4-mini-high, mode Agent)**_
+_**Agent (model default, mode Agent)**_
 
 <think><details><summary>Thought Process</summary>
 **Planning healthcare directories**
@@ -3405,7 +3405,7 @@ Heat Map and Advance useful Dashboard
 
 ---
 
-_**Agent (model gpt-5.4-mini-high, mode Agent)**_
+_**Agent (model default, mode Agent)**_
 
 <think><details><summary>Thought Process</summary>
 **Planning changes for user request**
@@ -4843,7 +4843,7 @@ and Can you keep Logo in Left most cornor
 
 ---
 
-_**Agent (model gpt-5.4-mini-high, mode Agent)**_
+_**Agent (model default, mode Agent)**_
 
 <think><details><summary>Thought Process</summary>
 **Adjusting header layout**
@@ -5430,7 +5430,7 @@ yes
 
 ---
 
-_**Agent (model gpt-5.4-mini-high, mode Agent)**_
+_**Agent (model default, mode Agent)**_
 
 <think><details><summary>Thought Process</summary>
 **Planning visual changes**
@@ -5548,6 +5548,12 @@ I made the two landing-page groups feel more distinct:
 The logo is still pinned to the far left in the header, and the updated landing page test still passes.
 
 If you want, I can take one more pass and make the `Pro Apps` section feel even more premium, like a Clarivate enterprise product panel with a stronger left label rail and denser cards.
+
+---
+
+_**User**_
+
+Can we add Actual US map also in heat map section in Provider Intelligence
 
 ---
 
