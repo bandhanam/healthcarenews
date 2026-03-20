@@ -19,12 +19,6 @@ import 'leaflet/dist/leaflet.css';
 import { DISEASE_LOGY_MAPPING, DISEASES_AND_LOGIES, CONDITIONS } from '../data/diseases';
 import './DrugIntelPage.css';
 
-const TABS = [
-  { id: 'trialmap', label: 'TrialMap', icon: '🗺' },
-  { id: 'approvals', label: 'ApprovalTracker', icon: '📋' },
-  { id: 'competitor', label: 'CompetitorRadar', icon: '🎯' },
-];
-
 const STATUS_OPTIONS = [
   { value: '', label: 'All Statuses' },
   { value: 'RECRUITING', label: 'Recruiting' },
@@ -276,38 +270,21 @@ function MultiSelect({ options, selected, onChange, placeholder, label }) {
   );
 }
 
-function TrialMapTab() {
-  const [query, setQuery] = useState('');
-  const [status, setStatus] = useState('');
-  const [selectedSpecialties, setSelectedSpecialties] = useState([]);
-  const [selectedConditions, setSelectedConditions] = useState([]);
+function TrialMapTab({ query, status, conditionQuery }) {
   const [studies, setStudies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [nextToken, setNextToken] = useState(null);
   const [totalCount, setTotalCount] = useState(0);
   const [searched, setSearched] = useState(false);
 
-  const specialtyLabels = useMemo(() => DISEASE_LOGY_MAPPING.map((d) => d.label), []);
-
-  const buildConditionQuery = useCallback(() => {
-    const parts = [];
-    selectedSpecialties.forEach((label) => {
-      const entry = DISEASE_LOGY_MAPPING.find((d) => d.label === label);
-      if (entry) parts.push(entry.keywords[0]);
-    });
-    selectedConditions.forEach((cond) => parts.push(cond));
-    return parts.join(' OR ');
-  }, [selectedSpecialties, selectedConditions]);
-
   const search = useCallback(
     async (append = false, token = null) => {
-      const condQuery = buildConditionQuery();
-      if (!query.trim() && !status && !condQuery) return;
+      if (!query.trim() && !status && !conditionQuery) return;
       setLoading(true);
       try {
         const params = new URLSearchParams();
         if (query.trim()) params.set('q', query.trim());
-        if (condQuery) params.set('condition', condQuery);
+        if (conditionQuery) params.set('condition', conditionQuery);
         if (status) params.set('status', status);
         params.set('pageSize', '50');
         if (token) params.set('pageToken', token);
@@ -326,21 +303,14 @@ function TrialMapTab() {
         setLoading(false);
       }
     },
-    [query, status, buildConditionQuery],
+    [query, status, conditionQuery],
   );
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    search(false);
-  };
-
-  const handleConditionChip = (cond) => {
-    setQuery(cond);
-    setTimeout(() => {
-      const form = document.querySelector('.di-trial-tab form');
-      if (form) form.requestSubmit();
-    }, 50);
-  };
+  useEffect(() => {
+    if (query.trim() || status || conditionQuery) {
+      search(false);
+    }
+  }, [query, status, conditionQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const markers = studies.flatMap((s) =>
     (s.locations || [])
@@ -406,72 +376,11 @@ function TrialMapTab() {
     return groups;
   }, [studies]);
 
-  const quickSearchChips = [
-    'Breast Cancer', 'Diabetes Mellitus', 'Alzheimer Disease', 'Hypertension',
-    'Lung Cancer', 'Depression', 'Asthma', 'HIV/AIDS', 'Heart Failure',
-    'Multiple Sclerosis', 'Parkinson Disease', 'Rheumatoid Arthritis',
-    'Obesity', 'COPD', 'Stroke', 'Epilepsy',
-  ];
-
   return (
     <div className="di-trial-tab">
-      <div className="di-filter-section">
-        <div className="di-filter-row-multi">
-          <div className="di-filter-group">
-            <span className="di-filter-label">Specialties</span>
-            <MultiSelect
-              options={specialtyLabels}
-              selected={selectedSpecialties}
-              onChange={setSelectedSpecialties}
-              placeholder="All Specialties"
-              label="specialties"
-            />
-          </div>
-          <div className="di-filter-group">
-            <span className="di-filter-label">Conditions</span>
-            <MultiSelect
-              options={CONDITIONS}
-              selected={selectedConditions}
-              onChange={setSelectedConditions}
-              placeholder="All Conditions"
-              label="conditions"
-            />
-          </div>
-        </div>
-      </div>
+      {loading && <div className="di-loading">Searching clinical trials...</div>}
 
-      <form className="di-search-bar" onSubmit={handleSubmit}>
-        <AutocompleteInput
-          value={query}
-          onChange={setQuery}
-          onSelect={(val) => setQuery(val)}
-          placeholder="Search condition or drug (e.g., Diabetes, Pembrolizumab)..."
-          className="di-search-input"
-        />
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className="di-select">
-          {STATUS_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
-        <button type="submit" className="di-btn-primary" disabled={loading}>
-          {loading ? 'Searching...' : 'Search Trials'}
-        </button>
-      </form>
-
-      <div className="di-condition-chips-row">
-        <span className="di-chips-label">Quick search:</span>
-        {quickSearchChips.map((c) => (
-          <button
-            key={c}
-            className={`di-chip ${query === c ? 'active' : ''}`}
-            onClick={() => handleConditionChip(c)}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-
-      {searched && (
+      {searched && !loading && (
         <div className="di-results-summary">
           Found <strong>{totalCount.toLocaleString()}</strong> trials
           {markers.length > 0 && ` · ${markers.length} map locations`}
@@ -710,8 +619,7 @@ function TrialMapTab() {
   );
 }
 
-function ApprovalTrackerTab() {
-  const [searchQ, setSearchQ] = useState('');
+function ApprovalTrackerTab({ query, conditionQuery }) {
   const [sourceFilter, setSourceFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [results, setResults] = useState([]);
@@ -732,12 +640,19 @@ function ApprovalTrackerTab() {
     })();
   }, []);
 
+  const combinedSearch = useMemo(() => {
+    const parts = [];
+    if (query?.trim()) parts.push(query.trim());
+    if (conditionQuery) parts.push(conditionQuery);
+    return parts.join(' ');
+  }, [query, conditionQuery]);
+
   const searchApprovals = useCallback(
     async (newOffset = 0) => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
-        if (searchQ.trim()) params.set('q', searchQ.trim());
+        if (combinedSearch) params.set('q', combinedSearch);
         if (sourceFilter) params.set('source', sourceFilter);
         if (categoryFilter) params.set('category', categoryFilter);
         params.set('limit', '50');
@@ -756,7 +671,7 @@ function ApprovalTrackerTab() {
         setLoading(false);
       }
     },
-    [searchQ, sourceFilter, categoryFilter],
+    [combinedSearch, sourceFilter, categoryFilter],
   );
 
   useEffect(() => {
@@ -862,31 +777,14 @@ function ApprovalTrackerTab() {
       )}
 
       <div className="di-approval-search">
-        <h3>Search Drug Approvals</h3>
-        <form
-          className="di-search-bar"
-          onSubmit={(e) => {
-            e.preventDefault();
-            searchApprovals(0);
-          }}
-        >
-          <AutocompleteInput
-            value={searchQ}
-            onChange={setSearchQ}
-            onSelect={(val) => setSearchQ(val)}
-            placeholder="Search drug name, generic name, or substance..."
-            className="di-search-input"
-          />
+        <div className="di-approval-filter-row">
           <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)} className="di-select">
             <option value="">All Sources</option>
             <option value="FDA">FDA (US)</option>
             <option value="EMA">EMA (EU)</option>
             <option value="CDSCO">CDSCO (India)</option>
           </select>
-          <button type="submit" className="di-btn-primary" disabled={loading}>
-            {loading ? 'Searching...' : 'Search'}
-          </button>
-        </form>
+        </div>
 
         {stats?.byArea && (
           <div className="di-category-chips">
@@ -991,53 +889,58 @@ function classifyRegion(country) {
   return 'OTHER';
 }
 
-function CompetitorRadarTab() {
-  const [query, setQuery] = useState('');
+function CompetitorRadarTab({ query, conditionQuery }) {
   const [studies, setStudies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [competitors, setCompetitors] = useState([]);
-  const [competitorsLoading, setCompetitorsLoading] = useState(false);
   const [expandedSponsor, setExpandedSponsor] = useState(null);
 
-  const searchCompetitors = useCallback(async () => {
-    if (!query.trim()) return;
+  const combinedSearch = useMemo(() => {
+    const parts = [];
+    if (query?.trim()) parts.push(query.trim());
+    if (conditionQuery) parts.push(conditionQuery);
+    return parts.join(' ');
+  }, [query, conditionQuery]);
+
+  useEffect(() => {
+    if (!combinedSearch) return;
+    let cancelled = false;
     setLoading(true);
-    setCompetitorsLoading(true);
     setStudies([]);
     setCompetitors([]);
 
-    try {
-      const [trialsRes, approvalsRes] = await Promise.all([
-        fetch(`/api/trials/search?q=${encodeURIComponent(query.trim())}&pageSize=50`),
-        fetch(`/api/approvals/competitors?category=${encodeURIComponent(query.trim())}&limit=20`),
-      ]);
+    (async () => {
+      try {
+        const [trialsRes, approvalsRes] = await Promise.all([
+          fetch(`/api/trials/search?q=${encodeURIComponent(combinedSearch)}&pageSize=50`),
+          fetch(`/api/approvals/competitors?category=${encodeURIComponent(combinedSearch)}&limit=20`),
+        ]);
 
-      const trialsData = await trialsRes.json();
-      if (!trialsData.error) {
-        setStudies(trialsData.studies || []);
-        setTotalCount(trialsData.totalCount || 0);
+        if (cancelled) return;
+
+        const trialsData = await trialsRes.json();
+        if (!trialsData.error) {
+          setStudies(trialsData.studies || []);
+          setTotalCount(trialsData.totalCount || 0);
+        }
+
+        const appData = await approvalsRes.json();
+        if (!appData.error) {
+          setCompetitors(appData.competitors || []);
+        }
+
+        setSearched(true);
+      } catch (err) {
+        console.error('Competitor search failed:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
+    })();
 
-      const appData = await approvalsRes.json();
-      if (!appData.error) {
-        setCompetitors(appData.competitors || []);
-      }
-
-      setSearched(true);
-    } catch (err) {
-      console.error('Competitor search failed:', err);
-    } finally {
-      setLoading(false);
-      setCompetitorsLoading(false);
-    }
-  }, [query]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    searchCompetitors();
-  };
+    return () => { cancelled = true; };
+  }, [combinedSearch]);
 
   const sponsorData = useMemo(() => {
     const map = {};
@@ -1110,33 +1013,7 @@ function CompetitorRadarTab() {
     <div className="di-competitor-tab">
       <div className="cr-intro">
         <h3>Competitive Landscape Analysis</h3>
-        <p>Enter a disease or therapeutic area to see which companies are competing, their pipeline phases, and global market presence across US, EU, India, China, Japan, and more.</p>
-      </div>
-
-      <form className="di-search-bar" onSubmit={handleSubmit}>
-        <AutocompleteInput
-          value={query}
-          onChange={setQuery}
-          onSelect={(val) => setQuery(val)}
-          placeholder="Enter disease or therapeutic area (e.g., Cancer, Diabetes, Alzheimer)..."
-          className="di-search-input"
-        />
-        <button type="submit" className="di-btn-primary" disabled={loading}>
-          {loading ? 'Analyzing...' : 'Analyze Competition'}
-        </button>
-      </form>
-
-      <div className="di-condition-chips-row">
-        <span className="di-chips-label">Popular:</span>
-        {['Cancer', 'Diabetes', 'Alzheimer', 'Cardiology', 'Immunology', 'Oncology', 'Neurology', 'Infectious Disease'].map((c) => (
-          <button
-            key={c}
-            className={`di-chip ${query === c ? 'active' : ''}`}
-            onClick={() => { setQuery(c); }}
-          >
-            {c}
-          </button>
-        ))}
+        <p>Use the filters above to select specialties, conditions, or search terms. Results show which companies are competing, their pipeline phases, and global market presence.</p>
       </div>
 
       {loading && (
@@ -1354,8 +1231,43 @@ function CompetitorRadarTab() {
   );
 }
 
+const TAB_META = {
+  trialmap: { label: 'TrialMap', desc: 'Clinical trials on a global map', icon: '🗺️' },
+  approvals: { label: 'ApprovalTracker', desc: 'FDA, EMA & CDSCO approvals', icon: '📋' },
+  competitor: { label: 'CompetitorRadar', desc: 'Pipeline & competitor analysis', icon: '🎯' },
+};
+
+const QUICK_CHIPS = [
+  'Breast Cancer', 'Diabetes Mellitus', 'Alzheimer Disease', 'Hypertension',
+  'Lung Cancer', 'Depression', 'Asthma', 'HIV/AIDS', 'Heart Failure',
+  'Multiple Sclerosis', 'Parkinson Disease', 'Rheumatoid Arthritis',
+  'Obesity', 'COPD', 'Stroke', 'Epilepsy',
+];
+
 function DrugIntelPage() {
   const [activeTab, setActiveTab] = useState('trialmap');
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState('');
+  const [selectedSpecialties, setSelectedSpecialties] = useState([]);
+  const [selectedConditions, setSelectedConditions] = useState([]);
+
+  const specialtyLabels = useMemo(() => DISEASE_LOGY_MAPPING.map((d) => d.label), []);
+
+  const conditionQuery = useMemo(() => {
+    const parts = [];
+    selectedSpecialties.forEach((label) => {
+      const entry = DISEASE_LOGY_MAPPING.find((d) => d.label === label);
+      if (entry) parts.push(entry.keywords[0]);
+    });
+    selectedConditions.forEach((cond) => parts.push(cond));
+    return parts.join(' OR ');
+  }, [selectedSpecialties, selectedConditions]);
+
+  const hasFilters = query.trim() || status || conditionQuery;
+
+  const handleQuickChip = (chip) => {
+    setQuery(chip);
+  };
 
   return (
     <div className="di-page">
@@ -1368,19 +1280,95 @@ function DrugIntelPage() {
         <h1 className="di-title">Drug Intelligence Dashboard</h1>
         <p className="di-subtitle">
           Real-time clinical trials from ClinicalTrials.gov and drug approvals from FDA, EMA, and
-          CDSCO -- powered by live public APIs.
+          CDSCO &mdash; powered by live public APIs.
         </p>
       </motion.div>
 
-      <div className="di-tabs">
-        {TABS.map((tab) => (
+      <div className="di-global-filters">
+        <div className="di-filter-row-multi">
+          <div className="di-filter-group">
+            <span className="di-filter-label">Specialties</span>
+            <MultiSelect
+              options={specialtyLabels}
+              selected={selectedSpecialties}
+              onChange={setSelectedSpecialties}
+              placeholder="All Specialties"
+              label="specialties"
+            />
+          </div>
+          <div className="di-filter-group">
+            <span className="di-filter-label">Conditions</span>
+            <MultiSelect
+              options={CONDITIONS}
+              selected={selectedConditions}
+              onChange={setSelectedConditions}
+              placeholder="All Conditions"
+              label="conditions"
+            />
+          </div>
+        </div>
+
+        <div className="di-search-bar">
+          <AutocompleteInput
+            value={query}
+            onChange={setQuery}
+            onSelect={(val) => setQuery(val)}
+            placeholder="Search condition or drug (e.g., Diabetes, Pembrolizumab)..."
+            className="di-search-input"
+          />
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className="di-select">
+            {STATUS_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="di-condition-chips-row">
+          <span className="di-chips-label">Quick search:</span>
+          {QUICK_CHIPS.map((c) => (
+            <button
+              key={c}
+              className={`di-chip ${query === c ? 'active' : ''}`}
+              onClick={() => handleQuickChip(c)}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+
+        {hasFilters && (
+          <div className="di-active-filters-bar">
+            <span className="di-active-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
+              Active filters:
+            </span>
+            {query.trim() && <span className="di-active-tag">"{query.trim()}"</span>}
+            {selectedSpecialties.map((s) => <span key={s} className="di-active-tag di-active-spec">{s}</span>)}
+            {selectedConditions.map((c) => <span key={c} className="di-active-tag di-active-cond">{c}</span>)}
+            {status && <span className="di-active-tag di-active-status">{STATUS_OPTIONS.find((o) => o.value === status)?.label}</span>}
+            <button
+              className="di-clear-filters"
+              onClick={() => { setQuery(''); setStatus(''); setSelectedSpecialties([]); setSelectedConditions([]); }}
+            >
+              Clear all
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="di-tabs-new">
+        {Object.entries(TAB_META).map(([id, meta]) => (
           <button
-            key={tab.id}
-            className={`di-tab ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
+            key={id}
+            className={`di-tab-card ${activeTab === id ? 'active' : ''}`}
+            onClick={() => setActiveTab(id)}
           >
-            <span className="di-tab-icon">{tab.icon}</span>
-            {tab.label}
+            <span className="di-tab-card-icon">{meta.icon}</span>
+            <div className="di-tab-card-text">
+              <span className="di-tab-card-label">{meta.label}</span>
+              <span className="di-tab-card-desc">{meta.desc}</span>
+            </div>
+            {activeTab === id && <span className="di-tab-card-indicator" />}
           </button>
         ))}
       </div>
@@ -1394,9 +1382,9 @@ function DrugIntelPage() {
           transition={{ duration: 0.25 }}
           className="di-tab-content"
         >
-          {activeTab === 'trialmap' && <TrialMapTab />}
-          {activeTab === 'approvals' && <ApprovalTrackerTab />}
-          {activeTab === 'competitor' && <CompetitorRadarTab />}
+          {activeTab === 'trialmap' && <TrialMapTab query={query} status={status} conditionQuery={conditionQuery} />}
+          {activeTab === 'approvals' && <ApprovalTrackerTab query={query} conditionQuery={conditionQuery} />}
+          {activeTab === 'competitor' && <CompetitorRadarTab query={query} conditionQuery={conditionQuery} />}
         </motion.div>
       </AnimatePresence>
     </div>

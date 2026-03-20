@@ -81,22 +81,25 @@ describe('DrugIntelPage', () => {
     expect(screen.getByText('Breast Cancer')).toBeInTheDocument();
   });
 
+  it('renders tab descriptions', () => {
+    render(<DrugIntelPage />);
+    expect(screen.getByText('Clinical trials on a global map')).toBeInTheDocument();
+    expect(screen.getByText('FDA, EMA & CDSCO approvals')).toBeInTheDocument();
+    expect(screen.getByText('Pipeline & competitor analysis')).toBeInTheDocument();
+  });
+
   it('switches to CompetitorRadar tab', async () => {
     render(<DrugIntelPage />);
     fireEvent.click(screen.getByText('CompetitorRadar'));
     await waitFor(() => {
       expect(screen.getByText('Competitive Landscape Analysis')).toBeInTheDocument();
     });
-    expect(
-      screen.getByPlaceholderText(/Enter disease or therapeutic area/),
-    ).toBeInTheDocument();
   });
 
-  it('renders popular condition chips in CompetitorRadar', async () => {
+  it('filters are shared across tabs', () => {
     render(<DrugIntelPage />);
-    fireEvent.click(screen.getByText('CompetitorRadar'));
-    await waitFor(() => {
-      expect(screen.getByText('Popular:')).toBeInTheDocument();
-    });
+    expect(screen.getByText('All Specialties')).toBeInTheDocument();
+    expect(screen.getByText('All Conditions')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Search condition or drug/)).toBeInTheDocument();
   });
 });

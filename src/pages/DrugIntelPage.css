@@ -28,46 +28,176 @@
   line-height: 1.5;
 }
 
-/* Tabs */
-.di-tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 2px solid var(--color-border);
-  padding-bottom: 0;
+/* Global filters */
+.di-global-filters {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
 }
 
-.di-tab {
+.di-global-filters .di-search-bar {
+  margin-bottom: 0.75rem;
+}
+
+.di-global-filters .di-condition-chips-row {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.di-active-filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.di-active-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 0.25rem;
+}
+
+.di-active-tag {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.di-active-spec {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.25);
+  color: #2563eb;
+}
+
+.di-active-cond {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #059669;
+}
+
+.di-active-status {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: #d97706;
+}
+
+.di-clear-filters {
+  background: none;
+  border: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #dc2626;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  margin-left: 0.25rem;
+}
+
+.di-clear-filters:hover {
+  text-decoration: underline;
+}
+
+/* Tab cards */
+.di-tabs-new {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.di-tab-card {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border: none;
-  background: transparent;
-  color: var(--color-text-dim);
-  font-size: 0.95rem;
-  font-weight: 600;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  background: var(--color-bg-card);
   cursor: pointer;
-  border-bottom: 3px solid transparent;
   transition: all 0.2s;
-  margin-bottom: -2px;
+  text-align: left;
+  overflow: hidden;
 }
 
-.di-tab:hover {
+.di-tab-card:hover {
+  border-color: var(--color-primary-light, #6bc4a6);
+  background: rgba(26, 127, 100, 0.02);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.di-tab-card.active {
+  border-color: var(--color-primary);
+  background: rgba(26, 127, 100, 0.04);
+  box-shadow: 0 0 0 3px rgba(26, 127, 100, 0.1), var(--shadow-sm);
+}
+
+.di-tab-card-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.di-tab-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.di-tab-card-label {
+  font-size: 0.92rem;
+  font-weight: 700;
   color: var(--color-text);
 }
 
-.di-tab.active {
+.di-tab-card.active .di-tab-card-label {
   color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
 }
 
-.di-tab-icon {
-  font-size: 1.1rem;
+.di-tab-card-desc {
+  font-size: 0.72rem;
+  color: var(--color-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.di-tab-card-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-primary);
+  border-radius: 3px 3px 0 0;
 }
 
 .di-tab-content {
   min-height: 400px;
+}
+
+.di-approval-filter-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 /* Filter section */
@@ -1016,15 +1146,13 @@
     font-size: 1.5rem;
   }
 
-  .di-tabs {
-    gap: 0;
+  .di-tabs-new {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
   }
 
-  .di-tab {
-    flex: 1;
-    justify-content: center;
-    padding: 0.6rem 0.5rem;
-    font-size: 0.85rem;
+  .di-tab-card {
+    padding: 0.75rem 1rem;
   }
 
   .di-search-bar {
