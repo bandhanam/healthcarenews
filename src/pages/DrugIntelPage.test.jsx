@@ -57,9 +57,10 @@ describe('DrugIntelPage', () => {
     expect(screen.getByText('CompetitorRadar')).toBeInTheDocument();
   });
 
-  it('renders the specialty dropdown', () => {
+  it('renders the specialty and conditions multi-selects', () => {
     render(<DrugIntelPage />);
-    expect(screen.getByDisplayValue('All Specialties')).toBeInTheDocument();
+    expect(screen.getByText('All Specialties')).toBeInTheDocument();
+    expect(screen.getByText('All Conditions')).toBeInTheDocument();
   });
 
   it('renders the search input with placeholder', () => {
@@ -77,7 +78,7 @@ describe('DrugIntelPage', () => {
   it('renders quick-search condition chips', () => {
     render(<DrugIntelPage />);
     expect(screen.getByText('Quick search:')).toBeInTheDocument();
-    expect(screen.getByText('Allergology')).toBeInTheDocument();
+    expect(screen.getByText('Breast Cancer')).toBeInTheDocument();
   });
 
   it('switches to CompetitorRadar tab', async () => {

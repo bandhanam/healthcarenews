@@ -16,7 +16,7 @@ import {
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { DISEASE_LOGY_MAPPING, DISEASES_AND_LOGIES } from '../data/diseases';
+import { DISEASE_LOGY_MAPPING, DISEASES_AND_LOGIES, CONDITIONS } from '../data/diseases';
 import './DrugIntelPage.css';
 
 const TABS = [
@@ -28,9 +28,15 @@ const TABS = [
 const STATUS_OPTIONS = [
   { value: '', label: 'All Statuses' },
   { value: 'RECRUITING', label: 'Recruiting' },
-  { value: 'ACTIVE_NOT_RECRUITING', label: 'Active' },
+  { value: 'ACTIVE_NOT_RECRUITING', label: 'Active, Not Recruiting' },
   { value: 'COMPLETED', label: 'Completed' },
   { value: 'NOT_YET_RECRUITING', label: 'Not Yet Recruiting' },
+  { value: 'ENROLLING_BY_INVITATION', label: 'Enrolling by Invitation' },
+  { value: 'SUSPENDED', label: 'Suspended' },
+  { value: 'TERMINATED', label: 'Terminated' },
+  { value: 'WITHDRAWN', label: 'Withdrawn' },
+  { value: 'AVAILABLE', label: 'Available' },
+  { value: 'APPROVED_FOR_MARKETING', label: 'Approved for Marketing' },
 ];
 
 const SOURCE_COLORS = { FDA: '#3b82f6', EMA: '#10b981', CDSCO: '#f59e0b' };
@@ -184,27 +190,124 @@ function AutocompleteInput({ value, onChange, onSelect, placeholder, className }
   );
 }
 
+function MultiSelect({ options, selected, onChange, placeholder, label }) {
+  const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState('');
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filtered = useMemo(() => {
+    if (!filter) return options;
+    const q = filter.toLowerCase();
+    return options.filter((o) => o.toLowerCase().includes(q));
+  }, [options, filter]);
+
+  const toggle = (item) => {
+    if (selected.includes(item)) {
+      onChange(selected.filter((s) => s !== item));
+    } else {
+      onChange([...selected, item]);
+    }
+  };
+
+  return (
+    <div className="di-multiselect" ref={wrapRef}>
+      <button
+        type="button"
+        className={`di-multiselect-trigger ${open ? 'open' : ''} ${selected.length > 0 ? 'has-selection' : ''}`}
+        onClick={() => setOpen(!open)}
+      >
+        <span className="di-ms-label">
+          {selected.length === 0 ? placeholder : `${selected.length} ${label} selected`}
+        </span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`di-ms-chevron ${open ? 'open' : ''}`}>
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      {selected.length > 0 && (
+        <div className="di-ms-selected-chips">
+          {selected.map((s) => (
+            <span key={s} className="di-ms-chip">
+              {s}
+              <button type="button" className="di-ms-chip-remove" onClick={() => toggle(s)}>&times;</button>
+            </span>
+          ))}
+          <button type="button" className="di-ms-clear-all" onClick={() => onChange([])}>Clear all</button>
+        </div>
+      )}
+      {open && (
+        <div className="di-ms-dropdown">
+          <input
+            type="text"
+            className="di-ms-search"
+            placeholder={`Search ${label}...`}
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            autoFocus
+          />
+          <div className="di-ms-options">
+            {filtered.length === 0 && <div className="di-ms-empty">No matches found</div>}
+            {filtered.map((item) => (
+              <label key={item} className={`di-ms-option ${selected.includes(item) ? 'checked' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={selected.includes(item)}
+                  onChange={() => toggle(item)}
+                />
+                <span className="di-ms-checkmark">
+                  {selected.includes(item) && (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                  )}
+                </span>
+                <span className="di-ms-option-text">{item}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TrialMapTab() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('');
-  const [specialty, setSpecialty] = useState('');
+  const [selectedSpecialties, setSelectedSpecialties] = useState([]);
+  const [selectedConditions, setSelectedConditions] = useState([]);
   const [studies, setStudies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [nextToken, setNextToken] = useState(null);
   const [totalCount, setTotalCount] = useState(0);
   const [searched, setSearched] = useState(false);
 
+  const specialtyLabels = useMemo(() => DISEASE_LOGY_MAPPING.map((d) => d.label), []);
+
+  const buildConditionQuery = useCallback(() => {
+    const parts = [];
+    selectedSpecialties.forEach((label) => {
+      const entry = DISEASE_LOGY_MAPPING.find((d) => d.label === label);
+      if (entry) parts.push(entry.keywords[0]);
+    });
+    selectedConditions.forEach((cond) => parts.push(cond));
+    return parts.join(' OR ');
+  }, [selectedSpecialties, selectedConditions]);
+
   const search = useCallback(
     async (append = false, token = null) => {
-      if (!query.trim() && !status && !specialty) return;
+      const condQuery = buildConditionQuery();
+      if (!query.trim() && !status && !condQuery) return;
       setLoading(true);
       try {
         const params = new URLSearchParams();
         if (query.trim()) params.set('q', query.trim());
-        if (specialty) {
-          const entry = DISEASE_LOGY_MAPPING.find((d) => d.label === specialty);
-          if (entry) params.set('condition', entry.keywords[0]);
-        }
+        if (condQuery) params.set('condition', condQuery);
         if (status) params.set('status', status);
         params.set('pageSize', '50');
         if (token) params.set('pageToken', token);
@@ -223,7 +326,7 @@ function TrialMapTab() {
         setLoading(false);
       }
     },
-    [query, status, specialty],
+    [query, status, buildConditionQuery],
   );
 
   const handleSubmit = (e) => {
@@ -303,23 +406,38 @@ function TrialMapTab() {
     return groups;
   }, [studies]);
 
-  const conditionChips = DISEASES_AND_LOGIES.filter(
-    (d) => !['Disease', 'Chronic', 'Syndrome'].includes(d),
-  );
+  const quickSearchChips = [
+    'Breast Cancer', 'Diabetes Mellitus', 'Alzheimer Disease', 'Hypertension',
+    'Lung Cancer', 'Depression', 'Asthma', 'HIV/AIDS', 'Heart Failure',
+    'Multiple Sclerosis', 'Parkinson Disease', 'Rheumatoid Arthritis',
+    'Obesity', 'COPD', 'Stroke', 'Epilepsy',
+  ];
 
   return (
     <div className="di-trial-tab">
-      <div className="di-filter-row">
-        <select
-          value={specialty}
-          onChange={(e) => setSpecialty(e.target.value)}
-          className="di-select di-specialty-select"
-        >
-          <option value="">All Specialties</option>
-          {DISEASE_LOGY_MAPPING.map((d) => (
-            <option key={d.label} value={d.label}>{d.label}</option>
-          ))}
-        </select>
+      <div className="di-filter-section">
+        <div className="di-filter-row-multi">
+          <div className="di-filter-group">
+            <span className="di-filter-label">Specialties</span>
+            <MultiSelect
+              options={specialtyLabels}
+              selected={selectedSpecialties}
+              onChange={setSelectedSpecialties}
+              placeholder="All Specialties"
+              label="specialties"
+            />
+          </div>
+          <div className="di-filter-group">
+            <span className="di-filter-label">Conditions</span>
+            <MultiSelect
+              options={CONDITIONS}
+              selected={selectedConditions}
+              onChange={setSelectedConditions}
+              placeholder="All Conditions"
+              label="conditions"
+            />
+          </div>
+        </div>
       </div>
 
       <form className="di-search-bar" onSubmit={handleSubmit}>
@@ -342,7 +460,7 @@ function TrialMapTab() {
 
       <div className="di-condition-chips-row">
         <span className="di-chips-label">Quick search:</span>
-        {conditionChips.slice(0, 16).map((c) => (
+        {quickSearchChips.map((c) => (
           <button
             key={c}
             className={`di-chip ${query === c ? 'active' : ''}`}

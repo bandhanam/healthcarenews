@@ -9,13 +9,11 @@ vi.mock('framer-motion', () => ({
   AnimatePresence: ({ children }) => <>{children}</>,
 }));
 
-vi.mock('../utils/diseasePredictor', () => ({
-  predictDiseases: vi.fn(() => Promise.resolve([])),
-  isModelReady: vi.fn(() => false),
-}));
-
-vi.mock('../utils/textExtractor', () => ({
-  extractText: vi.fn(() => Promise.resolve('sample text')),
+vi.mock('recharts', () => ({
+  PieChart: ({ children }) => <div>{children}</div>,
+  Pie: () => null,
+  Cell: () => null,
+  ResponsiveContainer: ({ children }) => <div>{children}</div>,
 }));
 
 function pick(props) {
@@ -39,23 +37,11 @@ describe('HealthScanPage', () => {
     expect(screen.getByText('HealthScan Pro')).toBeInTheDocument();
   });
 
-  it('renders mode toggle buttons', () => {
-    render(<HealthScanPage />);
-    expect(screen.getByText('Enter Lab Values')).toBeInTheDocument();
-    expect(screen.getByText('Upload Report')).toBeInTheDocument();
-  });
-
-  it('renders lab value inputs in manual mode', () => {
+  it('renders lab value inputs', () => {
     render(<HealthScanPage />);
     expect(screen.getByText('Hemoglobin')).toBeInTheDocument();
     expect(screen.getByText('Blood Glucose')).toBeInTheDocument();
     expect(screen.getByText('Total Cholesterol')).toBeInTheDocument();
-  });
-
-  it('switches to upload mode', () => {
-    render(<HealthScanPage />);
-    fireEvent.click(screen.getByText('Upload Report'));
-    expect(screen.getByText(/Upload a medical report/)).toBeInTheDocument();
   });
 
   it('shows analyze button with count', () => {

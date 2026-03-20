@@ -1,8 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { predictDiseases, isModelReady } from '../utils/diseasePredictor';
-import { extractText } from '../utils/textExtractor';
 import './HealthScanPage.css';
 
 const RANGES = {
@@ -101,12 +99,7 @@ function ValueBar({ keyName, value }) {
 }
 
 function HealthScanPage() {
-  const [mode, setMode] = useState('manual');
   const [values, setValues] = useState({});
-  const [file, setFile] = useState(null);
-  const [extractedText, setExtractedText] = useState('');
-  const [predictions, setPredictions] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [analyzed, setAnalyzed] = useState(false);
 
@@ -125,27 +118,6 @@ function HealthScanPage() {
     setAnalyzed(true);
   }, [values]);
 
-  const handleFileUpload = useCallback(async (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setFile(f);
-    setLoading(true);
-    setError('');
-    setPredictions([]);
-    setExtractedText('');
-
-    try {
-      const text = await extractText(f);
-      setExtractedText(text);
-      const preds = await predictDiseases(text);
-      setPredictions(preds);
-    } catch {
-      setError('Failed to process file. Try a different format.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   const score = useMemo(() => analyzed ? calcScore(values) : null, [values, analyzed]);
 
   const abnormals = useMemo(() => {
@@ -161,123 +133,62 @@ function HealthScanPage() {
       <motion.div className="hs-hero" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="hs-hero-badge">HealthScan Pro</div>
         <h1 className="hs-title">Medical Report Analyzer</h1>
-        <p className="hs-subtitle">Enter your lab values for instant health scoring, or upload a medical report for AI-powered analysis.</p>
+        <p className="hs-subtitle">Enter your lab values for instant health scoring and detailed analysis.</p>
       </motion.div>
 
-      <div className="hs-mode-toggle">
-        <button className={`hs-mode-btn ${mode === 'manual' ? 'active' : ''}`} onClick={() => setMode('manual')}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          Enter Lab Values
-        </button>
-        <button className={`hs-mode-btn ${mode === 'upload' ? 'active' : ''}`} onClick={() => setMode('upload')}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          Upload Report
+      <div className="hs-input-section">
+        <div className="hs-panel-label">Enter Your Lab Results</div>
+        <div className="hs-inputs-grid">
+          {Object.entries(RANGES).map(([key, ref]) => (
+            <div key={key} className="hs-input-item">
+              <label className="hs-input-label">
+                <span className="hs-input-icon">{ref.icon}</span>
+                {ref.label}
+                <span className="hs-input-unit">({ref.unit})</span>
+              </label>
+              <input
+                type="number"
+                step="any"
+                className="hs-input"
+                placeholder={`${ref.low} - ${ref.high}`}
+                value={values[key] || ''}
+                onChange={(e) => handleValueChange(key, e.target.value)}
+              />
+            </div>
+          ))}
+        </div>
+        <button className="hs-analyze-btn" onClick={analyze} disabled={filledEntries.length < 3}>
+          Analyze My Results ({filledEntries.length} values entered)
         </button>
       </div>
 
-      <AnimatePresence mode="wait">
-        {mode === 'manual' ? (
-          <motion.div key="manual" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-            <div className="hs-input-section">
-              <div className="hs-panel-label">Enter Your Lab Results</div>
-              <div className="hs-inputs-grid">
-                {Object.entries(RANGES).map(([key, ref]) => (
-                  <div key={key} className="hs-input-item">
-                    <label className="hs-input-label">
-                      <span className="hs-input-icon">{ref.icon}</span>
-                      {ref.label}
-                      <span className="hs-input-unit">({ref.unit})</span>
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      className="hs-input"
-                      placeholder={`${ref.low} - ${ref.high}`}
-                      value={values[key] || ''}
-                      onChange={(e) => handleValueChange(key, e.target.value)}
-                    />
-                  </div>
-                ))}
-              </div>
-              <button className="hs-analyze-btn" onClick={analyze} disabled={filledEntries.length < 3}>
-                Analyze My Results ({filledEntries.length} values entered)
-              </button>
-            </div>
+      {error && <div className="hs-error">{error}</div>}
 
-            {error && <div className="hs-error">{error}</div>}
-
-            <AnimatePresence>
-              {analyzed && score !== null && (
-                <motion.div className="hs-results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  <div className="hs-score-section">
-                    <ScoreRing score={score} />
-                    <div className="hs-score-detail">
-                      <h3>{score >= 80 ? 'Looking Great!' : score >= 60 ? 'Needs Attention' : 'Consult Your Doctor'}</h3>
-                      <p>{filledEntries.length - abnormals.length} of {filledEntries.length} values are in normal range.</p>
-                      {abnormals.length > 0 && (
-                        <div className="hs-abnormal-list">
-                          <span className="hs-abn-title">Flagged Values:</span>
-                          {abnormals.map((a) => (
-                            <span key={a.key} className={`hs-abn-chip hs-abn-${a.status}`}>
-                              {a.label}: {a.value} {a.unit} ({a.status})
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+      <AnimatePresence>
+        {analyzed && score !== null && (
+          <motion.div className="hs-results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <div className="hs-score-section">
+              <ScoreRing score={score} />
+              <div className="hs-score-detail">
+                <h3>{score >= 80 ? 'Looking Great!' : score >= 60 ? 'Needs Attention' : 'Consult Your Doctor'}</h3>
+                <p>{filledEntries.length - abnormals.length} of {filledEntries.length} values are in normal range.</p>
+                {abnormals.length > 0 && (
+                  <div className="hs-abnormal-list">
+                    <span className="hs-abn-title">Flagged Values:</span>
+                    {abnormals.map((a) => (
+                      <span key={a.key} className={`hs-abn-chip hs-abn-${a.status}`}>
+                        {a.label}: {a.value} {a.unit} ({a.status})
+                      </span>
+                    ))}
                   </div>
-
-                  <div className="hs-panel-label">Detailed Analysis</div>
-                  <div className="hs-vals-list">
-                    {filledEntries.map(([k, v]) => <ValueBar key={k} keyName={k} value={v} />)}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        ) : (
-          <motion.div key="upload" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-            <div className="hs-upload-section">
-              <div className="hs-upload-zone">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                <p>Upload a medical report (PDF or image)</p>
-                <span>Supports PDF, JPG, PNG</span>
-                <input type="file" accept=".pdf,image/*" onChange={handleFileUpload} className="hs-file-input" />
+                )}
               </div>
             </div>
 
-            {loading && (
-              <div className="hs-loading">
-                <div className="hs-pulse-wrap"><div className="hs-pulse" /><div className="hs-pulse hs-p2" /></div>
-                <p>Analyzing your report with AI...</p>
-              </div>
-            )}
-
-            {error && <div className="hs-error">{error}</div>}
-
-            {predictions.length > 0 && (
-              <motion.div className="hs-ai-results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                <div className="hs-panel-label">AI Disease Predictions</div>
-                <div className="hs-predictions">
-                  {predictions.map((p, i) => (
-                    <div key={i} className="hs-pred-card">
-                      <div className="hs-pred-top">
-                        <span className="hs-pred-rank">#{i + 1}</span>
-                        <span className="hs-pred-name">{p.disease}</span>
-                        <span className={`hs-pred-score ${p.score >= 50 ? 'hs-pred-high' : p.score >= 25 ? 'hs-pred-med' : 'hs-pred-low'}`}>{p.score}%</span>
-                      </div>
-                      <div className="hs-pred-bar-wrap">
-                        <div className="hs-pred-bar" style={{ width: `${p.score}%`, background: p.score >= 50 ? '#ef4444' : p.score >= 25 ? '#f59e0b' : '#10b981' }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="hs-disclaimer">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                  AI predictions are for informational purposes only and do not constitute medical advice.
-                </div>
-              </motion.div>
-            )}
+            <div className="hs-panel-label">Detailed Analysis</div>
+            <div className="hs-vals-list">
+              {filledEntries.map(([k, v]) => <ValueBar key={k} keyName={k} value={v} />)}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

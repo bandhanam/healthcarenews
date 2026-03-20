@@ -70,18 +70,210 @@
   min-height: 400px;
 }
 
-/* Filter row (specialty) */
-.di-filter-row {
-  display: flex;
-  gap: 0.5rem;
+/* Filter section */
+.di-filter-section {
   margin-bottom: 0.75rem;
+}
+
+.di-filter-row-multi {
+  display: flex;
+  gap: 1rem;
   flex-wrap: wrap;
+}
+
+.di-filter-group {
+  flex: 1;
+  min-width: 240px;
+}
+
+.di-filter-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-dim);
+  margin-bottom: 0.35rem;
+}
+
+/* MultiSelect */
+.di-multiselect {
+  position: relative;
+}
+
+.di-multiselect-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.di-multiselect-trigger:hover,
+.di-multiselect-trigger.open {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26, 127, 100, 0.08);
+}
+
+.di-multiselect-trigger.has-selection {
+  color: var(--color-primary);
+  font-weight: 600;
+  border-color: var(--color-primary);
+  background: rgba(26, 127, 100, 0.03);
+}
+
+.di-ms-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.di-ms-chevron {
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.di-ms-chevron.open {
+  transform: rotate(180deg);
+}
+
+.di-ms-selected-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
   align-items: center;
 }
 
-.di-specialty-select {
-  min-width: 200px;
+.di-ms-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 99px;
+  font-size: 0.72rem;
   font-weight: 600;
+  background: rgba(26, 127, 100, 0.1);
+  color: var(--color-primary);
+  border: 1px solid rgba(26, 127, 100, 0.2);
+}
+
+.di-ms-chip-remove {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.di-ms-chip-remove:hover {
+  opacity: 1;
+}
+
+.di-ms-clear-all {
+  background: none;
+  border: none;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #dc2626;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+}
+
+.di-ms-dropdown {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.di-ms-search {
+  padding: 0.55rem 0.75rem;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.di-ms-search::placeholder {
+  color: var(--color-text-dim);
+  opacity: 0.6;
+}
+
+.di-ms-options {
+  overflow-y: auto;
+  max-height: 260px;
+  padding: 0.25rem 0;
+}
+
+.di-ms-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.di-ms-option:hover {
+  background: rgba(26, 127, 100, 0.06);
+}
+
+.di-ms-option.checked {
+  background: rgba(26, 127, 100, 0.08);
+}
+
+.di-ms-option input[type="checkbox"] {
+  display: none;
+}
+
+.di-ms-checkmark {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.di-ms-option.checked .di-ms-checkmark {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.di-ms-option-text {
+  font-size: 0.82rem;
+  color: var(--color-text);
+}
+
+.di-ms-empty {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.82rem;
+  color: var(--color-text-dim);
 }
 
 /* Search bar */
@@ -884,6 +1076,15 @@
   .di-condition-chips-row {
     max-height: 80px;
     overflow-y: auto;
+  }
+
+  .di-filter-row-multi {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .di-filter-group {
+    min-width: unset;
   }
 }
 
