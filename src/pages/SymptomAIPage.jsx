@@ -1,14 +1,96 @@
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
-import { predictDiseases, isModelReady } from '../utils/diseasePredictor';
+import { predictDiseases, isModelReady, getRiskLevel, getUrgencyRecommendation } from '../utils/diseasePredictor';
+import { getDiseaseInfo } from '../data/diseaseKnowledge';
 import './SymptomAIPage.css';
 
-const Q = ['#06b6d4','#0891b2','#0e7490','#155e75','#14b8a6','#0d9488','#0f766e','#115e59','#22d3ee','#67e8f9'];
-const SEVERITY_COLORS = { high: '#ef4444', moderate: '#f59e0b', low: '#10b981' };
+const Q = ['#06b6d4','#0891b2','#6366f1','#8b5cf6','#ec4899','#f43f5e','#f97316','#eab308','#22c55e','#14b8a6'];
+
+const SYMPTOM_CATEGORIES = {
+  'General': {
+    icon: '🏥',
+    symptoms: [
+      'Fever', 'Fatigue', 'Weakness', 'Weight loss', 'Weight gain',
+      'Night sweats', 'Chills', 'Loss of appetite', 'Dehydration', 'Dizziness',
+      'Fainting', 'Swelling', 'Pale skin', 'Excessive thirst', 'Frequent urination',
+    ],
+  },
+  'Head & Brain': {
+    icon: '🧠',
+    symptoms: [
+      'Headache', 'Migraine', 'Blurry vision', 'Memory loss', 'Confusion',
+      'Sensitivity to light', 'Seizures', 'Tremors', 'Difficulty concentrating',
+      'Neck stiffness', 'Vertigo',
+    ],
+  },
+  'Heart & Chest': {
+    icon: '❤️',
+    symptoms: [
+      'Chest pain', 'Shortness of breath', 'Rapid heartbeat', 'Irregular heartbeat',
+      'High blood pressure', 'Swollen legs', 'Chest tightness',
+      'Pain radiating to arm', 'Cold hands and feet',
+    ],
+  },
+  'Stomach & Digestion': {
+    icon: '🫁',
+    symptoms: [
+      'Acidity', 'Nausea', 'Vomiting', 'Stomach pain', 'Bloating',
+      'Diarrhea', 'Constipation', 'Loss of appetite', 'Heartburn',
+      'Blood in stool', 'Indigestion', 'Abdominal cramps',
+    ],
+  },
+  'Respiratory': {
+    icon: '🫁',
+    symptoms: [
+      'Cough', 'Persistent cough', 'Wheezing', 'Difficulty breathing',
+      'Coughing blood', 'Sore throat', 'Runny nose', 'Nasal congestion',
+      'Sneezing', 'Phlegm production',
+    ],
+  },
+  'Bones & Joints': {
+    icon: '🦴',
+    symptoms: [
+      'Joint pain', 'Back pain', 'Muscle pain', 'Morning stiffness',
+      'Swollen joints', 'Bone pain', 'Muscle weakness', 'Cramps',
+      'Limited mobility', 'Neck pain',
+    ],
+  },
+  'Skin & Hair': {
+    icon: '🧬',
+    symptoms: [
+      'Rash', 'Itching', 'Dry skin', 'Yellowing of skin', 'Bruising easily',
+      'Hair loss', 'Acne', 'Skin darkening', 'Wounds not healing',
+      'Excessive sweating',
+    ],
+  },
+  'Mental Health': {
+    icon: '💭',
+    symptoms: [
+      'Anxiety', 'Depression', 'Mood swings', 'Insomnia', 'Sleep disturbance',
+      'Irritability', 'Stress', 'Panic attacks', 'Loss of interest',
+      'Difficulty sleeping',
+    ],
+  },
+  'Urinary & Kidney': {
+    icon: '💧',
+    symptoms: [
+      'Painful urination', 'Frequent urination', 'Blood in urine',
+      'Dark urine', 'Foamy urine', 'Lower back pain',
+      'Urinary urgency', 'Incontinence',
+    ],
+  },
+  'Eyes & Ears': {
+    icon: '👁️',
+    symptoms: [
+      'Blurry vision', 'Eye pain', 'Red eyes', 'Watery eyes',
+      'Ear pain', 'Ringing in ears', 'Hearing loss', 'Double vision',
+    ],
+  },
+};
 
 const BODY_SYSTEMS = {
   'Cardiovascular': ['heart disease', 'hypertension', 'stroke', 'high cholesterol'],
@@ -23,15 +105,6 @@ const BODY_SYSTEMS = {
   'Infectious': ['malaria', 'dengue', 'meningitis', 'tuberculosis'],
 };
 
-const SUGGESTED_SYMPTOMS = [
-  { text: 'Frequent urination, increased thirst, fatigue, blurry vision', icon: '\uD83E\uDE78' },
-  { text: 'Chest pain, shortness of breath, dizziness', icon: '\u2764\uFE0F' },
-  { text: 'Persistent cough, fever, night sweats, weight loss', icon: '\uD83E\uDEC1' },
-  { text: 'Joint pain, morning stiffness, swelling in hands', icon: '\uD83E\uDDB4' },
-  { text: 'Severe headache, neck stiffness, sensitivity to light', icon: '\uD83E\uDDE0' },
-  { text: 'Unexplained weight gain, cold sensitivity, dry skin', icon: '\uD83E\uDD8B' },
-];
-
 function buildBodySystemData(predictions) {
   if (!predictions?.length) return [];
   return Object.entries(BODY_SYSTEMS).map(([system, diseases]) => {
@@ -45,229 +118,438 @@ function buildBodySystemData(predictions) {
   }).filter(d => d.score > 0);
 }
 
-function getSeverity(score) {
-  if (score >= 30) return 'high';
-  if (score >= 15) return 'moderate';
-  return 'low';
-}
-
-function ChatMessage({ msg, index }) {
-  const isUser = msg.role === 'user';
-  return (
-    <motion.div
-      className={`sa-msg ${isUser ? 'sa-msg-user' : 'sa-msg-ai'}`}
-      initial={{ opacity: 0, y: 16, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: index * 0.05 }}
-    >
-      <div className="sa-msg-avatar">{isUser ? '\uD83D\uDC64' : '\uD83E\uDDA0'}</div>
-      <div className="sa-msg-bubble">
-        {msg.type === 'text' && <p>{msg.content}</p>}
-        {msg.type === 'analysis' && <AnalysisResult data={msg.content} />}
-        {msg.type === 'loading' && (
-          <div className="sa-typing">
-            <span /><span /><span />
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-}
-
-function AnalysisResult({ data }) {
-  const { predictions, bodyData } = data;
-  const topPrediction = predictions[0];
-  const severity = getSeverity(topPrediction?.score || 0);
-
-  return (
-    <div className="sa-analysis">
-      <div className="sa-analysis-header">
-        <div className="sa-analysis-badge" style={{ background: `${SEVERITY_COLORS[severity]}18`, color: SEVERITY_COLORS[severity] }}>
-          AI Analysis Complete
-        </div>
-        <p className="sa-analysis-note">Based on symptom pattern matching. Not a medical diagnosis.</p>
-      </div>
-
-      <div className="sa-predictions-grid">
-        {predictions.map((p, i) => (
-          <div key={p.disease} className="sa-pred-card">
-            <div className="sa-pred-rank">#{i + 1}</div>
-            <div className="sa-pred-info">
-              <span className="sa-pred-name">{p.disease}</span>
-              <div className="sa-pred-bar-wrap">
-                <motion.div
-                  className="sa-pred-bar"
-                  style={{ background: Q[i % Q.length] }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(p.score, 100)}%` }}
-                  transition={{ delay: i * 0.1, duration: 0.6 }}
-                />
-              </div>
-            </div>
-            <span className="sa-pred-score" style={{ color: Q[i % Q.length] }}>{p.score}%</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="sa-charts-row">
-        <div className="sa-chart-box">
-          <h4>Confidence Distribution</h4>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={predictions} layout="vertical" margin={{ left: 60, right: 20, top: 5, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border, #e2e8f0)" />
-              <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: 'var(--color-text-dim, #94a3b8)' }} />
-              <YAxis type="category" dataKey="disease" tick={{ fontSize: 11, fill: 'var(--color-text, #1e293b)' }} width={55} />
-              <Tooltip formatter={(v) => [`${v}%`, 'Confidence']} contentStyle={{ borderRadius: 12, border: '1px solid var(--color-border, #e2e8f0)', fontSize: '0.8rem' }} />
-              <Bar dataKey="score" radius={[0, 6, 6, 0]}>
-                {predictions.map((_, i) => <Cell key={i} fill={Q[i % Q.length]} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        {bodyData.length > 0 && (
-          <div className="sa-chart-box">
-            <h4>Body Systems Affected</h4>
-            <ResponsiveContainer width="100%" height={200}>
-              <RadarChart data={bodyData} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
-                <PolarGrid stroke="var(--color-border, #e2e8f0)" />
-                <PolarAngleAxis dataKey="system" tick={{ fontSize: 10, fill: 'var(--color-text-dim, #94a3b8)' }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9 }} />
-                <Radar dataKey="score" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.25} strokeWidth={2} />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-      </div>
-
-      <div className="sa-disclaimer">
-        <span className="sa-disc-icon">\u26A0\uFE0F</span>
-        <span>This is an AI-assisted analysis and should not replace professional medical advice. Please consult a healthcare provider for proper diagnosis.</span>
-      </div>
-    </div>
-  );
-}
-
 function SymptomAIPage() {
-  const [messages, setMessages] = useState([
-    { role: 'ai', type: 'text', content: 'Hello! I\'m SymptomAI, your intelligent health assistant. Describe your symptoms and I\'ll analyze potential conditions using AI pattern matching. What symptoms are you experiencing?' },
-  ]);
-  const [input, setInput] = useState('');
+  const [selected, setSelected] = useState(new Set());
+  const [customSymptom, setCustomSymptom] = useState('');
+  const [searchFilter, setSearchFilter] = useState('');
+  const [predictions, setPredictions] = useState([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [modelProgress, setModelProgress] = useState(null);
-  const [totalAnalyses, setTotalAnalyses] = useState(0);
-  const chatRef = useRef(null);
+  const [expandedDisease, setExpandedDisease] = useState(0);
+  const [analysisTime, setAnalysisTime] = useState(0);
+  const [activeCategory, setActiveCategory] = useState('General');
 
-  useEffect(() => {
-    if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
-  }, [messages]);
+  const toggleSymptom = useCallback((symptom) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(symptom)) next.delete(symptom);
+      else next.add(symptom);
+      return next;
+    });
+  }, []);
 
-  const analyzeSymptoms = useCallback(async (text) => {
-    if (!text.trim() || analyzing) return;
+  const addCustomSymptom = useCallback(() => {
+    const trimmed = customSymptom.trim();
+    if (trimmed && !selected.has(trimmed)) {
+      setSelected(prev => new Set(prev).add(trimmed));
+      setCustomSymptom('');
+    }
+  }, [customSymptom, selected]);
 
-    setMessages((prev) => [
-      ...prev,
-      { role: 'user', type: 'text', content: text },
-      { role: 'ai', type: 'loading', content: null },
-    ]);
-    setInput('');
+  const clearAll = useCallback(() => {
+    setSelected(new Set());
+    setPredictions([]);
+    setExpandedDisease(0);
+    setAnalysisTime(0);
+  }, []);
+
+  const analyzeSymptoms = useCallback(async () => {
+    if (selected.size === 0 || analyzing) return;
     setAnalyzing(true);
     setModelProgress(null);
+    setPredictions([]);
+    const startTime = Date.now();
 
     try {
-      const predictions = await predictDiseases(text, (p) => setModelProgress(p));
-      const bodyData = buildBodySystemData(predictions);
-      setMessages((prev) => [
-        ...prev.filter((m) => m.type !== 'loading'),
-        { role: 'ai', type: 'analysis', content: { predictions, bodyData } },
-        { role: 'ai', type: 'text', content: `I've identified ${predictions.length} potential conditions. The strongest match is "${predictions[0]?.disease}" at ${predictions[0]?.score}% confidence. Would you like to describe additional symptoms or check something else?` },
-      ]);
-      setTotalAnalyses((p) => p + 1);
+      const symptomText = `Patient presents with the following symptoms: ${[...selected].join(', ')}. Based on these symptoms, what medical conditions are most likely?`;
+      const results = await predictDiseases(symptomText, (p) => setModelProgress(p), { minConfidence: 0, returnAll: true });
+      setPredictions(results);
+      setAnalysisTime(((Date.now() - startTime) / 1000).toFixed(1));
+      if (results.length > 0) setExpandedDisease(0);
     } catch {
-      setMessages((prev) => [
-        ...prev.filter((m) => m.type !== 'loading'),
-        { role: 'ai', type: 'text', content: 'I had trouble analyzing those symptoms. Please try again or rephrase your description.' },
-      ]);
+      setPredictions([]);
     } finally {
       setAnalyzing(false);
       setModelProgress(null);
     }
-  }, [analyzing]);
+  }, [selected, analyzing]);
 
-  const handleSubmit = useCallback((e) => {
-    e.preventDefault();
-    analyzeSymptoms(input);
-  }, [input, analyzeSymptoms]);
+  const filteredCategories = useMemo(() => {
+    if (!searchFilter.trim()) return SYMPTOM_CATEGORIES;
+    const lower = searchFilter.toLowerCase();
+    const result = {};
+    for (const [cat, data] of Object.entries(SYMPTOM_CATEGORIES)) {
+      const filtered = data.symptoms.filter(s => s.toLowerCase().includes(lower));
+      if (filtered.length > 0) result[cat] = { ...data, symptoms: filtered };
+    }
+    return result;
+  }, [searchFilter]);
 
+  const significantPredictions = useMemo(() => predictions.filter(p => p.score >= 50), [predictions]);
+  const bodyData = useMemo(() => buildBodySystemData(predictions), [predictions]);
+  const topPrediction = significantPredictions[0];
+  const urgency = getUrgencyRecommendation(significantPredictions);
   const modelReady = isModelReady();
 
-  const analysisStats = useMemo(() => {
-    const analyses = messages.filter(m => m.type === 'analysis');
-    if (analyses.length === 0) return null;
-    const allPreds = analyses.flatMap(a => a.content.predictions);
-    const uniqueDiseases = [...new Set(allPreds.map(p => p.disease))];
-    const avgConf = allPreds.length > 0 ? Math.round(allPreds.reduce((s, p) => s + p.score, 0) / allPreds.length) : 0;
-    return { count: analyses.length, diseases: uniqueDiseases.length, avgConf };
-  }, [messages]);
+  const pieData = useMemo(() => {
+    if (significantPredictions.length === 0) return [];
+    return significantPredictions.slice(0, 5).map(p => ({ name: p.disease, value: p.score }));
+  }, [significantPredictions]);
 
   return (
     <div className="sa-page">
-      <div className="sa-hero">
-        <span className="sa-hero-badge">SymptomAI</span>
+      <motion.header className="sa-hero" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="sa-hero-badge">AI-Powered</div>
         <h1 className="sa-title">Intelligent Symptom Analyzer</h1>
-        <p className="sa-subtitle">AI-powered conversational health assistant using zero-shot medical classification</p>
-      </div>
+        <p className="sa-subtitle">
+          Select your symptoms from the checklist below and get AI-powered disease predictions with health insights.
+        </p>
+      </motion.header>
 
-      {analysisStats && (
-        <div className="sa-stats-row">
-          <div className="sa-stat-chip"><span className="sa-stat-num">{analysisStats.count}</span><span>Analyses</span></div>
-          <div className="sa-stat-chip"><span className="sa-stat-num">{analysisStats.diseases}</span><span>Conditions</span></div>
-          <div className="sa-stat-chip"><span className="sa-stat-num">{analysisStats.avgConf}%</span><span>Avg Confidence</span></div>
-          <div className="sa-stat-chip"><span className="sa-stat-num">{modelReady ? '\u2705' : '\u23F3'}</span><span>Model</span></div>
-        </div>
-      )}
+      <div className="sa-layout">
+        {/* LEFT: Symptom Selector */}
+        <div className="sa-selector-panel">
+          <div className="sa-selector-header">
+            <h2 className="sa-panel-title">
+              <span>📋</span> Select Your Symptoms
+            </h2>
+            <span className="sa-selected-count">{selected.size} selected</span>
+          </div>
 
-      <div className="sa-chat-container">
-        <div className="sa-chat-messages" ref={chatRef}>
-          <AnimatePresence>
-            {messages.map((msg, i) => <ChatMessage key={i} msg={msg} index={i} />)}
-          </AnimatePresence>
-          {analyzing && modelProgress !== null && (
-            <motion.div className="sa-model-progress" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <div className="sa-progress-bar">
-                <motion.div className="sa-progress-fill" animate={{ width: `${modelProgress}%` }} />
+          <div className="sa-search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search symptoms..."
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+              className="sa-search-input"
+            />
+            {searchFilter && (
+              <button className="sa-search-clear" onClick={() => setSearchFilter('')}>×</button>
+            )}
+          </div>
+
+          <div className="sa-category-tabs">
+            {Object.entries(filteredCategories).map(([cat, data]) => (
+              <button
+                key={cat}
+                className={`sa-cat-tab ${activeCategory === cat ? 'active' : ''}`}
+                onClick={() => setActiveCategory(cat)}
+              >
+                <span className="sa-cat-icon">{data.icon}</span>
+                <span className="sa-cat-name">{cat}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="sa-symptoms-grid">
+            <AnimatePresence mode="wait">
+              {filteredCategories[activeCategory] && (
+                <motion.div
+                  key={activeCategory}
+                  className="sa-symptoms-list"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {filteredCategories[activeCategory].symptoms.map(symptom => (
+                    <label
+                      key={symptom}
+                      className={`sa-symptom-item ${selected.has(symptom) ? 'checked' : ''}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selected.has(symptom)}
+                        onChange={() => toggleSymptom(symptom)}
+                        className="sa-checkbox"
+                      />
+                      <span className="sa-checkmark">
+                        {selected.has(symptom) && (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        )}
+                      </span>
+                      <span className="sa-symptom-text">{symptom}</span>
+                    </label>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="sa-custom-symptom">
+            <input
+              type="text"
+              placeholder="Add custom symptom..."
+              value={customSymptom}
+              onChange={(e) => setCustomSymptom(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addCustomSymptom()}
+              className="sa-custom-input"
+            />
+            <button className="sa-custom-add" onClick={addCustomSymptom} disabled={!customSymptom.trim()}>
+              + Add
+            </button>
+          </div>
+
+          {selected.size > 0 && (
+            <div className="sa-selected-tags">
+              <div className="sa-tags-header">
+                <span className="sa-tags-label">Selected ({selected.size})</span>
+                <button className="sa-clear-all" onClick={clearAll}>Clear All</button>
               </div>
-              <span>Loading AI model... {modelProgress}%</span>
-            </motion.div>
+              <div className="sa-tags-wrap">
+                {[...selected].map(s => (
+                  <span key={s} className="sa-tag">
+                    {s}
+                    <button className="sa-tag-remove" onClick={() => toggleSymptom(s)}>×</button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button
+            className={`sa-analyze-btn ${selected.size > 0 ? 'active' : ''}`}
+            onClick={analyzeSymptoms}
+            disabled={selected.size === 0 || analyzing}
+          >
+            {analyzing ? (
+              <>
+                <div className="sa-btn-spin" />
+                {modelProgress !== null ? `Loading AI... ${modelProgress}%` : 'Analyzing...'}
+              </>
+            ) : (
+              <>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
+                Analyze {selected.size} Symptom{selected.size !== 1 ? 's' : ''}
+              </>
+            )}
+          </button>
+
+          {!modelReady && (
+            <p className="sa-model-hint">🧠 AI model loading in background...</p>
           )}
         </div>
 
-        <form className="sa-input-area" onSubmit={handleSubmit}>
-          <input
-            className="sa-input"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Describe your symptoms... (e.g., headache, fever, fatigue)"
-            disabled={analyzing}
-          />
-          <button type="submit" className={`sa-send-btn ${input.trim() ? 'active' : ''}`} disabled={!input.trim() || analyzing}>
-            {analyzing ? (
-              <div className="sa-btn-spin" />
-            ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
-            )}
-          </button>
-        </form>
-      </div>
+        {/* RIGHT: Results Dashboard */}
+        <div className="sa-results-panel">
+          {predictions.length === 0 && !analyzing && (
+            <div className="sa-empty-state">
+              <div className="sa-empty-icon">🔬</div>
+              <h3>Select Symptoms to Begin</h3>
+              <p>Choose your symptoms from the checklist on the left, then click "Analyze" to get AI-powered disease predictions.</p>
+              <div className="sa-empty-steps">
+                <div className="sa-empty-step">
+                  <span className="sa-step-num">1</span>
+                  <span>Select symptoms</span>
+                </div>
+                <div className="sa-empty-step">
+                  <span className="sa-step-num">2</span>
+                  <span>Click Analyze</span>
+                </div>
+                <div className="sa-empty-step">
+                  <span className="sa-step-num">3</span>
+                  <span>View results</span>
+                </div>
+              </div>
+            </div>
+          )}
 
-      <div className="sa-suggestions">
-        <h3>Try these symptom combinations</h3>
-        <div className="sa-suggestion-grid">
-          {SUGGESTED_SYMPTOMS.map((s) => (
-            <button key={s.text} className="sa-suggestion-card" onClick={() => { setInput(s.text); analyzeSymptoms(s.text); }} disabled={analyzing}>
-              <span className="sa-sug-icon">{s.icon}</span>
-              <span className="sa-sug-text">{s.text}</span>
-            </button>
-          ))}
+          {analyzing && (
+            <div className="sa-analyzing-state">
+              <div className="sa-analyzing-spinner" />
+              <h3>Analyzing Your Symptoms...</h3>
+              <p>AI is matching your symptom pattern against 30 conditions</p>
+              {modelProgress !== null && (
+                <div className="sa-analyze-progress">
+                  <div className="sa-analyze-bar">
+                    <motion.div className="sa-analyze-fill" animate={{ width: `${modelProgress}%` }} />
+                  </div>
+                  <span>{modelProgress}%</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {!analyzing && predictions.length > 0 && (
+            <motion.div className="sa-dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <div className="sa-dash-header">
+                <h2>Analysis Results</h2>
+                <span className="sa-dash-time">⏱️ {analysisTime}s</span>
+              </div>
+
+              {urgency && (
+                <div className="sa-urgency" style={{ '--u-color': urgency.color }}>
+                  <span className="sa-urgency-icon">{urgency.icon}</span>
+                  <span>{urgency.message}</span>
+                </div>
+              )}
+
+              <div className="sa-stat-cards">
+                <div className="sa-stat-card" style={{ '--sc': '#6366f1' }}>
+                  <span className="sa-sc-icon">🎯</span>
+                  <span className="sa-sc-value">{significantPredictions.length}</span>
+                  <span className="sa-sc-label">Conditions ({'>'}50%)</span>
+                </div>
+                <div className="sa-stat-card" style={{ '--sc': '#dc2626' }}>
+                  <span className="sa-sc-icon">🔴</span>
+                  <span className="sa-sc-value">{predictions.filter(p => p.score >= 60).length}</span>
+                  <span className="sa-sc-label">High Risk</span>
+                </div>
+                <div className="sa-stat-card" style={{ '--sc': '#06b6d4' }}>
+                  <span className="sa-sc-icon">📋</span>
+                  <span className="sa-sc-value">{selected.size}</span>
+                  <span className="sa-sc-label">Symptoms</span>
+                </div>
+                <div className="sa-stat-card" style={{ '--sc': '#16a34a' }}>
+                  <span className="sa-sc-icon">🧠</span>
+                  <span className="sa-sc-value">{predictions.length}</span>
+                  <span className="sa-sc-label">Analyzed</span>
+                </div>
+              </div>
+
+              {significantPredictions.length > 0 ? (
+                <div className="sa-predictions-section">
+                  <h3 className="sa-section-title"><span>🔬</span> Detected Conditions ({'>'}50%)</h3>
+                  {significantPredictions.map((p, i) => {
+                    const risk = getRiskLevel(p.score);
+                    const info = getDiseaseInfo(p.disease);
+                    const isOpen = expandedDisease === i;
+                    return (
+                      <motion.div
+                        key={p.disease}
+                        className={`sa-disease-card ${isOpen ? 'open' : ''}`}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.08 }}
+                        style={{ '--dc': risk.color }}
+                      >
+                        <div className="sa-dc-header" onClick={() => setExpandedDisease(isOpen ? -1 : i)}>
+                          <div className="sa-dc-rank" style={{ background: risk.color }}>{i + 1}</div>
+                          <div className="sa-dc-main">
+                            <span className="sa-dc-name">{p.disease}</span>
+                            <div className="sa-dc-bar">
+                              <motion.div
+                                className="sa-dc-fill"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${p.score}%` }}
+                                transition={{ delay: i * 0.08 + 0.2, duration: 0.5 }}
+                                style={{ background: risk.color }}
+                              />
+                            </div>
+                          </div>
+                          <div className="sa-dc-score-wrap">
+                            <span className="sa-dc-score" style={{ color: risk.color }}>{p.score}%</span>
+                            <span className="sa-dc-risk" style={{ background: `${risk.color}15`, color: risk.color }}>{risk.level}</span>
+                          </div>
+                          <svg className={`sa-dc-chevron ${isOpen ? 'open' : ''}`} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="6 9 12 15 18 9" />
+                          </svg>
+                        </div>
+                        <AnimatePresence>
+                          {isOpen && info && (
+                            <motion.div
+                              className="sa-dc-details"
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                            >
+                              <div className="sa-dc-grid">
+                                <div className="sa-dc-section">
+                                  <h5>🛡️ Precautions</h5>
+                                  <ul>{info.precautions.slice(0, 4).map((item, j) => <li key={j}>{item}</li>)}</ul>
+                                </div>
+                                <div className="sa-dc-section">
+                                  <h5>🥗 Diet</h5>
+                                  <div className="sa-dc-diet">
+                                    <div>
+                                      <span className="sa-diet-label good">✅ Eat</span>
+                                      <ul>{info.diet.recommended.slice(0, 3).map((item, j) => <li key={j}>{item}</li>)}</ul>
+                                    </div>
+                                    <div>
+                                      <span className="sa-diet-label bad">❌ Avoid</span>
+                                      <ul>{info.diet.avoid.slice(0, 3).map((item, j) => <li key={j}>{item}</li>)}</ul>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="sa-dc-section full">
+                                  <h5>💡 Key Facts</h5>
+                                  <ul>{info.awareness.slice(0, 3).map((item, j) => <li key={j}>{item}</li>)}</ul>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="sa-no-significant">
+                  <span className="sa-no-icon">✅</span>
+                  <h3>No High-Confidence Conditions</h3>
+                  <p>No conditions exceeded 50% confidence based on your symptoms. This is generally positive, but consult a doctor if symptoms persist.</p>
+                </div>
+              )}
+
+              <div className="sa-charts-row">
+                {significantPredictions.length > 0 && (
+                  <div className="sa-chart-box">
+                    <h4>Confidence Distribution</h4>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <BarChart data={significantPredictions.slice(0, 6)} layout="vertical" margin={{ left: 80, right: 20, top: 5, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                        <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: 'var(--color-text-dim)' }} />
+                        <YAxis type="category" dataKey="disease" tick={{ fontSize: 11, fill: 'var(--color-text)' }} width={75} />
+                        <Tooltip formatter={(v) => [`${v}%`, 'Confidence']} />
+                        <Bar dataKey="score" radius={[0, 6, 6, 0]}>
+                          {significantPredictions.slice(0, 6).map((_, i) => <Cell key={i} fill={Q[i % Q.length]} />)}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+                {bodyData.length > 0 && (
+                  <div className="sa-chart-box">
+                    <h4>Body Systems Affected</h4>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <RadarChart data={bodyData} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
+                        <PolarGrid stroke="var(--color-border)" />
+                        <PolarAngleAxis dataKey="system" tick={{ fontSize: 10, fill: 'var(--color-text-dim)' }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9 }} />
+                        <Radar dataKey="score" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.25} strokeWidth={2} />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+                {pieData.length > 0 && (
+                  <div className="sa-chart-box">
+                    <h4>Risk Distribution</h4>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <PieChart>
+                        <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, value }) => `${name.slice(0, 8)}… ${value}%`}>
+                          {pieData.map((_, i) => <Cell key={i} fill={Q[i % Q.length]} />)}
+                        </Pie>
+                        <Tooltip formatter={(v) => [`${v}%`, 'Confidence']} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+
+              <div className="sa-disclaimer">
+                <span>⚠️</span>
+                <span>This is an AI-assisted analysis for informational purposes only. It is not a substitute for professional medical advice. Always consult a healthcare provider.</span>
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
     </div>
