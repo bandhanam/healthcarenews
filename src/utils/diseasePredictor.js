@@ -112,12 +112,23 @@ function extractKeyMedicalTerms(text) {
   return text;
 }
 
+const SYMPTOM_TEXT_MAX_WORDS = 120;
+
+function compactSymptomText(text) {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length <= SYMPTOM_TEXT_MAX_WORDS) return text;
+  return `${words.slice(0, SYMPTOM_TEXT_MAX_WORDS).join(' ')}… [truncated for speed]`;
+}
+
 export async function predictDiseases(text, onModelProgress, options = {}) {
-  const { minConfidence = 50, returnAll = false } = options;
-  
+  const { minConfidence = 50, returnAll = false, symptomListMode = false } = options;
+
   const classifier = await getClassifier(onModelProgress);
 
-  const medicalText = extractKeyMedicalTerms(text);
+  let medicalText = extractKeyMedicalTerms(text);
+  if (symptomListMode) {
+    medicalText = compactSymptomText(medicalText);
+  }
   const input = truncateText(medicalText);
   
   const result = await classifier(input, DISEASE_LABELS, {

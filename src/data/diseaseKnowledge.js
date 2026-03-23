@@ -997,4 +997,39 @@ export function getDiseaseInfo(diseaseName) {
   return key ? DISEASE_KNOWLEDGE[key] : null;
 }
 
+/** Shown in addition to condition-specific diet tips — vegetables, whole foods, etc. */
+export const GENERAL_DIET_RECOMMENDED_EXTRAS = [
+  'Vegetables: broccoli, carrots, bell peppers, spinach, cauliflower, zucchini, sweet potato',
+  'Leafy greens: kale, arugula, Romaine, Swiss chard',
+  'Legumes: lentils, chickpeas, black beans (fiber + plant protein)',
+  'Whole grains: oats, brown rice, quinoa, barley, bulgur',
+  'Fruits: berries, apples, citrus — prefer whole fruit over juice',
+  'Nuts & seeds: almonds, walnuts, pumpkin seeds, chia (small unsalted portions)',
+  'Healthy fats: extra-virgin olive oil, avocado',
+  'Hydration: water as main drink; herbal teas without sugar',
+];
+
+export const GENERAL_DIET_AVOID_EXTRAS = [
+  'Ultra-processed snacks, instant noodles, many frozen “ready meals”',
+  'Sugary sodas, sweetened teas, energy drinks',
+  'Excess deep-fried, heavily charred, or very greasy foods',
+  'Large amounts of alcohol daily',
+];
+
+/**
+ * Merge condition-specific diet with general vegetable / whole-food guidance.
+ */
+export function getMergedDiet(info) {
+  if (!info?.diet) {
+    return {
+      recommended: [...GENERAL_DIET_RECOMMENDED_EXTRAS],
+      avoid: [...GENERAL_DIET_AVOID_EXTRAS],
+    };
+  }
+  return {
+    recommended: [...info.diet.recommended, ...GENERAL_DIET_RECOMMENDED_EXTRAS],
+    avoid: [...info.diet.avoid, ...GENERAL_DIET_AVOID_EXTRAS],
+  };
+}
+
 export { DISEASE_KNOWLEDGE };

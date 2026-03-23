@@ -1,11 +1,14 @@
-import { useState, useCallback, useMemo } from 'react';
+import {
+  useState, useCallback, useMemo, memo, useDeferredValue, useEffect, useRef,
+} from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import { predictDiseases, isModelReady, getRiskLevel, getUrgencyRecommendation } from '../utils/diseasePredictor';
-import { getDiseaseInfo } from '../data/diseaseKnowledge';
+import { getDiseaseInfo, getMergedDiet } from '../data/diseaseKnowledge';
 import './SymptomAIPage.css';
 
 const Q = ['#06b6d4','#0891b2','#6366f1','#8b5cf6','#ec4899','#f43f5e','#f97316','#eab308','#22c55e','#14b8a6'];
@@ -105,6 +108,57 @@ const BODY_SYSTEMS = {
   'Infectious': ['malaria', 'dengue', 'meningitis', 'tuberculosis'],
 };
 
+const SymptomRow = memo(function SymptomRow({ symptom, checked, onToggle }) {
+  return (
+    <label className={`sa-symptom-item ${checked ? 'checked' : ''}`}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={() => onToggle(symptom)}
+        className="sa-checkbox"
+      />
+      <span className="sa-checkmark">
+        {checked && (
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        )}
+      </span>
+      <span className="sa-symptom-text">{symptom}</span>
+    </label>
+  );
+});
+
+function AnalyzingOverlay({ open, progress }) {
+  if (!open || typeof document === 'undefined') return null;
+  return createPortal(
+    <div className="sa-modal-backdrop" role="presentation">
+      <div
+        className="sa-modal-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-live="polite"
+        aria-label="Analysis in progress"
+      >
+        <div className="sa-modal-spinner" />
+        <h3 className="sa-modal-title">Analyzing your symptoms</h3>
+        <p className="sa-modal-text">
+          AI is matching your pattern to possible conditions. This may take a few seconds — the page stays responsive.
+        </p>
+        {progress !== null && (
+          <div className="sa-modal-progress">
+            <div className="sa-modal-progress-track">
+              <div className="sa-modal-progress-fill" style={{ width: `${progress}%` }} />
+            </div>
+            <span>{progress}%</span>
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 function buildBodySystemData(predictions) {
   if (!predictions?.length) return [];
   return Object.entries(BODY_SYSTEMS).map(([system, diseases]) => {
@@ -122,12 +176,14 @@ function SymptomAIPage() {
   const [selected, setSelected] = useState(new Set());
   const [customSymptom, setCustomSymptom] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
+  const deferredSearch = useDeferredValue(searchFilter);
   const [predictions, setPredictions] = useState([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [modelProgress, setModelProgress] = useState(null);
   const [expandedDisease, setExpandedDisease] = useState(0);
   const [analysisTime, setAnalysisTime] = useState(0);
   const [activeCategory, setActiveCategory] = useState('General');
+  const resultsRef = useRef(null);
 
   const toggleSymptom = useCallback((symptom) => {
     setSelected(prev => {
@@ -159,13 +215,25 @@ function SymptomAIPage() {
     setModelProgress(null);
     setPredictions([]);
     const startTime = Date.now();
+    const symptomArr = [...selected];
+    const listPreview = symptomArr.length > 25
+      ? `${symptomArr.slice(0, 25).join(', ')}; plus ${symptomArr.length - 25} more`
+      : symptomArr.join(', ');
+    const symptomText = `Patient symptoms: ${listPreview}. Which medical conditions are most likely?`;
 
     try {
-      const symptomText = `Patient presents with the following symptoms: ${[...selected].join(', ')}. Based on these symptoms, what medical conditions are most likely?`;
-      const results = await predictDiseases(symptomText, (p) => setModelProgress(p), { minConfidence: 0, returnAll: true });
+      await new Promise((resolve) => {
+        requestAnimationFrame(() => setTimeout(resolve, 0));
+      });
+      const results = await predictDiseases(symptomText, (p) => setModelProgress(p), {
+        minConfidence: 0,
+        returnAll: true,
+        symptomListMode: true,
+      });
       setPredictions(results);
       setAnalysisTime(((Date.now() - startTime) / 1000).toFixed(1));
       if (results.length > 0) setExpandedDisease(0);
+      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     } catch {
       setPredictions([]);
     } finally {
@@ -175,15 +243,32 @@ function SymptomAIPage() {
   }, [selected, analyzing]);
 
   const filteredCategories = useMemo(() => {
-    if (!searchFilter.trim()) return SYMPTOM_CATEGORIES;
-    const lower = searchFilter.toLowerCase();
+    if (!deferredSearch.trim()) return SYMPTOM_CATEGORIES;
+    const lower = deferredSearch.toLowerCase();
     const result = {};
     for (const [cat, data] of Object.entries(SYMPTOM_CATEGORIES)) {
-      const filtered = data.symptoms.filter(s => s.toLowerCase().includes(lower));
+      const filtered = data.symptoms.filter((s) => s.toLowerCase().includes(lower));
       if (filtered.length > 0) result[cat] = { ...data, symptoms: filtered };
     }
     return result;
-  }, [searchFilter]);
+  }, [deferredSearch]);
+
+  useEffect(() => {
+    const keys = Object.keys(filteredCategories);
+    if (keys.length > 0 && !keys.includes(activeCategory)) {
+      setActiveCategory(keys[0]);
+    }
+  }, [filteredCategories, activeCategory]);
+
+  const categoryCounts = useMemo(() => {
+    const counts = Object.fromEntries(Object.keys(SYMPTOM_CATEGORIES).map((c) => [c, 0]));
+    for (const s of selected) {
+      for (const [cat, data] of Object.entries(SYMPTOM_CATEGORIES)) {
+        if (data.symptoms.includes(s)) counts[cat] += 1;
+      }
+    }
+    return counts;
+  }, [selected]);
 
   const significantPredictions = useMemo(() => predictions.filter(p => p.score >= 50), [predictions]);
   const bodyData = useMemo(() => buildBodySystemData(predictions), [predictions]);
@@ -202,9 +287,11 @@ function SymptomAIPage() {
         <div className="sa-hero-badge">AI-Powered</div>
         <h1 className="sa-title">Intelligent Symptom Analyzer</h1>
         <p className="sa-subtitle">
-          Select your symptoms from the checklist below and get AI-powered disease predictions with health insights.
+          Pick symptoms from any body-area tab — your selections are saved as you switch tabs. Then run one analysis.
         </p>
       </motion.header>
+
+      <AnalyzingOverlay open={analyzing} progress={modelProgress} />
 
       <div className="sa-layout">
         {/* LEFT: Symptom Selector */}
@@ -216,70 +303,60 @@ function SymptomAIPage() {
             <span className="sa-selected-count">{selected.size} selected</span>
           </div>
 
+          <p className="sa-hint">
+            <strong>Tip:</strong> The search box only <em>filters this list</em> — it is not a separate filter. Switch tabs to add symptoms from other areas.
+          </p>
+
           <div className="sa-search-box">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input
               type="text"
-              placeholder="Search symptoms..."
+              placeholder="Filter symptoms in the list…"
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
               className="sa-search-input"
+              aria-label="Filter symptoms in the list"
             />
             {searchFilter && (
-              <button className="sa-search-clear" onClick={() => setSearchFilter('')}>×</button>
+              <button type="button" className="sa-search-clear" onClick={() => setSearchFilter('')}>×</button>
             )}
           </div>
 
-          <div className="sa-category-tabs">
-            {Object.entries(filteredCategories).map(([cat, data]) => (
-              <button
-                key={cat}
-                className={`sa-cat-tab ${activeCategory === cat ? 'active' : ''}`}
-                onClick={() => setActiveCategory(cat)}
-              >
-                <span className="sa-cat-icon">{data.icon}</span>
-                <span className="sa-cat-name">{cat}</span>
-              </button>
-            ))}
+          <div className="sa-category-tabs" role="tablist" aria-label="Body areas">
+            {Object.entries(filteredCategories).map(([cat, data]) => {
+              const n = categoryCounts[cat] || 0;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeCategory === cat}
+                  className={`sa-cat-tab ${activeCategory === cat ? 'active' : ''}`}
+                  onClick={() => setActiveCategory(cat)}
+                >
+                  <span className="sa-cat-icon">{data.icon}</span>
+                  <span className="sa-cat-name">{cat}</span>
+                  {n > 0 && <span className="sa-cat-count">{n}</span>}
+                </button>
+              );
+            })}
           </div>
 
           <div className="sa-symptoms-grid">
-            <AnimatePresence mode="wait">
-              {filteredCategories[activeCategory] && (
-                <motion.div
-                  key={activeCategory}
-                  className="sa-symptoms-list"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {filteredCategories[activeCategory].symptoms.map(symptom => (
-                    <label
-                      key={symptom}
-                      className={`sa-symptom-item ${selected.has(symptom) ? 'checked' : ''}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selected.has(symptom)}
-                        onChange={() => toggleSymptom(symptom)}
-                        className="sa-checkbox"
-                      />
-                      <span className="sa-checkmark">
-                        {selected.has(symptom) && (
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        )}
-                      </span>
-                      <span className="sa-symptom-text">{symptom}</span>
-                    </label>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {filteredCategories[activeCategory] && (
+              <div className="sa-symptoms-list">
+                {filteredCategories[activeCategory].symptoms.map((symptom) => (
+                  <SymptomRow
+                    key={symptom}
+                    symptom={symptom}
+                    checked={selected.has(symptom)}
+                    onToggle={toggleSymptom}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="sa-custom-symptom">
@@ -339,12 +416,12 @@ function SymptomAIPage() {
         </div>
 
         {/* RIGHT: Results Dashboard */}
-        <div className="sa-results-panel">
+        <div className="sa-results-panel" ref={resultsRef}>
           {predictions.length === 0 && !analyzing && (
             <div className="sa-empty-state">
               <div className="sa-empty-icon">🔬</div>
               <h3>Select Symptoms to Begin</h3>
-              <p>Choose your symptoms from the checklist on the left, then click "Analyze" to get AI-powered disease predictions.</p>
+              <p>Choose symptoms from any tab on the left (they stay selected when you switch tabs), then click <strong>Analyze</strong>.</p>
               <div className="sa-empty-steps">
                 <div className="sa-empty-step">
                   <span className="sa-step-num">1</span>
@@ -359,22 +436,6 @@ function SymptomAIPage() {
                   <span>View results</span>
                 </div>
               </div>
-            </div>
-          )}
-
-          {analyzing && (
-            <div className="sa-analyzing-state">
-              <div className="sa-analyzing-spinner" />
-              <h3>Analyzing Your Symptoms...</h3>
-              <p>AI is matching your symptom pattern against 30 conditions</p>
-              {modelProgress !== null && (
-                <div className="sa-analyze-progress">
-                  <div className="sa-analyze-bar">
-                    <motion.div className="sa-analyze-fill" animate={{ width: `${modelProgress}%` }} />
-                  </div>
-                  <span>{modelProgress}%</span>
-                </div>
-              )}
             </div>
           )}
 
@@ -421,6 +482,7 @@ function SymptomAIPage() {
                   {significantPredictions.map((p, i) => {
                     const risk = getRiskLevel(p.score);
                     const info = getDiseaseInfo(p.disease);
+                    const diet = getMergedDiet(info);
                     const isOpen = expandedDisease === i;
                     return (
                       <motion.div
@@ -466,16 +528,17 @@ function SymptomAIPage() {
                                   <h5>🛡️ Precautions</h5>
                                   <ul>{info.precautions.slice(0, 4).map((item, j) => <li key={j}>{item}</li>)}</ul>
                                 </div>
-                                <div className="sa-dc-section">
-                                  <h5>🥗 Diet</h5>
+                                <div className="sa-dc-section sa-dc-diet-section">
+                                  <h5>🥗 Diet (condition + general whole foods)</h5>
+                                  <p className="sa-diet-note">Includes vegetables, grains, and everyday foods — not a prescription; ask your clinician for personal advice.</p>
                                   <div className="sa-dc-diet">
                                     <div>
-                                      <span className="sa-diet-label good">✅ Eat</span>
-                                      <ul>{info.diet.recommended.slice(0, 3).map((item, j) => <li key={j}>{item}</li>)}</ul>
+                                      <span className="sa-diet-label good">✅ Favor / eat more</span>
+                                      <ul>{diet.recommended.slice(0, 10).map((item, j) => <li key={j}>{item}</li>)}</ul>
                                     </div>
                                     <div>
-                                      <span className="sa-diet-label bad">❌ Avoid</span>
-                                      <ul>{info.diet.avoid.slice(0, 3).map((item, j) => <li key={j}>{item}</li>)}</ul>
+                                      <span className="sa-diet-label bad">❌ Limit / avoid</span>
+                                      <ul>{diet.avoid.slice(0, 8).map((item, j) => <li key={j}>{item}</li>)}</ul>
                                     </div>
                                   </div>
                                 </div>

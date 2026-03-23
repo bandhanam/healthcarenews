@@ -5,15 +5,17 @@ import SymptomAIPage from './SymptomAIPage';
 vi.mock('framer-motion', () => ({
   motion: {
     div: ({ children, ...p }) => <div {...pick(p)}>{children}</div>,
+    header: ({ children, ...p }) => <header {...pick(p)}>{children}</header>,
     span: ({ children, ...p }) => <span {...pick(p)}>{children}</span>,
-    form: ({ children, ...p }) => <form {...pick(p)}>{children}</form>,
   },
   AnimatePresence: ({ children }) => <>{children}</>,
 }));
 
 vi.mock('../utils/diseasePredictor', () => ({
-  predictDiseases: vi.fn(),
+  predictDiseases: vi.fn(() => Promise.resolve([])),
   isModelReady: vi.fn(() => false),
+  getRiskLevel: vi.fn(() => ({ level: 'Low', color: '#16a34a', icon: '🟢' })),
+  getUrgencyRecommendation: vi.fn(() => null),
 }));
 
 vi.mock('recharts', () => ({
@@ -38,12 +40,16 @@ vi.mock('recharts', () => ({
 function pick(props) {
   const out = {};
   for (const [k, v] of Object.entries(props)) {
-    if (['className','style','id','role','onClick','onSubmit','disabled'].includes(k)) out[k] = v;
+    if (['className', 'style', 'id', 'role', 'onClick', 'onSubmit', 'disabled', 'children', 'initial', 'animate', 'exit', 'transition'].includes(k)) {
+      out[k] = v;
+    }
   }
   return out;
 }
 
-beforeEach(() => { vi.restoreAllMocks(); });
+beforeEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe('SymptomAIPage', () => {
   it('renders the page title', () => {
@@ -51,23 +57,20 @@ describe('SymptomAIPage', () => {
     expect(screen.getByText('Intelligent Symptom Analyzer')).toBeInTheDocument();
   });
 
-  it('renders the SymptomAI badge', () => {
+  it('renders AI-Powered badge', () => {
     render(<SymptomAIPage />);
-    expect(screen.getByText('SymptomAI')).toBeInTheDocument();
+    expect(screen.getByText('AI-Powered')).toBeInTheDocument();
   });
 
-  it('renders the input field', () => {
+  it('renders symptom filter and body-area tabs', () => {
     render(<SymptomAIPage />);
-    expect(screen.getByPlaceholderText(/Describe your symptoms/)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Filter symptoms in the list/)).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /General/i })).toBeInTheDocument();
   });
 
-  it('renders suggestion cards', () => {
+  it('shows hint about search vs tabs', () => {
     render(<SymptomAIPage />);
-    expect(screen.getByText('Try these symptom combinations')).toBeInTheDocument();
-  });
-
-  it('renders initial AI greeting', () => {
-    render(<SymptomAIPage />);
-    expect(screen.getByText(/I'm SymptomAI/)).toBeInTheDocument();
+    expect(screen.getByText(/Tip:/)).toBeInTheDocument();
+    expect(screen.getByText(/filters this list/i)).toBeInTheDocument();
   });
 });
