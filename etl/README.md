@@ -210,6 +210,11 @@ The API ETL includes a 0.5 second delay between requests. If you get rate limite
 ### Memory Issues with Full File
 The full file ETL processes data in chunks. If you still have issues, reduce the `batch_size` in `load_to_database()`.
 
+### Only ~2.5M rows / Resume (Fast ETL)
+If you use `npi_fast_etl.py` and only see ~2.5M rows, the run was likely interrupted. Re-run the same command (e.g. `python npi_fast_etl.py --skip-download` if the zip is already in `./data/`). The fast ETL saves progress to `data/npi_fast_etl_state.json` and will **resume** from the last row. Use `--no-resume` to start from row 0.
+
+**Existing rows:** By default the fast ETL uses `ON CONFLICT DO NOTHING`—existing NPIs are **not** updated. Use `--upsert` only if you need to refresh existing records.
+
 ---
 
 ## Data Source

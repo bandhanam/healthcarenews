@@ -63,7 +63,7 @@ describe('LandingPage', () => {
     renderPage();
     const featureTitles = [
       'News Feed', 'Disease & Drug News',
-      'MedPredict', 'SymptomAI', 'HealthScan',
+      'MedPredict', 'SymptomAI',
       'DrugIntel', 'Drug Timeline', 'DrugCompare',
       'Interactions', 'SafetyWatch', 'TrialFinder',
       'LivePulse', 'BioSentinel', 'PharmaGlobe',
@@ -100,7 +100,7 @@ describe('LandingPage', () => {
 
   it('renders stats section', () => {
     renderPage();
-    expect(screen.getByText('32+')).toBeInTheDocument();
+    expect(screen.getByText('31+')).toBeInTheDocument();
     expect(screen.getByText('Specialized Tools')).toBeInTheDocument();
     expect(screen.getByText('Powered Insights')).toBeInTheDocument();
   });

@@ -21,7 +21,6 @@ const DrugInteractionPage = lazy(() => import('./pages/DrugInteractionPage'));
 const AdverseEventsPage = lazy(() => import('./pages/AdverseEventsPage'));
 const TrialMatchPage = lazy(() => import('./pages/TrialMatchPage'));
 const DrugComparePage = lazy(() => import('./pages/DrugComparePage'));
-const HealthScanPage = lazy(() => import('./pages/HealthScanPage'));
 const SymptomAIPage = lazy(() => import('./pages/SymptomAIPage'));
 const DrugTimelinePage = lazy(() => import('./pages/DrugTimelinePage'));
 const LivePulsePage = lazy(() => import('./pages/LivePulsePage'));
@@ -72,7 +71,6 @@ function AppContent() {
               <Route path="/adverse-events" element={<AdverseEventsPage />} />
               <Route path="/trial-match" element={<TrialMatchPage />} />
               <Route path="/drug-compare" element={<DrugComparePage />} />
-              <Route path="/health-scan" element={<HealthScanPage />} />
               <Route path="/symptom-ai" element={<SymptomAIPage />} />
               <Route path="/drug-timeline" element={<DrugTimelinePage />} />
               <Route path="/live-pulse" element={<LivePulsePage />} />
@@ -113,7 +111,7 @@ function AppContent() {
               </div>
             </div>
             <p className="footer-desc">
-              AI-powered healthcare platform with 32+ tools for drug intelligence,
+              AI-powered healthcare platform with 31+ tools for drug intelligence,
               molecular science, regulatory tracking, clinical trials, and research analytics.
             </p>
           </div>
@@ -121,7 +119,6 @@ function AppContent() {
             <h4 className="footer-heading">AI Tools</h4>
             <a href="/med-predict">MedPredict</a>
             <a href="/symptom-ai">SymptomAI</a>
-            <a href="/health-scan">HealthScan</a>
           </div>
           <div className="footer-col">
             <h4 className="footer-heading">Drug Intel</h4>

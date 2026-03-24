@@ -11,7 +11,6 @@ const NAV_GROUPS = [
     children: [
       { path: '/med-predict', label: 'MedPredict', desc: 'AI disease prediction', color: '#7c3aed' },
       { path: '/symptom-ai', label: 'SymptomAI', desc: 'Conversational symptom checker', color: '#0891b2' },
-      { path: '/health-scan', label: 'HealthScan', desc: 'Lab report analyzer', color: '#059669' },
     ],
   },
   {

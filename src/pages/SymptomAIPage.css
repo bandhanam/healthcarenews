@@ -456,10 +456,75 @@
 .sa-no-significant h3 { font-size: 1.15rem; font-weight: 700; color: var(--color-text); margin-bottom: 0.4rem; }
 .sa-no-significant p { font-size: 0.85rem; color: var(--color-text-muted); max-width: 450px; margin: 0 auto; }
 
-/* ═══ CHARTS ═══ */
-.sa-charts-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
-.sa-chart-box { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 14px; padding: 1rem; }
-.sa-chart-box h4 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-dim); margin-bottom: 0.6rem; }
+/* ═══ CHARTS (SymptomCharts) ═══ */
+.sa-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 1.25rem;
+}
+
+.sa-chart-panel {
+  background: linear-gradient(165deg, var(--color-bg-card) 0%, color-mix(in srgb, var(--color-bg) 88%, var(--color-bg-card)) 100%);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.sa-chart-panel-head {
+  padding: 1rem 1.1rem 0.35rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+}
+
+.sa-chart-panel-head h4 {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.02em;
+}
+
+.sa-chart-panel-sub {
+  font-size: 0.72rem;
+  color: var(--color-text-dim);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.sa-chart-canvas {
+  padding: 0.5rem 0.65rem 0.85rem;
+  min-height: 260px;
+}
+
+.sa-chart-canvas--radar .recharts-surface {
+  overflow: visible;
+}
+
+.sa-chart-tooltip {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  font-size: 0.78rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sa-chart-tooltip strong {
+  color: var(--color-text);
+  font-weight: 700;
+  max-width: 220px;
+  line-height: 1.3;
+}
+
+.sa-chart-tooltip span {
+  color: #06b6d4;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
 
 /* ═══ DISCLAIMER ═══ */
 .sa-disclaimer {
@@ -503,5 +568,5 @@
   .sa-dc-grid { grid-template-columns: 1fr; }
   .sa-dc-diet { grid-template-columns: 1fr; }
 
-  .sa-charts-row { grid-template-columns: 1fr; }
+  .sa-charts-grid { grid-template-columns: 1fr; }
 }
