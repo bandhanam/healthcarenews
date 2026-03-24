@@ -497,7 +497,7 @@
   min-height: 260px;
 }
 
-.sa-chart-canvas--radar .recharts-surface {
+.sa-chart-canvas--body .recharts-surface {
   overflow: visible;
 }
 
