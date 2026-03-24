@@ -3,15 +3,10 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from 'recharts';
+import { SymptomChartsSection } from '../components/SymptomCharts';
 import { predictDiseases, isModelReady, getRiskLevel, getUrgencyRecommendation } from '../utils/diseasePredictor';
 import { getDiseaseInfo, getMergedDiet } from '../data/diseaseKnowledge';
 import './SymptomAIPage.css';
-
-const Q = ['#06b6d4','#0891b2','#6366f1','#8b5cf6','#ec4899','#f43f5e','#f97316','#eab308','#22c55e','#14b8a6'];
 
 const SYMPTOM_CATEGORIES = {
   'General': {
@@ -562,50 +557,11 @@ function SymptomAIPage() {
                 </div>
               )}
 
-              <div className="sa-charts-row">
-                {significantPredictions.length > 0 && (
-                  <div className="sa-chart-box">
-                    <h4>Confidence Distribution</h4>
-                    <ResponsiveContainer width="100%" height={220}>
-                      <BarChart data={significantPredictions.slice(0, 6)} layout="vertical" margin={{ left: 80, right: 20, top: 5, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                        <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: 'var(--color-text-dim)' }} />
-                        <YAxis type="category" dataKey="disease" tick={{ fontSize: 11, fill: 'var(--color-text)' }} width={75} />
-                        <Tooltip formatter={(v) => [`${v}%`, 'Confidence']} />
-                        <Bar dataKey="score" radius={[0, 6, 6, 0]}>
-                          {significantPredictions.slice(0, 6).map((_, i) => <Cell key={i} fill={Q[i % Q.length]} />)}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                )}
-                {bodyData.length > 0 && (
-                  <div className="sa-chart-box">
-                    <h4>Body Systems Affected</h4>
-                    <ResponsiveContainer width="100%" height={220}>
-                      <RadarChart data={bodyData} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
-                        <PolarGrid stroke="var(--color-border)" />
-                        <PolarAngleAxis dataKey="system" tick={{ fontSize: 10, fill: 'var(--color-text-dim)' }} />
-                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9 }} />
-                        <Radar dataKey="score" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.25} strokeWidth={2} />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  </div>
-                )}
-                {pieData.length > 0 && (
-                  <div className="sa-chart-box">
-                    <h4>Risk Distribution</h4>
-                    <ResponsiveContainer width="100%" height={220}>
-                      <PieChart>
-                        <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, value }) => `${name.slice(0, 8)}… ${value}%`}>
-                          {pieData.map((_, i) => <Cell key={i} fill={Q[i % Q.length]} />)}
-                        </Pie>
-                        <Tooltip formatter={(v) => [`${v}%`, 'Confidence']} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                )}
-              </div>
+              <SymptomChartsSection
+                confidenceData={significantPredictions}
+                bodyData={bodyData}
+                pieData={pieData}
+              />
 
               <div className="sa-disclaimer">
                 <span>⚠️</span>

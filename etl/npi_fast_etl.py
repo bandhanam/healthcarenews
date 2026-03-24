@@ -1,18 +1,28 @@
 """
 NPI Fast ETL - Optimized for CockroachDB
 
+Loads the full NPPES file into npi_providers (~7–9 million rows).
+By default existing rows are NEVER updated (ON CONFLICT DO NOTHING); only new
+NPIs are inserted. Use --upsert if you need to refresh existing records.
+If you only see ~2.5M rows: the run was likely interrupted. Re-run the same
+command (with --skip-download if the file is already in ./data/) and it will
+resume from the last saved row. Use --no-resume to start from row 0.
+
 Optimizations:
-- Multi-row INSERT (1000 rows per statement) - 10x faster
-- Larger batch commits (10,000 records)
+- Multi-row INSERT (100 rows per statement; tune ROWS_PER_INSERT / COMMIT_BATCH)
+- Frequent commits (default every 500 rows) for stability on long runs
 - Disabled autocommit for batch transactions
 - Simplified schema for faster writes
 - Progress every 10 seconds
+- Optional download of full NPPES file (~8GB)
+- Resume: state saved to data/npi_fast_etl_state.json; re-run to continue after interrupt
 
 Author: Healthcare News ETL
 """
 
 import os
 import sys
+import json
 import requests
 import zipfile
 import csv
@@ -38,10 +48,12 @@ logger = logging.getLogger(__name__)
 DATABASE_URL = os.getenv('DATABASE_URL')
 NPPES_BASE_URL = "https://download.cms.gov/nppes"
 DATA_DIR = "./data"
+STATE_FILE = os.path.join(DATA_DIR, "npi_fast_etl_state.json")
 
-# Optimized batch sizes
-ROWS_PER_INSERT = 500  # Multi-row insert size
-COMMIT_BATCH = 10000   # Commit every N records
+# Batch sizes (smaller = more frequent commits; safer for long runs / flaky connections)
+ROWS_PER_INSERT = 100   # Rows per INSERT statement
+COMMIT_BATCH = 500      # Commit after this many rows loaded (since last commit)
+STATE_SAVE_INTERVAL = 500  # Save resume state every N rows (align with commit)
 
 
 def get_latest_nppes_url():
@@ -66,10 +78,84 @@ def get_latest_nppes_url():
             if response.status_code == 200:
                 logger.info(f"Found: {filename}")
                 return url, filename
-        except:
+        except Exception:
             continue
     
     raise ValueError("No NPPES file found")
+
+
+def download_file(url, filename):
+    """Download NPPES file with progress. Full file is ~8GB and has ~7–9M rows."""
+    os.makedirs(DATA_DIR, exist_ok=True)
+    filepath = os.path.join(DATA_DIR, filename)
+    
+    if os.path.exists(filepath):
+        try:
+            response = requests.head(url, timeout=10)
+            expected_size = int(response.headers.get('content-length', 0))
+            actual_size = os.path.getsize(filepath)
+            if expected_size > 0 and actual_size == expected_size:
+                logger.info(f"File already downloaded: {filepath} ({actual_size / (1024**3):.2f} GB)")
+                return filepath
+        except Exception:
+            pass
+    
+    logger.info(f"Downloading {url}... (full file ~8GB, ~7–9M rows; may take 30–60 min)")
+    response = requests.get(url, stream=True, timeout=60)
+    response.raise_for_status()
+    total_size = int(response.headers.get('content-length', 0))
+    downloaded = 0
+    with open(filepath, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=1024 * 1024):
+            f.write(chunk)
+            downloaded += len(chunk)
+            if total_size > 0:
+                pct = (downloaded / total_size) * 100
+                sys.stdout.write(f"\rDownloading: {pct:.1f}% ({downloaded / (1024**3):.1f} GB)")
+                sys.stdout.flush()
+    print()
+    logger.info(f"Download complete: {filepath}")
+    return filepath
+
+
+def load_state(zip_filepath, resume_enabled):
+    """Load resume state. Returns row number to resume from (0 = start from beginning)."""
+    if not resume_enabled:
+        return 0
+    if not zip_filepath or not os.path.exists(STATE_FILE):
+        return 0
+    try:
+        with open(STATE_FILE, 'r') as f:
+            state = json.load(f)
+        # Only resume if same file
+        base = os.path.basename(zip_filepath)
+        if state.get('filename') != base:
+            return 0
+        if state.get('status') == 'completed':
+            return 0
+        row = int(state.get('last_processed_row', 0))
+        if row > 0:
+            logger.info(f"Resume: continuing from row {row:,} (use --no-resume to start fresh)")
+        return row
+    except Exception as e:
+        logger.debug(f"Could not load state: {e}")
+        return 0
+
+
+def save_state(zip_filepath, row_count, status='running'):
+    """Save resume state so run can be resumed after interrupt."""
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        base = os.path.basename(zip_filepath) if zip_filepath else None
+        with open(STATE_FILE, 'w') as f:
+            json.dump({
+                'filename': base,
+                'last_processed_row': row_count,
+                'status': status,
+                'updated_at': datetime.now().isoformat()
+            }, f, indent=0)
+    except Exception as e:
+        logger.warning(f"Could not save state: {e}")
 
 
 def create_table(conn):
@@ -154,8 +240,11 @@ def sql_value(val):
     return f"'{val}'"
 
 
-def build_multi_insert(records):
-    """Build multi-row INSERT statement"""
+def build_multi_insert(records, insert_only=False):
+    """Build multi-row INSERT statement.
+    insert_only=True: ON CONFLICT DO NOTHING (existing rows are never touched).
+    insert_only=False: ON CONFLICT DO UPDATE (upsert).
+    """
     if not records:
         return None
     
@@ -163,37 +252,17 @@ def build_multi_insert(records):
             'organization_name', 'address_1', 'city', 'state', 'zip',
             'phone', 'primary_taxonomy', 'last_update_date', 'record_hash']
     
-    values_list = []
-    for r in records:
-        vals = [sql_value(r.get(c)) for c in cols]
-        values_list.append(f"({', '.join(vals)})")
-    
-    sql = f"""
-    INSERT INTO npi_providers ({', '.join(cols)}, updated_at)
-    VALUES {', '.join(v + ', CURRENT_TIMESTAMP)' if v.endswith(')') else v for v in values_list)}
-    ON CONFLICT (npi) DO UPDATE SET
-        entity_type = EXCLUDED.entity_type,
-        first_name = EXCLUDED.first_name,
-        last_name = EXCLUDED.last_name,
-        credential = EXCLUDED.credential,
-        organization_name = EXCLUDED.organization_name,
-        address_1 = EXCLUDED.address_1,
-        city = EXCLUDED.city,
-        state = EXCLUDED.state,
-        zip = EXCLUDED.zip,
-        phone = EXCLUDED.phone,
-        primary_taxonomy = EXCLUDED.primary_taxonomy,
-        last_update_date = EXCLUDED.last_update_date,
-        record_hash = EXCLUDED.record_hash,
-        updated_at = CURRENT_TIMESTAMP
-    WHERE npi_providers.record_hash IS DISTINCT FROM EXCLUDED.record_hash
-    """.replace(", CURRENT_TIMESTAMP)", ")")
-    
-    # Fix the values to include updated_at
     fixed_values = []
     for r in records:
         vals = [sql_value(r.get(c)) for c in cols]
         fixed_values.append(f"({', '.join(vals)}, CURRENT_TIMESTAMP)")
+    
+    if insert_only:
+        return f"""
+    INSERT INTO npi_providers ({', '.join(cols)}, updated_at)
+    VALUES {', '.join(fixed_values)}
+    ON CONFLICT (npi) DO NOTHING
+    """
     
     return f"""
     INSERT INTO npi_providers ({', '.join(cols)}, updated_at)
@@ -217,10 +286,18 @@ def build_multi_insert(records):
     """
 
 
-def process_file(zip_filepath, conn):
-    """Process with multi-row inserts"""
+def process_file(zip_filepath, conn, resume_from=0, insert_only=False):
+    """Process with multi-row inserts. resume_from = row number to start from (0 = from start).
+    insert_only=True: only INSERT new NPIs; ON CONFLICT DO NOTHING so existing rows are never updated.
+    """
     
     logger.info(f"Processing: {zip_filepath}")
+    if resume_from > 0:
+        logger.info(f"Resuming from row {resume_from:,} (skipping to resume point...)")
+    if insert_only:
+        logger.info("Insert-only: existing rows will NOT be updated (ON CONFLICT DO NOTHING).")
+    else:
+        logger.info("Upsert mode: existing NPIs may be updated when data changes.")
     
     with zipfile.ZipFile(zip_filepath, 'r') as zf:
         csv_files = [f for f in zf.namelist() if 'npidata' in f.lower() and f.endswith('.csv')]
@@ -234,52 +311,68 @@ def process_file(zip_filepath, conn):
             reader = csv.DictReader(TextIOWrapper(csvfile, encoding='utf-8', errors='replace'))
             
             batch = []
-            commit_batch = []
             row_count = 0
             loaded = 0
+            rows_since_commit = 0
             start_time = datetime.now()
             last_log = start_time
+            last_state_save = 0
             
             cur = conn.cursor()
             
             for row in reader:
                 row_count += 1
                 
+                # Skip rows when resuming
+                if row_count <= resume_from:
+                    if resume_from > 0 and row_count % 500000 == 0:
+                        logger.info(f"Skipping to resume point... {row_count:,} / {resume_from:,}")
+                    continue
+                
                 try:
                     record = transform(row)
                     if not record['npi']:
                         continue
                     batch.append(record)
-                except:
+                except Exception:
                     continue
                 
                 # Multi-row insert
                 if len(batch) >= ROWS_PER_INSERT:
-                    sql = build_multi_insert(batch)
+                    sql = build_multi_insert(batch, insert_only=insert_only)
+                    n = len(batch)
                     try:
                         cur.execute(sql)
-                        loaded += len(batch)
-                    except Exception as e:
+                        loaded += n
+                        rows_since_commit += n
+                    except Exception:
                         # Fallback to individual inserts on error
                         for r in batch:
                             try:
-                                cur.execute(build_multi_insert([r]))
+                                cur.execute(build_multi_insert([r], insert_only=insert_only))
                                 loaded += 1
-                            except:
+                                rows_since_commit += 1
+                            except Exception:
                                 pass
                     batch = []
                     
-                    # Commit periodically
-                    if loaded % COMMIT_BATCH < ROWS_PER_INSERT:
+                    # Commit every COMMIT_BATCH rows (reliable regardless of ROWS_PER_INSERT)
+                    if rows_since_commit >= COMMIT_BATCH:
                         conn.commit()
+                        rows_since_commit = 0
+                    
+                    # Save resume state
+                    if row_count - last_state_save >= STATE_SAVE_INTERVAL:
+                        save_state(zip_filepath, row_count, 'running')
+                        last_state_save = row_count
                 
                 # Progress
                 now = datetime.now()
                 if (now - last_log).total_seconds() >= 10:
                     elapsed = (now - start_time).total_seconds()
-                    rate = row_count / elapsed
-                    eta = (7500000 - row_count) / rate / 60 if rate > 0 else 0
-                    
+                    rows_done = row_count - resume_from
+                    rate = rows_done / elapsed if elapsed > 0 else 0
+                    eta = (9000000 - row_count) / rate / 60 if rate > 0 else 0
                     logger.info(
                         f"Rows: {row_count:,} | Loaded: {loaded:,} | "
                         f"Rate: {rate:,.0f}/sec | ETA: {eta:.0f} min"
@@ -289,32 +382,50 @@ def process_file(zip_filepath, conn):
             # Final batch
             if batch:
                 try:
-                    cur.execute(build_multi_insert(batch))
-                    loaded += len(batch)
-                except:
+                    cur.execute(build_multi_insert(batch, insert_only=insert_only))
+                    n = len(batch)
+                    loaded += n
+                    rows_since_commit += n
+                except Exception:
                     pass
             
             conn.commit()
             cur.close()
             
-            elapsed = (datetime.now() - start_time).total_seconds()
+            # Mark completed so next run starts fresh
+            save_state(zip_filepath, row_count, 'completed')
             
+            elapsed = (datetime.now() - start_time).total_seconds()
             logger.info("=" * 50)
             logger.info("ETL COMPLETE!")
             logger.info(f"Total Rows: {row_count:,}")
             logger.info(f"Loaded: {loaded:,}")
             logger.info(f"Time: {elapsed/60:.1f} min")
             logger.info(f"Rate: {row_count/elapsed:,.0f}/sec")
+            if loaded < 5_000_000:
+                logger.info("NOTE: Full NPPES has ~7–9M rows. If you expected more, re-run without --skip-download to use the full file.")
             logger.info("=" * 50)
 
 
-def run_etl(skip_download=False):
-    """Main entry point"""
+def run_etl(skip_download=False, resume=True, incremental=False, allow_updates=False):
+    """Main entry point. resume=True: continue from last saved row if same file.
+    incremental=True: same as skip_download + resume (use existing file, resume from state).
+    allow_updates=False (default): never update existing rows (ON CONFLICT DO NOTHING).
+    allow_updates=True (--upsert): upsert when NPI exists (may change existing data).
+    """
+    if incremental:
+        skip_download = True
+        resume = True
+        logger.info("Incremental load: using existing file; will resume from last position if state exists.")
     
     logger.info("=" * 50)
     logger.info("NPI FAST ETL")
     logger.info(f"Insert batch: {ROWS_PER_INSERT}")
     logger.info(f"Commit batch: {COMMIT_BATCH}")
+    logger.info(f"Resume: {'enabled (use --no-resume to start fresh)' if resume else 'disabled'}")
+    logger.info(f"Existing rows: {'may be UPDATED (--upsert)' if allow_updates else 'NOT touched (insert new NPIs only)'}")
+    if skip_download:
+        logger.info("Mode: incremental (existing file in ./data/)")
     logger.info("=" * 50)
     
     conn = psycopg2.connect(DATABASE_URL)
@@ -326,15 +437,17 @@ def run_etl(skip_download=False):
         if skip_download:
             files = [f for f in os.listdir(DATA_DIR) if 'NPPES' in f and f.endswith('.zip')]
             if not files:
-                raise ValueError("No file found")
+                raise ValueError("No file found in ./data/. Run without --skip-download to download.")
             zip_filepath = os.path.join(DATA_DIR, sorted(files)[-1])
         else:
             url, filename = get_latest_nppes_url()
-            # Download logic here
-            zip_filepath = os.path.join(DATA_DIR, filename)
+            zip_filepath = download_file(url, filename)
         
         logger.info(f"Using: {zip_filepath}")
-        process_file(zip_filepath, conn)
+        resume_from = load_state(zip_filepath, resume)
+        # Default: never update existing rows (ON CONFLICT DO NOTHING). Use --upsert to allow updates.
+        insert_only = not allow_updates
+        process_file(zip_filepath, conn, resume_from=resume_from, insert_only=insert_only)
         
         # Stats
         with conn.cursor() as cur:
@@ -347,7 +460,15 @@ def run_etl(skip_download=False):
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--skip-download', action='store_true')
+    parser = argparse.ArgumentParser(description='NPI Fast ETL with resume support')
+    parser.add_argument('--skip-download', action='store_true', help='Use existing zip in ./data/ (incremental load)')
+    parser.add_argument('--incremental', action='store_true', help='Incremental load: use existing file, resume from last position')
+    parser.add_argument('--no-resume', action='store_true', help='Start from row 0 (ignore saved state)')
+    parser.add_argument('--upsert', action='store_true', help='Allow updating existing NPIs (default: insert new only, never touch existing)')
     args = parser.parse_args()
-    run_etl(skip_download=args.skip_download)
+    run_etl(
+        skip_download=args.skip_download or args.incremental,
+        resume=not args.no_resume,
+        incremental=args.incremental,
+        allow_updates=args.upsert,
+    )

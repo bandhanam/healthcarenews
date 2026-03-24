@@ -82,20 +82,6 @@ const SECTIONS = [
         color: '#0891b2',
         bg: 'linear-gradient(135deg, #ecfeff, #cffafe)',
       },
-      {
-        title: 'HealthScan',
-        path: '/health-scan',
-        icon: (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2Z" />
-            <polyline points="14,2 14,8 20,8" />
-            <path d="M12 18v-6M9 15l3 3 3-3" />
-          </svg>
-        ),
-        description: 'Upload lab reports and instantly analyze values. Get normal range comparisons, trend tracking, and health summary insights.',
-        color: '#059669',
-        bg: 'linear-gradient(135deg, #ecfdf5, #d1fae5)',
-      },
     ],
   },
   {
@@ -511,7 +497,7 @@ const APP_GROUPS = [
 ];
 
 const STATS = [
-  { value: '32+', label: 'Specialized Tools' },
+  { value: '31+', label: 'Specialized Tools' },
   { value: '50+', label: 'Data Sources' },
   { value: 'AI', label: 'Powered Insights' },
   { value: '0', label: 'Data Sent to Cloud' },

@@ -319,7 +319,6 @@ function MedPredictPage() {
             type="file"
             accept={ACCEPT}
             onChange={handleFileChange}
-            capture="environment"
             hidden
           />
           <div className="mp-upload-visual">

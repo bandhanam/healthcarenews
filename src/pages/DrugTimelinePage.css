@@ -5,6 +5,7 @@
 .dt-subtitle { color: var(--color-text-dim); font-size: 0.92rem; max-width: 560px; margin: 0 auto; line-height: 1.5; }
 
 .dt-search-card { position: relative; margin-bottom: 1.5rem; }
+.dt-search-wrap { position: relative; z-index: 5; }
 .dt-search-bar { display: flex; align-items: center; background: var(--color-bg-card); border: 2px solid var(--color-border); border-radius: 16px; padding: 0.5rem 0.5rem 0.5rem 1rem; box-shadow: 0 2px 20px rgba(0,0,0,0.04); transition: border-color 0.2s, box-shadow 0.2s; }
 .dt-search-bar:focus-within { border-color: #059669; box-shadow: 0 2px 20px rgba(0,0,0,0.04), 0 0 0 3px rgba(5,150,105,0.12); }
 .dt-search-icon { flex-shrink: 0; color: var(--color-text-dim); margin-right: 0.5rem; }
@@ -20,6 +21,40 @@
 .dt-qp-label { font-size: 0.75rem; font-weight: 600; color: var(--color-text-dim); }
 .dt-qp-btn { padding: 0.25rem 0.65rem; border-radius: 14px; border: 1px solid var(--color-border); background: var(--color-bg); font-size: 0.75rem; color: var(--color-text); cursor: pointer; transition: all 0.15s; }
 .dt-qp-btn:hover { border-color: #059669; background: rgba(5,150,105,0.04); color: #059669; }
+
+.dt-autocomplete {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  margin: 0;
+  padding: 0.35rem 0;
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  z-index: 30;
+}
+.dt-autocomplete-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 1rem;
+  border: none;
+  background: transparent;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.dt-autocomplete-item:hover,
+.dt-autocomplete-item.highlighted {
+  background: rgba(5, 150, 105, 0.08);
+  color: #059669;
+}
 
 .dt-error-msg { padding: 0.85rem 1.1rem; border-radius: 14px; font-size: 0.88rem; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: #92400e; margin-bottom: 1.25rem; }
 .dt-loading { text-align: center; padding: 2.5rem; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: 16px; margin-bottom: 1.5rem; }

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -18,6 +18,18 @@ const POPULAR = [
   { label: 'Remdesivir', q: 'remdesivir' },
   { label: 'Dupixent', q: 'dupilumab' },
 ];
+
+const DRUG_NAME_SEED = [
+  ...new Set(POPULAR.flatMap((p) => [p.label, p.q])),
+  'Pembrolizumab', 'Nivolumab', 'Atezolizumab', 'Trastuzumab', 'Bevacizumab',
+  'Atorvastatin', 'Amlodipine', 'Omeprazole', 'Lisinopril', 'Ibuprofen',
+  'Paracetamol', 'Acetaminophen', 'Aspirin', 'Dexamethasone', 'Rituximab',
+  'Infliximab', 'Semaglutide', 'Wegovy', 'Opdivo', 'Herceptin', 'Entresto',
+  'Jardiance', 'Eliquis', 'Xarelto', 'Cosentyx', 'Stelara', 'Skyrizi',
+];
+
+const AUTOCOMPLETE_MIN_LEN = 2;
+const AUTOCOMPLETE_DEBOUNCE_MS = 280;
 
 function phaseLabel(p) {
   return (p || '').replace('EARLY_PHASE1', 'Early Phase 1').replace('PHASE', 'Phase ').replace('NA', 'N/A');
@@ -98,6 +110,94 @@ function DrugTimelinePage() {
   const [error, setError] = useState('');
   const [trials, setTrials] = useState([]);
   const [approvals, setApprovals] = useState([]);
+  const [apiSuggestions, setApiSuggestions] = useState([]);
+  const [suggestDismissed, setSuggestDismissed] = useState(false);
+  const [highlightIdx, setHighlightIdx] = useState(-1);
+  const searchWrapRef = useRef(null);
+  const listRef = useRef(null);
+
+  const staticSuggestions = useMemo(() => {
+    const q = query.trim();
+    if (q.length < AUTOCOMPLETE_MIN_LEN) return [];
+    const ql = q.toLowerCase();
+    return DRUG_NAME_SEED.filter((s) => s.toLowerCase().includes(ql));
+  }, [query]);
+
+  const suggestions = useMemo(() => {
+    const seen = new Set();
+    const out = [];
+    for (const s of [...staticSuggestions, ...apiSuggestions]) {
+      const t = String(s).trim();
+      if (!t) continue;
+      const k = t.toLowerCase();
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push(t);
+      if (out.length >= 12) break;
+    }
+    return out;
+  }, [staticSuggestions, apiSuggestions]);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < AUTOCOMPLETE_MIN_LEN) {
+      setApiSuggestions([]);
+      return;
+    }
+    const ac = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/trials/search?q=${encodeURIComponent(q)}&pageSize=25`,
+          { signal: ac.signal },
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        const names = new Set();
+        const ql = q.toLowerCase();
+        (data.studies || []).forEach((study) => {
+          (study.interventions || []).forEach((iv) => {
+            const name = (iv.name || '').trim();
+            if (name.length < 2) return;
+            const type = (iv.type || '').toUpperCase();
+            if (type && type !== 'DRUG' && type !== 'BIOLOGICAL') return;
+            if (name.toLowerCase().includes(ql)) names.add(name);
+          });
+        });
+        setApiSuggestions(Array.from(names).slice(0, 10));
+      } catch (e) {
+        if (e.name !== 'AbortError') setApiSuggestions([]);
+      }
+    }, AUTOCOMPLETE_DEBOUNCE_MS);
+    return () => {
+      clearTimeout(t);
+      ac.abort();
+    };
+  }, [query]);
+
+  useEffect(() => {
+    setHighlightIdx(-1);
+  }, [query]);
+
+  const listVisible =
+    !suggestDismissed &&
+    query.trim().length >= AUTOCOMPLETE_MIN_LEN &&
+    suggestions.length > 0;
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target)) setSuggestDismissed(true);
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (listRef.current && highlightIdx >= 0) {
+      const el = listRef.current.children[highlightIdx];
+      if (el) el.scrollIntoView({ block: 'nearest' });
+    }
+  }, [highlightIdx]);
 
   const search = useCallback(async (q) => {
     if (!q.trim()) return;
@@ -129,10 +229,39 @@ function DrugTimelinePage() {
     }
   }, []);
 
+  const pickSuggestion = useCallback(
+    (q) => {
+      setQuery(q);
+      setSuggestDismissed(true);
+      setHighlightIdx(-1);
+      search(q);
+    },
+    [search],
+  );
+
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
     search(query);
   }, [query, search]);
+
+  const handleSearchKeyDown = useCallback(
+    (e) => {
+      if (!listVisible) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setHighlightIdx((i) => Math.min(i + 1, suggestions.length - 1));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setHighlightIdx((i) => Math.max(i - 1, 0));
+      } else if (e.key === 'Enter' && highlightIdx >= 0) {
+        e.preventDefault();
+        pickSuggestion(suggestions[highlightIdx]);
+      } else if (e.key === 'Escape') {
+        setSuggestDismissed(true);
+      }
+    },
+    [listVisible, suggestions, highlightIdx, pickSuggestion],
+  );
 
   const phaseDistribution = useMemo(() => {
     const map = {};
@@ -245,14 +374,49 @@ function DrugTimelinePage() {
       </div>
 
       <form className="dt-search-card" onSubmit={handleSubmit}>
-        <div className="dt-search-bar">
-          <svg className="dt-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-          <input className="dt-search-input" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Enter drug name (e.g., semaglutide, pembrolizumab)..." />
-          <button type="submit" className={`dt-search-btn ${query.trim() ? 'active' : ''}`} disabled={!query.trim() || loading}>
-            {loading ? <div className="dt-btn-spin" /> : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6" /></svg>
-            )}
-          </button>
+        <div className="dt-search-wrap" ref={searchWrapRef}>
+          <div className="dt-search-bar">
+            <svg className="dt-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            <input
+              className="dt-search-input"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setSuggestDismissed(false);
+              }}
+              onFocus={() => {
+                if (query.trim().length >= AUTOCOMPLETE_MIN_LEN) setSuggestDismissed(false);
+              }}
+              onKeyDown={handleSearchKeyDown}
+              placeholder="Enter drug name (e.g., semaglutide, pembrolizumab)..."
+              autoComplete="off"
+              aria-autocomplete="list"
+              aria-expanded={listVisible}
+              aria-controls="dt-drug-suggest-list"
+              role="combobox"
+            />
+            <button type="submit" className={`dt-search-btn ${query.trim() ? 'active' : ''}`} disabled={!query.trim() || loading}>
+              {loading ? <div className="dt-btn-spin" /> : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6" /></svg>
+              )}
+            </button>
+          </div>
+          {listVisible && (
+            <ul id="dt-drug-suggest-list" className="dt-autocomplete" ref={listRef} role="listbox">
+              {suggestions.map((s, i) => (
+                <li key={`${s}-${i}`} role="option" aria-selected={i === highlightIdx}>
+                  <button
+                    type="button"
+                    className={`dt-autocomplete-item ${i === highlightIdx ? 'highlighted' : ''}`}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => pickSuggestion(s)}
+                  >
+                    {s}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <div className="dt-quick-picks">
           <span className="dt-qp-label">Popular:</span>
